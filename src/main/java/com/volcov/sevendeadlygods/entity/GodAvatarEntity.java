@@ -1,5 +1,6 @@
 package com.volcov.sevendeadlygods.entity;
 
+import com.volcov.sevendeadlygods.advancement.ModAdvancements;
 import com.volcov.sevendeadlygods.favor.PlayerSinData;
 import com.volcov.sevendeadlygods.favor.SinFavorManager;
 import com.volcov.sevendeadlygods.god.SinGod;
@@ -59,8 +60,8 @@ import java.util.UUID;
 /**
  * Avatar fisico de uno de los 7 Dioses de los Pecados Capitales.
  * - Escala de altura: 1.5x respecto al jugador.
- * - Salud: 500 puntos de vida.
- * - Resistencia al dano del 80%, regeneracion y efectos de duracion infinita.
+ * - Salud: 400 puntos de vida.
+ * - Resistencia al dano del 50%, regeneracion equilibrada y efectos divinos permanentes.
  * - Armas y armaduras equipadas con encantamientos mas alla del limite de la mesa de encantamientos.
  * - Se manifiesta para cazar al jugador SOLO a -100 de favor, o de forma benevola SOLO entre +91 y +100.
  */
@@ -81,6 +82,11 @@ public class GodAvatarEntity extends PathfinderMob {
     private UUID targetPlayerUuid;
     private boolean relicGifted = false;
     private int manifestationTicks = 0;
+    private boolean villageRaidAvatar = false;
+    @Nullable
+    private BlockPos raidAltarPos;
+    @Nullable
+    private UUID raidVillageId;
 
     public GodAvatarEntity(EntityType<? extends GodAvatarEntity> entityType, Level level) {
         super(entityType, level);
@@ -89,7 +95,7 @@ public class GodAvatarEntity extends PathfinderMob {
 
     public static AttributeSupplier.Builder createAttributes() {
         return PathfinderMob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 500.0D)
+                .add(Attributes.MAX_HEALTH, 400.0D)
                 .add(Attributes.SCALE, 1.5D)
                 .add(Attributes.MOVEMENT_SPEED, 0.36D)
                 .add(Attributes.ATTACK_DAMAGE, 18.0D)
@@ -139,8 +145,23 @@ public class GodAvatarEntity extends PathfinderMob {
                 10,
                 true,
                 false,
-                (candidate, serverLevel) -> this.isWrathHunter()
-                        && (this.targetPlayerUuid == null || candidate.getUUID().equals(this.targetPlayerUuid))
+                (candidate, serverLevel) -> {
+                    if (this.isWrathHunter()) {
+                        return this.targetPlayerUuid == null || candidate.getUUID().equals(this.targetPlayerUuid);
+                    }
+                    if (this.villageRaidAvatar && candidate instanceof ServerPlayer sp) {
+                        return SinFavorManager.getFavor(sp, this.getGod()) <= -40;
+                    }
+                    return false;
+                }
+        ));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(
+                this,
+                GodAvatarEntity.class,
+                10,
+                true,
+                false,
+                (candidate, serverLevel) -> candidate instanceof GodAvatarEntity other && other.getGod() != this.getGod()
         ));
         this.targetSelector.addGoal(2, new DefendChampionTargetGoal(this));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(
@@ -153,11 +174,14 @@ public class GodAvatarEntity extends PathfinderMob {
                     if (this.isWrathHunter()) {
                         return false;
                     }
-                    if (!(candidate instanceof Enemy) && !(candidate instanceof GodAcolyteEntity acolyte && !acolyte.isAlliedProtector())) {
+                    if (candidate instanceof GodAcolyteEntity acolyte) {
+                        return acolyte.getGod() != this.getGod();
+                    }
+                    if (!(candidate instanceof Enemy)) {
                         return false;
                     }
-                    if (candidate instanceof GodAcolyteEntity acolyte && acolyte.isAlliedProtector()) {
-                        return false;
+                    if (this.villageRaidAvatar) {
+                        return candidate.distanceToSqr(this) <= 32.0D * 32.0D;
                     }
                     Player champ = this.getChampionPlayer();
                     if (champ != null) {
@@ -183,7 +207,7 @@ public class GodAvatarEntity extends PathfinderMob {
         // Equipar armas y armaduras sobre-encantadas
         DivineEquipmentHelper.equipAvatarWithOverleveledGear(level, this, god);
 
-        // Aplicar efectos de duracion infinita (Regeneracion, Resistencia IV = 80%, Fuerza, Resistencia al Fuego)
+        // Aplicar efectos de duracion infinita (Regeneracion I, Resistencia II = 40%, Fuerza, Resistencia al Fuego)
         applyInfiniteDivineEffects();
         this.setHealth(this.getMaxHealth());
 
@@ -192,8 +216,8 @@ public class GodAvatarEntity extends PathfinderMob {
 
     private void applyInfiniteDivineEffects() {
         int inf = MobEffectInstance.INFINITE_DURATION;
-        this.addEffect(new MobEffectInstance(MobEffects.REGENERATION, inf, 1, false, false));
-        this.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, inf, 3, false, false)); // 80% reduccion
+        this.addEffect(new MobEffectInstance(MobEffects.REGENERATION, inf, 0, false, false));
+        this.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, inf, 1, false, false)); // 40% reduccion
         this.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, inf, 0, false, false));
         this.addEffect(new MobEffectInstance(MobEffects.STRENGTH, inf, 1, false, false));
     }
@@ -215,8 +239,35 @@ public class GodAvatarEntity extends PathfinderMob {
         this.targetPlayerUuid = targetPlayerUuid;
     }
 
+    public boolean isVillageRaidAvatar() {
+        return this.villageRaidAvatar;
+    }
+
+    public void setVillageRaidAvatar(boolean villageRaidAvatar, @Nullable BlockPos altarPos) {
+        setVillageRaidAvatar(villageRaidAvatar, null, altarPos);
+    }
+
+    public void setVillageRaidAvatar(boolean villageRaidAvatar, @Nullable UUID villageId, @Nullable BlockPos altarPos) {
+        this.villageRaidAvatar = villageRaidAvatar;
+        this.raidVillageId = villageId;
+        this.raidAltarPos = altarPos != null ? altarPos.immutable() : null;
+    }
+
+    @Nullable
+    public BlockPos getRaidAltarPos() {
+        return this.raidAltarPos;
+    }
+
+    @Nullable
+    public UUID getRaidVillageId() {
+        return this.raidVillageId;
+    }
+
     @Nullable
     public Player getChampionPlayer() {
+        if (this.villageRaidAvatar) {
+            return null;
+        }
         if (this.targetPlayerUuid != null) {
             Player player = this.level().getPlayerByUUID(this.targetPlayerUuid);
             if (player != null && player.isAlive() && !player.isSpectator()) {
@@ -249,9 +300,9 @@ public class GodAvatarEntity extends PathfinderMob {
                 DivineInterventionScheduler.onAvatarTick(this);
             }
 
-            // Asegurar regeneracion continua (500 HP max)
-            if (this.manifestationTicks % 20 == 0 && this.getHealth() < this.getMaxHealth()) {
-                this.heal(2.5F);
+            // Asegurar regeneracion continua moderada (400 HP max)
+            if (this.manifestationTicks % 40 == 0 && this.getHealth() < this.getMaxHealth()) {
+                this.heal(1.0F);
             }
 
             if (this.isWrathHunter() && this.targetPlayerUuid != null && this.manifestationTicks % 20 == 0) {
@@ -269,8 +320,25 @@ public class GodAvatarEntity extends PathfinderMob {
                 }
             }
 
+            // Si participa en un asedio de aldea, permanecer cerca del Altar Mayor cuando no tenga objetivo
+            if (this.villageRaidAvatar && this.raidAltarPos != null && this.manifestationTicks % 30 == 0 && this.getTarget() == null) {
+                double distSq = this.distanceToSqr(
+                        this.raidAltarPos.getX() + 0.5D,
+                        this.raidAltarPos.getY(),
+                        this.raidAltarPos.getZ() + 0.5D
+                );
+                if (distSq > 576.0D && this.getNavigation().isDone()) {
+                    this.getNavigation().moveTo(
+                            this.raidAltarPos.getX() + 0.5D,
+                            this.raidAltarPos.getY(),
+                            this.raidAltarPos.getZ() + 0.5D,
+                            1.1D
+                    );
+                }
+            }
+
             // Si es una manifestacion benevola (+91 a +100), permanece 4 minutos (4800 ticks) conversando y luego asciende
-            if (!this.isWrathHunter() && this.manifestationTicks > 4800) {
+            if (!this.isWrathHunter() && !this.villageRaidAvatar && this.manifestationTicks > 4800) {
                 serverLevel.sendParticles(ParticleTypes.END_ROD, getX(), getY() + 1.5D, getZ(), 60, 0.5D, 1.0D, 0.5D, 0.1D);
                 this.discard();
             }
@@ -297,11 +365,11 @@ public class GodAvatarEntity extends PathfinderMob {
     }
 
     /**
-     * Garantia explicita de 80% de resistencia al dano en el Avatar.
+     * Reduccion balanceada al 50% de resistencia innata al dano en el Avatar.
      */
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
-        float reducedAmount = amount * 0.20F; // 80% de resistencia al dano
+        float reducedAmount = amount * 0.50F; // 50% de resistencia al dano innata
         return super.hurtServer(level, source, reducedAmount);
     }
 
@@ -487,12 +555,13 @@ public class GodAvatarEntity extends PathfinderMob {
         }
         ServerPlayer killerPlayer = directKiller instanceof ServerPlayer sp ? sp : null;
 
-        // Transmitir el mensaje de derrota únicamente a los jugadores en la misma dimensión dentro de 64 bloques
+        // Transmitir el mensaje de derrota y conceder el avance de deicidio a los participantes dentro de 64 bloques
         double maxDistSq = 64.0D * 64.0D;
         boolean killerNotified = false;
         for (ServerPlayer nearbyPlayer : serverLevel.players()) {
             if (nearbyPlayer.distanceToSqr(this) <= maxDistSq) {
                 nearbyPlayer.sendSystemMessage(broadcastMsg);
+                ModAdvancements.award(nearbyPlayer, "slay_god_avatar");
                 if (killerPlayer != null && nearbyPlayer.getUUID().equals(killerPlayer.getUUID())) {
                     killerNotified = true;
                 }
@@ -500,6 +569,7 @@ public class GodAvatarEntity extends PathfinderMob {
         }
         if (killerPlayer != null && !killerNotified) {
             killerPlayer.sendSystemMessage(broadcastMsg);
+            ModAdvancements.award(killerPlayer, "slay_god_avatar");
         }
 
         // Efectos sonoros y partículas de deicidio
@@ -614,6 +684,13 @@ public class GodAvatarEntity extends PathfinderMob {
         output.putBoolean("wrath_hunter", isWrathHunter());
         output.putBoolean("relic_gifted", this.relicGifted);
         output.putInt("manifest_ticks", this.manifestationTicks);
+        output.putBoolean("village_raid_avatar", this.villageRaidAvatar);
+        if (this.raidAltarPos != null) {
+            output.putLong("raid_altar_pos", this.raidAltarPos.asLong());
+        }
+        if (this.raidVillageId != null) {
+            output.putString("raid_village_id", this.raidVillageId.toString());
+        }
         if (this.targetPlayerUuid != null) {
             output.putString("target_player", this.targetPlayerUuid.toString());
         }
@@ -628,6 +705,17 @@ public class GodAvatarEntity extends PathfinderMob {
         this.entityData.set(DATA_WRATH_HUNTER, wrath);
         this.relicGifted = input.getBooleanOr("relic_gifted", false);
         this.manifestationTicks = input.getIntOr("manifest_ticks", 0);
+        this.villageRaidAvatar = input.getBooleanOr("village_raid_avatar", false);
+        long altarLong = input.getLongOr("raid_altar_pos", Long.MIN_VALUE);
+        this.raidAltarPos = altarLong != Long.MIN_VALUE ? BlockPos.of(altarLong) : null;
+        String raidVillageIdStr = input.getStringOr("raid_village_id", "");
+        if (!raidVillageIdStr.isBlank()) {
+            try {
+                this.raidVillageId = UUID.fromString(raidVillageIdStr);
+            } catch (IllegalArgumentException ignored) {
+                this.raidVillageId = null;
+            }
+        }
         this.bossEvent.setName(god.getAvatarCustomName());
         this.bossEvent.setColor(god.getBossBarColor());
 
@@ -672,7 +760,7 @@ public class GodAvatarEntity extends PathfinderMob {
 
         @Override
         public boolean canUse() {
-            if (this.avatar.isWrathHunter()) {
+            if (this.avatar.isWrathHunter() || this.avatar.isVillageRaidAvatar()) {
                 return false;
             }
             // Si el Avatar esta combatiendo activamente para defender al jugador, ceder el control al combate
@@ -685,7 +773,7 @@ public class GodAvatarEntity extends PathfinderMob {
 
         @Override
         public boolean canContinueToUse() {
-            if (this.avatar.isWrathHunter()) {
+            if (this.avatar.isWrathHunter() || this.avatar.isVillageRaidAvatar()) {
                 return false;
             }
             if (this.avatar.getTarget() != null && this.avatar.getTarget().isAlive()) {

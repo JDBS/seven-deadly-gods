@@ -16,6 +16,7 @@
   "effect.sevendeadlygods.lust_blessing": "Asmodeus's Blessing (Forbidden Charm)",
   "entity.sevendeadlygods.god_acolyte": "Sin Acolyte",
   "entity.sevendeadlygods.god_avatar": "Avatar of the Deadly Sin",
+  "item.sevendeadlygods.divine_war_horn": "Divine War Horn (Herald of Sin)",
 
   "advancements.sevendeadlygods.root.title": "Seven Deadly Gods",
   "advancements.sevendeadlygods.root.description": "The Seven Deadly Sins silently watch the fate of the world.",
@@ -39,7 +40,7 @@
   "advancements.sevendeadlygods.lore_collector_2.title": "Scholar of the Abyss",
   "advancements.sevendeadlygods.lore_collector_2.description": "Gather more than half of the arcane texts (25 sacred books read).",
   "advancements.sevendeadlygods.lore_collector_3.title": "Archivist of the Seven Gods",
-  "advancements.sevendeadlygods.lore_collector_3.description": "Decipher 40 of the 42 sacred tomes recording the history of the unholy pantheon.",
+  "advancements.sevendeadlygods.lore_collector_3.description": "Decipher at least 40 of the 49 sacred tomes recording the history and shrines of the unholy pantheon.",
 
   "advancements.sevendeadlygods.wrath_tier_minor.title": "Condescending Gaze",
   "advancements.sevendeadlygods.wrath_tier_minor.description": "Awaken the displeasure of a deity (-20 Favor). Thunder warns of your transgression.",
@@ -62,5 +63,35 @@
   "advancements.sevendeadlygods.favor_tier_relic.description": "Attain supreme communion (+100 Favor) and claim their Sacred Relic at the altar.",
 
   "advancements.sevendeadlygods.secret_god_answered_call.title": "And Heaven Answered",
-  "advancements.sevendeadlygods.secret_god_answered_call.description": "Your prayers shattered the heavens: a deity physically descended upon your call."
+  "advancements.sevendeadlygods.secret_god_answered_call.description": "Your prayers shattered the heavens: a deity physically descended upon your call.",
+
+  "advancements.sevendeadlygods.village_discovery.title": "Sanctuary of the Faithful",
+  "advancements.sevendeadlygods.village_discovery.description": "Enter a village consecrated to one of the Seven Deadly Sins.",
+  "advancements.sevendeadlygods.divine_trade_master.title": "Pious Patron",
+  "advancements.sevendeadlygods.divine_trade_master.description": "Unlock supreme offerings by completing a Tier 5 trade with a Sentinel Acolyte (Favor >= 60).",
+  "advancements.sevendeadlygods.divine_war_horn_use.title": "Herald of Holy War",
+  "advancements.sevendeadlygods.divine_war_horn_use.description": "Sound the Divine War Horn to declare an incursion against a rival temple.",
+  "advancements.sevendeadlygods.defend_shrine_victory.title": "Bastion of Faith",
+  "advancements.sevendeadlygods.defend_shrine_victory.description": "Repel a holy incursion and defend your deity's consecrated shrine.",
+  "advancements.sevendeadlygods.temple_conquest.title": "Conqueror of Altars",
+  "advancements.sevendeadlygods.temple_conquest.description": "Destroy or reconsecrate a rival temple during a Holy War.",
+  "advancements.sevendeadlygods.village_miracle_restore.title": "Breath of the Gods",
+  "advancements.sevendeadlygods.village_miracle_restore.description": "Revitalize a desolate village by performing a miracle at the altar with a Totem of Undying and a Golden Apple.",
+  "advancements.sevendeadlygods.slay_god_avatar.title": "Deicide",
+  "advancements.sevendeadlygods.slay_god_avatar.description": "Slay a physical manifestation of a God Avatar.",
+
+  "advancements.sevendeadlygods.secret_high_treason.title": "High Treason",
+  "advancements.sevendeadlygods.secret_high_treason.description": "Attack the villagers or altar of your own deity, suffering immediate heresy and punishment.",
+  "advancements.sevendeadlygods.secret_clash_of_the_gods.title": "Clash of the Immortals",
+  "advancements.sevendeadlygods.secret_clash_of_the_gods.description": "Witness two opposing God Avatars descend and clash in the same holy war.",
+  "advancements.sevendeadlygods.secret_ruined_envy_village.title": "Green with Bitter Envy",
+  "advancements.sevendeadlygods.secret_ruined_envy_village.description": "Visit a desolated village whose inhabitants starved in jealousy.",
+  "advancements.sevendeadlygods.secret_sloth_society.title": "Siesta of the Sinners",
+  "advancements.sevendeadlygods.secret_sloth_society.description": "Achieve supreme stillness by resting alongside Belphegor's lethargic flock.",
+  "advancements.sevendeadlygods.secret_pride_humiliation.title": "Kneel Before Royalty",
+  "advancements.sevendeadlygods.secret_pride_humiliation.description": "Bend the knee before the aristocratic subjects of Lucian to earn an audience.",
+  "advancements.sevendeadlygods.secret_greed_tax_paid.title": "Toll of the Golden City",
+  "advancements.sevendeadlygods.secret_greed_tax_paid.description": "Pay a gold nugget toll just to open a storage chest in Mammon's domain.",
+  "advancements.sevendeadlygods.secret_lust_wild_passion.title": "Pheromones of Passion",
+  "advancements.sevendeadlygods.secret_lust_wild_passion.description": "Witness the uncontrollable fertility spreading among animals in Asmodeus's shrine."
 }

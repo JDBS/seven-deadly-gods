@@ -2,6 +2,7 @@ package com.volcov.sevendeadlygods.favor;
 
 import com.volcov.sevendeadlygods.SevenDeadlyGodsMod;
 import com.volcov.sevendeadlygods.advancement.ModAdvancements;
+import com.volcov.sevendeadlygods.block.SinAltarBlock;
 import com.volcov.sevendeadlygods.block.SinAltarBlockEntity;
 import com.volcov.sevendeadlygods.entity.GodAcolyteEntity;
 import com.volcov.sevendeadlygods.entity.GodAvatarEntity;
@@ -9,6 +10,8 @@ import com.volcov.sevendeadlygods.god.SinGod;
 import com.volcov.sevendeadlygods.intervention.DivineInterventionScheduler;
 import com.volcov.sevendeadlygods.lore.SinLoreLibrary;
 import com.volcov.sevendeadlygods.registry.ModMobEffects;
+import com.volcov.sevendeadlygods.village.GodVillageSavedData;
+import com.volcov.sevendeadlygods.village.GodVillageState;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementProgress;
@@ -73,6 +76,11 @@ public final class PlayerSinBehaviorEvents {
             if (still % 600 == 0) {
                 SinFavorManager.addEffort(player, SinGod.SLOTH, 0.5F, "Quietud contemplativa");
                 notifyNearbySlothAltar(serverLevel, player);
+                GodVillageSavedData.get(serverLevel).getVillageAt(player.blockPosition()).ifPresent(v -> {
+                    if (v.patronGod() == SinGod.SLOTH) {
+                        ModAdvancements.award(player, "secret_sloth_society");
+                    }
+                });
             }
         } else {
             data.setSlothStillTicks(0);
@@ -114,6 +122,16 @@ public final class PlayerSinBehaviorEvents {
 
         // Ejecutar el planificador de intervenciones divinas (Enviados, Acolitos, Avatares, Bendiciones)
         DivineInterventionScheduler.tickPlayerInterventions(serverLevel, player, data, gameTime);
+
+        // Descubrimiento de Aldeas Consagradas y Asentamientos Arrasados
+        if (gameTime % 20 == 0) {
+            GodVillageSavedData.get(serverLevel).getVillageAt(player.blockPosition()).ifPresent(v -> {
+                ModAdvancements.award(player, "village_discovery");
+                if (v.state() == GodVillageState.ARRASADA || v.patronGod() == SinGod.ENVY) {
+                    ModAdvancements.award(player, "secret_ruined_envy_village");
+                }
+            });
+        }
     }
 
     @SubscribeEvent
@@ -185,6 +203,11 @@ public final class PlayerSinBehaviorEvents {
                     target.hurtServer(serverLevel, player.damageSources().magic(), 3.0F);
                 }
             }
+
+            // Detección de Alta Traición: atacar Acólitos o Aldeanos de un dios con el que se tiene Favor >= 0
+            if (player.level() instanceof ServerLevel serverLevel) {
+                checkHighTreasonOnAttack(serverLevel, player, target);
+            }
         }
 
         // Si el jugador recibe dano: comprobar intervencion de Acolitos Aliados (>= +85) y Guerras de Dioses
@@ -221,6 +244,14 @@ public final class PlayerSinBehaviorEvents {
             // Dormir complace a Belphegor (Pereza), pero enfada a Khorvath (Ira) por esquivar la noche
             SinFavorManager.addEffort(player, SinGod.SLOTH, 0.6F, "Descanso placentero");
             SinFavorManager.addEffort(player, SinGod.WRATH, -0.5F, "Dormir para huir de la batalla nocturna");
+
+            if (player.level() instanceof ServerLevel serverLevel) {
+                GodVillageSavedData.get(serverLevel).getVillageAt(player.blockPosition()).ifPresent(v -> {
+                    if (v.patronGod() == SinGod.SLOTH) {
+                        ModAdvancements.award(player, "secret_sloth_society");
+                    }
+                });
+            }
         }
     }
 
@@ -306,6 +337,17 @@ public final class PlayerSinBehaviorEvents {
 
         // Romper bloques (minar, talar, cosechar/cultivar) incrementa el contador de fatiga laboral de Belphegor (Pereza)
         recordSlothLaborAction(player);
+
+        // Detección de Alta Traición: profanar o romper el Altar Mayor de una aldea consagrada
+        if (state.getBlock() instanceof SinAltarBlock altarBlock) {
+            GodVillageSavedData villageData = GodVillageSavedData.get(serverLevel);
+            if (villageData.isCanonicalVillageAltar(event.getPos())) {
+                SinGod altarGod = altarBlock.getGod();
+                if (SinFavorManager.getFavor(player, altarGod) >= 0) {
+                    applyHighTreasonPenalty(serverLevel, player, altarGod, "Profanación del Altar Mayor de su aldea");
+                }
+            }
+        }
 
         // Romper flores enfada a Asmodeus (Lujuria)
         if (state.is(BlockTags.FLOWERS)) {
@@ -414,6 +456,36 @@ public final class PlayerSinBehaviorEvents {
             }
         }
         return false;
+    }
+
+    private static void checkHighTreasonOnAttack(ServerLevel level, ServerPlayer attacker, LivingEntity victim) {
+        if (victim instanceof GodAcolyteEntity acolyte) {
+            SinGod god = acolyte.getGod();
+            if (SinFavorManager.getFavor(attacker, god) >= 0) {
+                applyHighTreasonPenalty(level, attacker, god, "Atacar a un Acólito sagrado de su culto");
+            }
+        } else if (victim instanceof Villager) {
+            GodVillageSavedData.get(level).findVillageAt(victim.blockPosition()).ifPresent(village -> {
+                if (village.state() != GodVillageState.ARRASADA) {
+                    SinGod god = village.patronGod();
+                    if (SinFavorManager.getFavor(attacker, god) >= 0) {
+                        applyHighTreasonPenalty(level, attacker, god, "Derramar sangre inocente en su aldea consagrada");
+                    }
+                }
+            });
+        }
+    }
+
+    public static void applyHighTreasonPenalty(ServerLevel level, ServerPlayer player, SinGod betrayedGod, String reason) {
+        SinFavorManager.addDirectFavor(player, betrayedGod, -60, "Alta Traición: " + reason);
+        ModAdvancements.award(player, "secret_high_treason");
+        level.playSound(null, player.blockPosition(), SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 1.5F, 0.7F);
+        player.sendSystemMessage(
+                betrayedGod.getFormattedPrefix().append(
+                        Component.literal("«¡TRAIDOR! ¿Te atreves a derramar la sangre de mis fieles? ¡Tu alma pagará esta afrenta!» (-60 Favor)")
+                                .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)
+                )
+        );
     }
 
     private static boolean isRivalGodServant(Entity entity) {

@@ -71,6 +71,21 @@ public final class SinFavorManager {
     }
 
     /**
+     * Aplica un cambio directo e inmediato de puntos enteros de favor (por ejemplo, Alta Traición: -60),
+     * activando los avisos de umbrales y las reacciones colaterales correspondientes.
+     */
+    public static int addDirectFavor(ServerPlayer player, SinGod god, int favorDelta, String reasonHint) {
+        PlayerSinData data = get(player);
+        int oldFavor = data.getFavor(god);
+        data.setFavorDirect(god, oldFavor + favorDelta);
+        int newFavor = data.getFavor(god);
+        if (oldFavor != newFavor) {
+            onFavorChanged(player, god, oldFavor, newFavor, reasonHint);
+        }
+        return newFavor - oldFavor;
+    }
+
+    /**
      * Aplica las recompensas de favor tras derrotar al Avatar de un Dios (Deicidio).
      * Otorga una gran subida de favor (base +20 para Soberbia y +15 para Ira y Envidia,
      * amortiguada segun la cercania a +100), anulando por completo el bono positivo

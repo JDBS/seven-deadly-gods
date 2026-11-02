@@ -3,7 +3,7 @@
   "textures": {
     "particle": "minecraft:block/gold_block",
     "top": "minecraft:block/gold_block",
-    "side": "minecraft:block/quartz_pillar",
-    "base": "minecraft:block/smooth_quartz"
+    "side": "minecraft:block/quartz_block_side",
+    "base": "minecraft:block/quartz_block_bottom"
   }
 }

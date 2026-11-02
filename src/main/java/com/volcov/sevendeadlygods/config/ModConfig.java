@@ -11,6 +11,8 @@ public final class ModConfig {
     public static final ModConfigSpec.IntValue CHAT_EVALUATION_COOLDOWN_SECONDS;
     public static final ModConfigSpec.BooleanValue ENABLE_LOCAL_FALLBACK;
     public static final ModConfigSpec.DoubleValue LORE_BOOK_CHEST_CHANCE;
+    public static final ModConfigSpec.IntValue VILLAGE_RAID_COOLDOWN_TICKS;
+    public static final ModConfigSpec.DoubleValue VILLAGE_RAID_AVATAR_CHANCE;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -46,6 +48,14 @@ public final class ModConfig {
         LORE_BOOK_CHEST_CHANCE = builder
                 .comment("Probabilidad (0.0 a 1.0) de que aparezca un libro sagrado de relato en cofres de estructuras del mundo.")
                 .defineInRange("loreBookChestChance", 0.35D, 0.0D, 1.0D);
+
+        VILLAGE_RAID_COOLDOWN_TICKS = builder
+                .comment("Enfriamiento minimo en ticks entre asaltos autonomos a una misma aldea consagrada (por defecto 72000 = 3 dias de Minecraft).")
+                .defineInRange("villageRaidCooldownTicks", 72000, 1200, 2400000);
+
+        VILLAGE_RAID_AVATAR_CHANCE = builder
+                .comment("Probabilidad (0.0 a 1.0) de que el Avatar de un Dios se manifieste fisicamente durante un asedio a una aldea (por defecto 0.05 = 5%).")
+                .defineInRange("villageRaidAvatarChance", 0.05D, 0.0D, 1.0D);
 
         builder.pop();
 
