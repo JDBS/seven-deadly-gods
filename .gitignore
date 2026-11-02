@@ -2,8 +2,7 @@
 .*/
 !.gitignore
 
-# Directorios de compilacion, ejecucion y documentacion interna
-docs/
+# Directorios de compilacion y ejecucion
 build/
 run/
 out/

@@ -40,6 +40,9 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   - Subcomandos `/gods village info`, `/gods village consecrate <dios>`, `/gods village raid [dios_atacante] [forzar_avatar]` y `/gods village desolate` en `GodsCommands`.
   - Parámetros configurables `villageRaidCooldownTicks` y `villageRaidAvatarChance` en `ModConfig`.
   - Documentación completa de las Aldeas Consagradas y sus mecánicas en `README.md`.
+- **Reorganización Modular de la Documentación para GitHub**:
+  - Desacoplamiento del `README.md` monolítico hacia una arquitectura modular en `docs/` con guías temáticas navegables (`guia_inicio/`, `mecanicas_principales/`, `dioses_y_altares/`, `aldeas_consagradas/`, `lore_y_avances/`, `administracion/` y `dev/`).
+  - Rediseño del `README.md` principal como portal de bienvenida con badges, resumen visual y mapa interactivo hacia la Wiki.
 
 ### Fixed
 - Corrección de referencias de texturas de cuarzo en el modelo `pride_altar.json` para Minecraft 26.3 (`quartz_block_side` y `quartz_block_bottom`).
