@@ -5,13 +5,23 @@ package com.volcov.sevendeadlygods.village;
  */
 public enum GodVillageState {
     /** Aldea normal civil sin culto activo. */
-    MUNDANA,
+    MUNDANA("Aldea Mundana (Neutral)"),
     /** Aldea consagrada activa con templo y milicia de acólitos. */
-    CONSAGRADA,
+    CONSAGRADA("Santuario Consagrado Activo"),
     /** Asedio o guerra santa activa en curso. */
-    EN_ASEDIO,
+    EN_ASEDIO("En Asedio (Guerra Santa)"),
     /** 0 aldeanos vivos; el altar humea esperando peregrinos o restauración. */
-    DESOLADA,
+    DESOLADA("Desolada (Esperando Peregrinos)"),
     /** Aldea arrasada en ruinas bajo el dominio abisal de Leviatán (Envidia). */
-    ARRASADA
+    ARRASADA("Asentamiento Arrasado en Ruinas");
+
+    private final String displayName;
+
+    GodVillageState(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplayName() {
+        return this.displayName;
+    }
 }

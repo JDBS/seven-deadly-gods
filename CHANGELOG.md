@@ -5,6 +5,16 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.9.0] - 2026-11-02
+
+### Added
+- Subcomandos de administración y depuración en `GodsCommands`: `/gods village info`, `/gods village consecrate <dios>`, `/gods village raid [dios_atacante] [forzar_avatar]` y `/gods village desolate`.
+- Parámetros configurables `villageRaidCooldownTicks` y `villageRaidAvatarChance` en `ModConfig`.
+- Documentación completa de las Aldeas Consagradas, Comercio Divino, Guerras Santas, Cuerno de Guerra Divino, Desolación y nuevos comandos en `README.md`.
+
+### Fixed
+- Corrección de referencias de texturas de cuarzo en el modelo `pride_altar.json` para Minecraft 26.3 (`quartz_block_side` y `quartz_block_bottom`).
+
 ## [1.8.0] - 2026-11-02
 
 ### Added

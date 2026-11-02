@@ -1,6 +1,7 @@
 package com.volcov.sevendeadlygods.village;
 
 import com.volcov.sevendeadlygods.block.SinAltarBlockEntity;
+import com.volcov.sevendeadlygods.config.ModConfig;
 import com.volcov.sevendeadlygods.entity.GodAcolyteEntity;
 import com.volcov.sevendeadlygods.entity.GodAvatarEntity;
 import com.volcov.sevendeadlygods.favor.SinFavorManager;
@@ -91,8 +92,9 @@ public class GodVillageRaidManager {
 
             for (GodVillageSavedData.GodVillageRecord village : snapshot) {
                 checkDesolationState(server, level, data, village, gameTime);
+                long raidCooldown = ModConfig.VILLAGE_RAID_COOLDOWN_TICKS.get();
                 if (village.state() == GodVillageState.CONSAGRADA
-                        && (gameTime - village.lastRaidTick() > RAID_COOLDOWN_TICKS)) {
+                        && (gameTime - village.lastRaidTick() > raidCooldown)) {
                     BlockPos altarPos = village.altarPos();
                     if (level.hasNearbyAlivePlayer(altarPos.getX() + 0.5D, altarPos.getY() + 0.5D, altarPos.getZ() + 0.5D, 80.0D)) {
                         if (level.getRandom().nextFloat() < 0.15F) {
@@ -166,8 +168,9 @@ public class GodVillageRaidManager {
             SinGod attackerGod,
             boolean forceManifest
     ) {
-        // 5% de probabilidad estricta (salvo forzado por comando de prueba)
-        if (!forceManifest && level.getRandom().nextFloat() >= 0.05F) {
+        // 5% de probabilidad estricta (configurable en ModConfig, salvo forzado por comando de prueba)
+        double avatarChance = ModConfig.VILLAGE_RAID_AVATAR_CHANCE.get();
+        if (!forceManifest && level.getRandom().nextDouble() >= avatarChance) {
             return;
         }
 

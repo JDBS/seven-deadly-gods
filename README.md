@@ -209,6 +209,37 @@ Cada intervalo aleatorio de **entre medio día y 2 días de Minecraft** (12.000 
 
 ---
 
+## 🏰 Aldeas Consagradas, Comercio Divino y Guerras Santas
+
+aproximadamente el **20% de las aldeas del mundo** se generan consagradas a uno de los **7 Dioses del Pecado**, integrando un **Santuario Mayor** en su centro, una guarnición de **Acólitos Centinelas permanentes** y una cultura social única:
+
+### 1. 🏛️ Los 7 Cultos Aldeanos y Estados Territoriales
+Cada aldea posee un estado persistente (`CONSAGRADA`, `EN_ASEDIO`, `DESOLADA`, `ARRASADA`) y su Altar Mayor otorga un **bono del +20% de esfuerzo devocional** en todos los rituales:
+* **Mammon (Avaricia)**: Bóveda blindada; las puertas exigen portar oro en mano y abrir cofres/barriles cobra 1 Pepita de Oro de peaje (salvo Discípulos con `Favor >= +60`).
+* **Khorvath (Ira)**: Foso de arena con fuego de alma y una guarnición pesada de 6 Acólitos de élite.
+* **Beelze (Gula)**: Ahumadores siempre encendidos, aldeanos Carniceros y un aura de festín que sacia pasivamente el hambre de los fieles.
+* **Lucian (Soberbia)**: Catedral de cuarzo exenta del requisito de altitud (`Y > 120`), donde los aldeanos exigen que te arrodilles (`Shift`) antes de hablar con ellos (salvo `Favor >= +60`).
+* **Leviatán (Envidia)**: Asentamientos generados directamente en estado `ARRASADA` (ruinas cubiertas de telarañas y ceniza con su cripta de prismarina inundada).
+* **Belphegor (Pereza)**: Poblada íntegramente por aldeanos Holgazanes (*Nitwits*) que jamás trabajan, custodiados por Gólems de Hierro y un aura de Regeneración en reposo.
+* **Asmodeus (Lujuria)**: Jardines con música constante y feromonas que inducen la reproducción pasiva de los animales cercanos y duplican la velocidad de repoblación.
+
+### 2. ⚖️ Comercio Divino y Alta Traición
+Los Acólitos Centinelas actúan como **Mercaderes Sagrados** con un catálogo de **5 niveles de devoción** (que incluye reliquias temáticas, el *Cuerno de Guerra Divino* y libros sobre-encantados como *Fortuna IV* o *Filo VI*):
+* **`Favor >= 0`**: Abren la interfaz de Comercio Divino desbloqueando ofertas según tu rango (`0`, `5`, `15`, `35` y `60+`).
+* **`-39 <= Favor < 0`**: Te rechazan con desprecio sin atacarte.
+* **`Favor <= -40`**: Te declaran hereje y te atacan en cuanto entras en la aldea.
+* **Alta Traición (`-60 Favor` directo)**: Si tienes `Favor >= 0` con un dios y atacas a uno de sus Acólitos, hieres a un aldeano de su aldea consagrada o rompes su Altar Mayor, sufres una penalización fulminante de `-60` puntos de favor directos.
+
+### 3. ⚔️ Guerras Santas, Cuerno de Guerra y Prioridad del Avatar Único
+* **Asaltos Autónomos**: Cada 3 días de Minecraft (`72,000` ticks), las aldeas consagradas pueden sufrir una invasión de 8 Acólitos de un dios rival (con doble peso para Leviatán). Si los defensores caen, el Altar Mayor se convierte al dios conquistador (o la aldea queda `ARRASADA` si gana Leviatán).
+* **Cuerno de Guerra Divino (`divine_war_horn`)**: Permite a un jugador con `Favor >= +40` hacia su dios principal iniciar un asedio contra una aldea rival e invocar un escuadrón personal de 6 Acólitos de asalto.
+* **Manifestación del 5% y Prioridad Territorial**: En cada asedio existe un **5% de probabilidad** de que el Avatar del dios defensor o atacante descienda físicamente al campo de batalla (y un 15% dentro de ese 5% de que desciendan **ambos Avatares simultáneamente** en un *Choque de Dioses*). Respeta estrictamente la **Regla de Avatar Único**: si el Avatar estaba persiguiendo a un jugador en una Caza de Ira individual, aplaza la cacería, se teletransporta a defender/atacar la aldea conservando su salud y reanuda la caza al terminar el asedio.
+
+### 4. 🕯️ Desolación y Caravana de Peregrinos
+Si todos los aldeanos civiles de una aldea consagrada mueren (`0` supervivientes), la aldea entra en estado `DESOLADA` y su altar emite humo negro de vigilia. Tras **2 días de Minecraft** (`48,000` ticks; `24,000` para Asmodeus), o de forma inmediata si un devoto (`Favor >= +30`) entrega una ofrenda de restauración en el altar, llega una **Caravana de Peregrinos** (3-4 aldeanos + 1 Acólito centinela) que revitaliza el poblado.
+
+---
+
 ## 💻 Comandos del Mod
 
 * `/gods favor` *(Disponible para todos los jugadores)*
@@ -227,3 +258,11 @@ Cada intervalo aleatorio de **entre medio día y 2 días de Minecraft** (12.000 
   Fuerza la ejecución inmediata de la acción divina periódica del dios especificado sobre el jugador (requiere que el favor con ese dios sea `≥ 30` o `≤ -30`).
 * `/gods trigger_periodic` *(Requiere permisos de Operador / Nivel 2)*
   Fuerza la evaluación del ciclo periódico: selecciona un dios al azar de la lista de dioses elegibles (`favor >= 30` o `favor <= -30`) y desata su acción.
+* `/gods village info` *(Disponible para todos los jugadores)*
+  Muestra la información de la aldea consagrada actual (Dios patrón, estado territorial, coordenadas del Altar Mayor, radio y enfriamiento de asedio).
+* `/gods village consecrate <dios>` *(Requiere permisos de Operador / Nivel 2)*
+  Consagra o reconvierte inmediatamente la aldea actual al dios indicado, colocando su Altar Mayor e inicializando su guarnición y cultura.
+* `/gods village raid [dios_atacante] [forzar_avatar]` *(Requiere permisos de Operador / Nivel 2)*
+  Inicia inmediatamente una Guerra Santa contra la aldea consagrada actual (permitiendo especificar el dios invasor y si se fuerza la manifestación de su Avatar).
+* `/gods village desolate` *(Requiere permisos de Operador / Nivel 2)*
+  Transiciona la aldea consagrada actual al estado `DESOLADA` para probar la vigilia del altar y la llegada de la Caravana de Peregrinos.
