@@ -3,6 +3,7 @@ package com.volcov.sevendeadlygods.village;
 import com.volcov.sevendeadlygods.entity.GodAcolyteEntity;
 import com.volcov.sevendeadlygods.favor.SinFavorManager;
 import com.volcov.sevendeadlygods.god.SinGod;
+import com.volcov.sevendeadlygods.registry.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -61,6 +62,16 @@ public final class DivineTradingRegistry {
             case ENVY -> buildEnvyOffers(level, offers, favor);
             case SLOTH -> buildSlothOffers(level, offers, favor);
             case LUST -> buildLustOffers(level, offers, favor);
+        }
+
+        if (favor >= 35) {
+            ItemStack warHorn = new ItemStack(ModItems.DIVINE_WAR_HORN.get());
+            offers.add(new MerchantOffer(
+                    new ItemCost(Items.EMERALD, 32),
+                    Optional.of(new ItemCost(Items.GOLD_INGOT, 4)),
+                    warHorn,
+                    2, 25, 0.05F
+            ));
         }
 
         return offers;

@@ -196,6 +196,10 @@ public class GodVillageSavedData extends SavedData {
         return Optional.ofNullable(closest);
     }
 
+    public Optional<GodVillageRecord> findVillageAt(BlockPos pos) {
+        return getVillageAt(pos);
+    }
+
     public Optional<GodVillageRecord> getVillageById(UUID id) {
         return Optional.ofNullable(villages.get(id));
     }
