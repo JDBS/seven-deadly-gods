@@ -7,6 +7,7 @@ import com.volcov.sevendeadlygods.god.SinGod;
 import com.volcov.sevendeadlygods.intervention.DivineInterventionScheduler;
 import com.volcov.sevendeadlygods.registry.ModBlockEntities;
 import com.volcov.sevendeadlygods.registry.ModMobEffects;
+import com.volcov.sevendeadlygods.village.GodVillageSavedData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -37,9 +38,12 @@ import net.minecraft.world.level.storage.ValueOutput;
  * asi como la concesion de bendiciones de larga duracion (20-40 min) a partir de +61 de favor.
  */
 public class SinAltarBlockEntity extends BlockEntity {
+    private static final float VILLAGE_ALTAR_EFFORT_MULTIPLIER = 1.20F;
+
     private SinGod god;
     private int ritualCharges = 0;
     private boolean awaitingCondition = false;
+    private boolean villageShrine = false;
 
     public SinAltarBlockEntity(BlockPos pos, BlockState blockState) {
         this(pos, blockState, blockState.getBlock() instanceof SinAltarBlock altar ? altar.getGod() : SinGod.GREED);
@@ -55,6 +59,40 @@ public class SinAltarBlockEntity extends BlockEntity {
             this.god = altar.getGod();
         }
         return this.god != null ? this.god : SinGod.GREED;
+    }
+
+    public boolean isVillageShrine() {
+        return this.villageShrine;
+    }
+
+    public void setVillageShrine(boolean villageShrine) {
+        this.villageShrine = villageShrine;
+        setChanged();
+        tryRegisterVillageShrine();
+    }
+
+    public boolean isCanonicalVillageAltar(ServerLevel level) {
+        return GodVillageSavedData.get(level).isCanonicalVillageAltar(this.worldPosition);
+    }
+
+    private void addRitualEffort(ServerLevel level, ServerPlayer player, SinGod targetGod, float baseEffort, String reason) {
+        float finalEffort = isCanonicalVillageAltar(level)
+                ? baseEffort * VILLAGE_ALTAR_EFFORT_MULTIPLIER
+                : baseEffort;
+        SinFavorManager.addEffort(player, targetGod, finalEffort, reason);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        tryRegisterVillageShrine();
+    }
+
+    private void tryRegisterVillageShrine() {
+        if (this.villageShrine && this.level instanceof ServerLevel serverLevel) {
+            GodVillageSavedData.get(serverLevel)
+                    .registerVillageIfAbsent(this.worldPosition, getGod(), serverLevel.getGameTime());
+        }
     }
 
     public InteractionResult handlePlayerInteraction(
@@ -116,7 +154,7 @@ public class SinAltarBlockEntity extends BlockEntity {
         PlayerSinData data = SinFavorManager.get(player);
         data.setLastGreedTributeTick(level.getGameTime());
 
-        SinFavorManager.addEffort(player, SinGod.GREED, tributeValue, "Tributo de riqueza en el Altar de Mammon");
+        addRitualEffort(level, player, SinGod.GREED, tributeValue, "Tributo de riqueza en el Altar de Mammon");
         completeRitual(level, player, SinGod.GREED,
                 "«Acepto tu diezmo áureo, mortal. Por hoy no te castigaré por las joyas que vistes.»");
         return InteractionResult.SUCCESS;
@@ -187,7 +225,7 @@ public class SinAltarBlockEntity extends BlockEntity {
                 worldPosition.getX() + 0.5D, worldPosition.getY() + 1.1D, worldPosition.getZ() + 0.5D,
                 20, 0.3D, 0.3D, 0.3D, 0.1D);
 
-        SinFavorManager.addEffort(player, SinGod.WRATH, 1.2F, "Pacto de sangre en el Altar de Khorvath");
+        addRitualEffort(level, player, SinGod.WRATH, 1.2F, "Pacto de sangre en el Altar de Khorvath");
         completeRitual(level, player, SinGod.WRATH,
                 "«¡Tu propia sangre hierve sobre la piedra! ¡Sal y despedaza a tus enemigos en mi nombre!»");
         return InteractionResult.SUCCESS;
@@ -202,7 +240,7 @@ public class SinAltarBlockEntity extends BlockEntity {
 
         if (this.ritualCharges >= 3) {
             this.ritualCharges = 0;
-            SinFavorManager.addEffort(player, SinGod.WRATH, 1.5F, "Ritual de Carniceria completado");
+            addRitualEffort(level, player, SinGod.WRATH, 1.5F, "Ritual de Carniceria completado");
             completeRitual(level, player, SinGod.WRATH,
                     "«¡Tres almas segadas ante mi altar! ¡Que mi furia corra por tus venas!»");
         }
@@ -223,7 +261,7 @@ public class SinAltarBlockEntity extends BlockEntity {
             level.playSound(null, worldPosition, SoundEvents.GENERIC_EAT.value(), SoundSource.BLOCKS, 1.0F, 0.8F);
             if (this.ritualCharges >= 3) {
                 this.ritualCharges = 0;
-                SinFavorManager.addEffort(player, SinGod.GLUTTONY, 1.4F, "Gran Banquete de Beelze");
+                addRitualEffort(level, player, SinGod.GLUTTONY, 1.4F, "Gran Banquete de Beelze");
                 completeRitual(level, player, SinGod.GLUTTONY,
                         "«¡Un festín digno de mi fauces! ¡Come y no conozcas jamás el vacío del hambre!»");
             } else {
@@ -245,17 +283,18 @@ public class SinAltarBlockEntity extends BlockEntity {
         setChanged();
         if (this.ritualCharges >= 3) {
             this.ritualCharges = 0;
-            SinFavorManager.addEffort(player, SinGod.GLUTTONY, 1.4F, "Banquete voraz frente al Altar de Gula");
+            addRitualEffort(level, player, SinGod.GLUTTONY, 1.4F, "Banquete voraz frente al Altar de Gula");
             completeRitual(level, player, SinGod.GLUTTONY,
                     "«¡Así me gusta, devorando sin mesura ante mi altar! Recibe mi bendición voraz.»");
         }
     }
 
     /**
-     * 4. SOBERBIA (Lucian): Altar de las Alturas (Y > 120 a cielo abierto + agacharse + alabar en el chat).
+     * 4. SOBERBIA (Lucian): Altar de las Alturas (Y > 120 a cielo abierto, o Catedral Consagrada de Aldea, + agacharse + alabar en el chat).
      */
     private InteractionResult handlePrideRitual(ServerLevel level, ServerPlayer player, ItemStack stack) {
-        if (worldPosition.getY() <= 120 || !level.canSeeSky(worldPosition.above())) {
+        boolean isVillageCathedral = isCanonicalVillageAltar(level);
+        if (!isVillageCathedral && (worldPosition.getY() <= 120 || !level.canSeeSky(worldPosition.above()))) {
             player.sendSystemMessage(SinGod.PRIDE.getFormattedPrefix()
                     .append(Component.literal("«¿Pretendes adorarme en las sombras del suelo? Erige mi altar sobre las cumbres más altas del mundo, por encima de las nubes y bajo el cielo abierto.»")
                             .withStyle(ChatFormatting.RED)));
@@ -291,7 +330,8 @@ public class SinAltarBlockEntity extends BlockEntity {
         if (!this.awaitingCondition) {
             return;
         }
-        if (worldPosition.getY() <= 120 || !player.isCrouching()) {
+        boolean isVillageCathedral = isCanonicalVillageAltar(level);
+        if ((!isVillageCathedral && worldPosition.getY() <= 120) || !player.isCrouching()) {
             player.sendSystemMessage(SinGod.PRIDE.getFormattedPrefix()
                     .append(Component.literal("«Alábame de rodillas (Shift) en las cumbres si deseas mi favor.»")
                             .withStyle(ChatFormatting.RED)));
@@ -299,7 +339,7 @@ public class SinAltarBlockEntity extends BlockEntity {
         }
         this.awaitingCondition = false;
         setChanged();
-        SinFavorManager.addEffort(player, SinGod.PRIDE, 1.6F, "Alabanza imperial en las cumbres");
+        addRitualEffort(level, player, SinGod.PRIDE, 1.6F, "Alabanza imperial en las cumbres");
         completeRitual(level, player, SinGod.PRIDE,
                 "«Tus palabras de sumisión complacen mi grandeza. Camina bajo el resplandor de mi sol.»");
     }
@@ -313,7 +353,7 @@ public class SinAltarBlockEntity extends BlockEntity {
                 || stack.is(Items.NAME_TAG) || stack.is(Items.GOLDEN_APPLE) || stack.is(Items.TOTEM_OF_UNDYING)
                 || stack.is(Items.BELL) || stack.is(Items.EXPERIENCE_BOTTLE) || stack.is(Items.ENDER_PEARL)) {
             stack.shrink(1);
-            SinFavorManager.addEffort(player, SinGod.ENVY, 1.4F, "Sacrificio de despojo en el Altar de Leviatan");
+            addRitualEffort(level, player, SinGod.ENVY, 1.4F, "Sacrificio de despojo en el Altar de Leviatan");
             completeRitual(level, player, SinGod.ENVY,
                     "«Si no es nuestro, que no sea de nadie. Las aguas abisales consumen tu botín robado.»");
             return InteractionResult.SUCCESS;
@@ -353,7 +393,7 @@ public class SinAltarBlockEntity extends BlockEntity {
         }
         this.awaitingCondition = false;
         setChanged();
-        SinFavorManager.addEffort(player, SinGod.SLOTH, 1.5F, "Ritual del Letargo completado");
+        addRitualEffort(level, player, SinGod.SLOTH, 1.5F, "Ritual del Letargo completado");
         completeRitual(level, player, SinGod.SLOTH,
                 "«Ves qué fácil es cuando dejas de correr... Disfruta de mi paz somnolienta.»");
     }
@@ -374,7 +414,7 @@ public class SinAltarBlockEntity extends BlockEntity {
         if (stack.is(Items.AMETHYST_SHARD) || stack.is(Items.ROSE_BUSH) || stack.is(Items.SPORE_BLOSSOM)
                 || stack.is(Items.GOLDEN_APPLE) || stack.is(Items.HONEYCOMB) || stack.is(Items.HEART_OF_THE_SEA)) {
             stack.shrink(1);
-            SinFavorManager.addEffort(player, SinGod.LUST, 1.4F, "Ofrenda de deseo y belleza a Asmodeus");
+            addRitualEffort(level, player, SinGod.LUST, 1.4F, "Ofrenda de deseo y belleza a Asmodeus");
             completeRitual(level, player, SinGod.LUST,
                     "«Qué exquisita ofrenda... Tu devoción despierta mi deseo y mi favor.»");
             return InteractionResult.SUCCESS;
@@ -388,7 +428,7 @@ public class SinAltarBlockEntity extends BlockEntity {
 
     public void onLustLifeCreated(ServerLevel level, ServerPlayer player) {
         if (countNearbyBeautyBlocks(level, worldPosition, 4) >= 2) {
-            SinFavorManager.addEffort(player, SinGod.LUST, 1.5F, "Ritual de Creacion de Vida ante Asmodeus");
+            addRitualEffort(level, player, SinGod.LUST, 1.5F, "Ritual de Creacion de Vida ante Asmodeus");
             completeRitual(level, player, SinGod.LUST,
                     "«La pasión engendra nueva vida ante mi altar. Recibe mi caricia divina.»");
         }
@@ -455,13 +495,22 @@ public class SinAltarBlockEntity extends BlockEntity {
         output.putString("god", getGod().getId());
         output.putInt("charges", this.ritualCharges);
         output.putBoolean("awaiting", this.awaitingCondition);
+        output.putBoolean("village_shrine", this.villageShrine);
     }
 
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        this.god = SinGod.byId(input.getStringOr("god", "greed")).orElse(SinGod.GREED);
+        String godId = input.getStringOr("god", "greed");
+        if ("random".equalsIgnoreCase(godId)) {
+            SinGod[] values = SinGod.values();
+            this.god = values[Math.floorMod(this.worldPosition.asLong(), values.length)];
+        } else {
+            this.god = SinGod.byId(godId).orElse(SinGod.GREED);
+        }
         this.ritualCharges = input.getIntOr("charges", 0);
         this.awaitingCondition = input.getBooleanOr("awaiting", false);
+        this.villageShrine = input.getBooleanOr("village_shrine", false);
+        tryRegisterVillageShrine();
     }
 }

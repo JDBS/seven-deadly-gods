@@ -5,6 +5,13 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.2.0] - 2026-11-02
+
+### Added
+- `GodVillageState` con la máquina de estados territoriales (`MUNDANA`, `CONSAGRADA`, `EN_ASEDIO`, `DESOLADA`, `ARRASADA`).
+- `GodVillageSavedData` (`SavedData` y `SavedDataType` con `Codec`) para persistir los datos de aldeas consagradas por dimensión y evitar altares duplicados en un radio de 128 bloques.
+- Auto-registro de santuarios aldeanos en `SinAltarBlockEntity`, bonificación de +20% al esfuerzo devocional en altares mayores de aldea y exención de altitud para catedrales aldeanas de Soberbia.
+
 ## [1.1.0] - 2026-11-02
 
 ### Added
