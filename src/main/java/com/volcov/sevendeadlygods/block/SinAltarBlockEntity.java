@@ -7,7 +7,9 @@ import com.volcov.sevendeadlygods.god.SinGod;
 import com.volcov.sevendeadlygods.intervention.DivineInterventionScheduler;
 import com.volcov.sevendeadlygods.registry.ModBlockEntities;
 import com.volcov.sevendeadlygods.registry.ModMobEffects;
+import com.volcov.sevendeadlygods.village.GodVillageRaidManager;
 import com.volcov.sevendeadlygods.village.GodVillageSavedData;
+import com.volcov.sevendeadlygods.village.GodVillageState;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -32,6 +34,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+
+import java.util.Optional;
 
 /**
  * BlockEntity que gestiona los 7 Rituales Asimetricos de cada Dios del Pecado,
@@ -75,6 +79,81 @@ public class SinAltarBlockEntity extends BlockEntity {
         return GodVillageSavedData.get(level).isCanonicalVillageAltar(this.worldPosition);
     }
 
+    /**
+     * Si el Altar Mayor pertenece a una aldea en estado DESOLADA, permite que un jugador devoto (Favor >= +30)
+     * deposite una ofrenda de restauración para invocar de inmediato la Caravana de Peregrinos.
+     */
+    public boolean tryRevitalizeDesolatedVillage(ServerLevel serverLevel, ServerPlayer player, ItemStack offering) {
+        GodVillageSavedData data = GodVillageSavedData.get(serverLevel);
+        Optional<GodVillageSavedData.GodVillageRecord> opt = data.getVillageAt(this.worldPosition);
+        if (opt.isEmpty() || opt.get().state() != GodVillageState.DESOLADA || !opt.get().altarPos().equals(this.worldPosition)) {
+            return false;
+        }
+
+        GodVillageSavedData.GodVillageRecord village = opt.get();
+        SinGod altarGod = village.patronGod();
+        int favor = SinFavorManager.getFavor(player, altarGod);
+
+        if (favor < 30) {
+            player.sendSystemMessage(
+                    altarGod.getFormattedPrefix().append(
+                            Component.literal("«Este santuario llora a sus caídos en silencio. Solo un devoto fiel (+30 de Favor) puede encabezar su restauración.»")
+                                    .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC)
+                    )
+            );
+            return true;
+        }
+
+        if (!isValidRevitalizationOffering(altarGod, offering)) {
+            player.sendSystemMessage(
+                    altarGod.getFormattedPrefix().append(
+                            Component.literal("«El templo yace desolado.Deposita una ofrenda sagrada digna de mi culto para convocar de inmediato a una nueva Caravana de Peregrinos.»")
+                                    .withStyle(ChatFormatting.YELLOW)
+                    )
+            );
+            return true;
+        }
+
+        offering.shrink(1);
+        int pilgrimCount = (altarGod == SinGod.LUST) ? 4 : 3;
+        GodVillageRaidManager.spawnPilgrimCaravan(serverLevel, this.worldPosition, altarGod, pilgrimCount);
+        data.updateVillage(village.withState(GodVillageState.CONSAGRADA, serverLevel.getGameTime()));
+
+        SinFavorManager.addEffort(player, altarGod, 4.0F, "Milagro de Restauración del Santuario de " + altarGod.getDisplayName());
+
+        serverLevel.sendParticles(
+                ParticleTypes.TOTEM_OF_UNDYING,
+                worldPosition.getX() + 0.5D,
+                worldPosition.getY() + 1.2D,
+                worldPosition.getZ() + 0.5D,
+                50, 0.6D, 0.6D, 0.6D, 0.15D
+        );
+        serverLevel.playSound(null, worldPosition, SoundEvents.TOTEM_USE, SoundSource.BLOCKS, 1.2F, 1.0F);
+
+        player.sendSystemMessage(
+                altarGod.getFormattedPrefix().append(
+                        Component.literal("«¡Tu ofrenda ha reavivado la llama de mi templo! ¡He convocado a mis peregrinos para repoblar esta tierra sagrada!»")
+                                .withStyle(altarGod.getChatColor(), ChatFormatting.BOLD)
+                )
+        );
+        return true;
+    }
+
+    private static boolean isValidRevitalizationOffering(SinGod god, ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+        return switch (god) {
+            case GREED -> evaluateGreedValue(stack) > 0.0F;
+            case WRATH -> stack.is(Items.BLAZE_POWDER) || stack.is(Items.NETHERITE_SCRAP) || stack.is(Items.DIAMOND) || stack.is(Items.IRON_INGOT);
+            case GLUTTONY -> stack.is(Items.GOLDEN_APPLE) || stack.is(Items.CAKE) || stack.is(Items.GOLDEN_CARROT) || stack.is(Items.COOKED_BEEF);
+            case PRIDE -> stack.is(Items.GOLD_INGOT) || stack.is(Items.DIAMOND) || stack.is(Items.GOLDEN_APPLE) || stack.is(Items.AMETHYST_SHARD);
+            case ENVY -> stack.is(Items.EMERALD) || stack.is(Items.ENDER_PEARL) || stack.is(Items.TOTEM_OF_UNDYING) || stack.is(Items.GOLDEN_APPLE);
+            case SLOTH -> stack.is(Items.CLOCK) || stack.is(ItemTags.WOOL) || stack.is(Items.FEATHER) || stack.is(Items.ENDER_PEARL);
+            case LUST -> stack.is(Items.AMETHYST_SHARD) || stack.is(Items.ROSE_BUSH) || stack.is(Items.GOLDEN_APPLE) || stack.is(Items.HONEYCOMB);
+        };
+    }
+
     private void addRitualEffort(ServerLevel level, ServerPlayer player, SinGod targetGod, float baseEffort, String reason) {
         float finalEffort = isCanonicalVillageAltar(level)
                 ? baseEffort * VILLAGE_ALTAR_EFFORT_MULTIPLIER
@@ -116,6 +195,10 @@ public class SinAltarBlockEntity extends BlockEntity {
                                     .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC)
                     )
             );
+            return InteractionResult.SUCCESS;
+        }
+
+        if (tryRevitalizeDesolatedVillage(level, player, heldStack)) {
             return InteractionResult.SUCCESS;
         }
 

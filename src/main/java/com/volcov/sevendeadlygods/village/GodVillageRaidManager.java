@@ -21,6 +21,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.animal.golem.IronGolem;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
@@ -74,6 +76,7 @@ public class GodVillageRaidManager {
         if (tickCount % ACTIVE_RAID_TICK_INTERVAL == 0) {
             for (ServerLevel level : server.getAllLevels()) {
                 tickActiveRaids(server, level);
+                tickDesolatedVillages(server, level);
             }
         }
 
@@ -87,6 +90,7 @@ public class GodVillageRaidManager {
             List<GodVillageSavedData.GodVillageRecord> snapshot = new ArrayList<>(data.getAllVillages());
 
             for (GodVillageSavedData.GodVillageRecord village : snapshot) {
+                checkDesolationState(server, level, data, village, gameTime);
                 if (village.state() == GodVillageState.CONSAGRADA
                         && (gameTime - village.lastRaidTick() > RAID_COOLDOWN_TICKS)) {
                     BlockPos altarPos = village.altarPos();
@@ -489,5 +493,144 @@ public class GodVillageRaidManager {
             }
         }
         return pool.get(random.nextInt(pool.size()));
+    }
+
+    /**
+     * Evalúa si una aldea consagrada ha perdido a todos sus aldeanos civiles (0 vivos)
+     * para pasar a estado DESOLADA, o si una aldea DESOLADA ha cumplido su duelo de 48,000 ticks
+     * (24,000 ticks para Asmodeus / Lujuria) para recibir la Caravana de Peregrinos.
+     */
+    private static void checkDesolationState(
+            MinecraftServer server,
+            ServerLevel level,
+            GodVillageSavedData data,
+            GodVillageSavedData.GodVillageRecord village,
+            long gameTime
+    ) {
+        BlockPos altarPos = village.altarPos();
+        if (!level.isLoaded(altarPos)) {
+            return;
+        }
+
+        if (village.state() == GodVillageState.CONSAGRADA && village.cultureInitialized()) {
+            if (!level.hasNearbyAlivePlayer(altarPos.getX() + 0.5D, altarPos.getY() + 0.5D, altarPos.getZ() + 0.5D, 96.0D)) {
+                return;
+            }
+            AABB box = new AABB(altarPos).inflate(village.radius());
+            List<Villager> villagers = level.getEntitiesOfClass(Villager.class, box, Villager::isAlive);
+            if (villagers.isEmpty()) {
+                transitionToDesolated(server, level, data, village, gameTime);
+            }
+        }
+    }
+
+    public static void transitionToDesolated(
+            MinecraftServer server,
+            ServerLevel level,
+            GodVillageSavedData data,
+            GodVillageSavedData.GodVillageRecord village,
+            long gameTime
+    ) {
+        BlockPos altarPos = village.altarPos();
+        data.updateVillage(village.withState(GodVillageState.DESOLADA, gameTime));
+        level.playSound(null, altarPos, SoundEvents.BEACON_DEACTIVATE, SoundSource.BLOCKS, 1.5F, 0.65F);
+        level.sendParticles(ParticleTypes.LARGE_SMOKE, altarPos.getX() + 0.5D, altarPos.getY() + 1.2D, altarPos.getZ() + 0.5D, 40, 0.5D, 0.6D, 0.5D, 0.02D);
+
+        // Detalle de Belphegor (Pereza): incluso desolada, invoca 2 Gólems de Hierro durmientes como guardianes
+        if (village.patronGod() == SinGod.SLOTH) {
+            for (int i = 0; i < 2; i++) {
+                IronGolem golem = EntityTypes.IRON_GOLEM.create(level, EntitySpawnReason.EVENT);
+                if (golem != null) {
+                    int gx = altarPos.getX() + (i == 0 ? 3 : -3);
+                    int gz = altarPos.getZ();
+                    int gy = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, gx, gz);
+                    golem.snapTo(gx + 0.5D, gy, gz + 0.5D, 0.0F, 0.0F);
+                    golem.setPlayerCreated(false);
+                    level.addFreshEntity(golem);
+                }
+            }
+        }
+
+        Component msg = Component.literal("🕯 ¡SANTUARIO DESOLADO! ")
+                .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.BOLD)
+                .append(Component.literal("La aldea consagrada a ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(village.patronGod().getDisplayName()).withStyle(village.patronGod().getChatColor(), ChatFormatting.BOLD))
+                .append(Component.literal(String.format(" en [%d, %d] ha perdido a todos sus habitantes. Su altar entra en vigilia...", altarPos.getX(), altarPos.getZ()))
+                        .withStyle(ChatFormatting.GRAY));
+        server.getPlayerList().broadcastSystemMessage(msg, false);
+    }
+
+    private static void tickDesolatedVillages(MinecraftServer server, ServerLevel level) {
+        GodVillageSavedData data = GodVillageSavedData.get(level);
+        long gameTime = level.getGameTime();
+        List<GodVillageSavedData.GodVillageRecord> snapshot = new ArrayList<>(data.getAllVillages());
+
+        for (GodVillageSavedData.GodVillageRecord village : snapshot) {
+            if (village.state() != GodVillageState.DESOLADA) {
+                continue;
+            }
+            BlockPos altarPos = village.altarPos();
+            if (!level.isLoaded(altarPos)) {
+                continue;
+            }
+
+            // Humo negro y chispas moribundas sobre el altar en duelo
+            level.sendParticles(ParticleTypes.LARGE_SMOKE, altarPos.getX() + 0.5D, altarPos.getY() + 1.1D, altarPos.getZ() + 0.5D, 4, 0.25D, 0.3D, 0.25D, 0.01D);
+            level.sendParticles(ParticleTypes.SMOKE, altarPos.getX() + 0.5D, altarPos.getY() + 1.2D, altarPos.getZ() + 0.5D, 6, 0.3D, 0.3D, 0.3D, 0.01D);
+
+            checkRepopulation(server, level, data, village);
+        }
+    }
+
+    public static void checkRepopulation(
+            MinecraftServer server,
+            ServerLevel level,
+            GodVillageSavedData data,
+            GodVillageSavedData.GodVillageRecord village
+    ) {
+        if (village.state() != GodVillageState.DESOLADA) {
+            return;
+        }
+
+        // Asmodeus (Lujuria) repuebla el doble de rápido (24,000 ticks = 1 día MC); el resto en 48,000 ticks (2 días MC)
+        long requiredTicks = (village.patronGod() == SinGod.LUST) ? 24000L : 48000L;
+        long elapsedTicks = level.getGameTime() - village.stateSinceTick();
+        if (elapsedTicks >= requiredTicks) {
+            int pilgrimCount = (village.patronGod() == SinGod.LUST) ? 4 : 3;
+            spawnPilgrimCaravan(level, village.altarPos(), village.patronGod(), pilgrimCount);
+
+            data.updateVillage(village.withState(GodVillageState.CONSAGRADA, level.getGameTime()));
+
+            Component msg = Component.literal("✨ ¡EL LLAMADO DE LOS FIELES! ")
+                    .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)
+                    .append(Component.literal("Nuevos devotos llegan en peregrinación para reavivar el Templo de ").withStyle(ChatFormatting.WHITE))
+                    .append(Component.literal(village.patronGod().getDisplayName()).withStyle(village.patronGod().getChatColor(), ChatFormatting.BOLD))
+                    .append(Component.literal("!").withStyle(ChatFormatting.WHITE));
+
+            server.getPlayerList().broadcastSystemMessage(msg, false);
+        }
+    }
+
+    public static void spawnPilgrimCaravan(ServerLevel level, BlockPos altarPos, SinGod god, int count) {
+        for (int i = 0; i < count; i++) {
+            Villager villager = EntityTypes.VILLAGER.create(level, EntitySpawnReason.EVENT);
+            if (villager != null) {
+                double angle = (2.0D * Math.PI / Math.max(1, count)) * i;
+                int x = (int) Math.round(altarPos.getX() + 18.0D * Math.cos(angle));
+                int z = (int) Math.round(altarPos.getZ() + 18.0D * Math.sin(angle));
+                int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+                villager.snapTo(x + 0.5D, y, z + 0.5D, 0.0F, 0.0F);
+                villager.getNavigation().moveTo(altarPos.getX() + 0.5D, altarPos.getY(), altarPos.getZ() + 0.5D, 0.85D);
+                level.addFreshEntity(villager);
+            }
+        }
+        // 1 Acólito centinela permanente de escolta
+        GodAcolyteEntity guardian = ModEntities.GOD_ACOLYTE.get().create(level, EntitySpawnReason.EVENT);
+        if (guardian != null) {
+            int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, altarPos.getX() + 2, altarPos.getZ() + 2);
+            guardian.snapTo(altarPos.getX() + 2.5D, y, altarPos.getZ() + 2.5D, 0.0F, 0.0F);
+            guardian.configureVillageSentinel(level, god, altarPos);
+            level.addFreshEntity(guardian);
+        }
     }
 }

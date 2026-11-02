@@ -5,6 +5,12 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.7.0] - 2026-11-02
+
+### Added
+- Ciclo de **Desolación y Caravana de Peregrinos** en `GodVillageRaidManager`: detecta aldeas consagradas con `0` aldeanos vivos, transiciona su estado a `DESOLADA` (emitiendo humo negro de vigilia e invocando 2 Gólems de Hierro guardianes en aldeas de Belphegor) y envía automáticamente una Caravana de Peregrinos (3 aldeanos + 1 Acólito centinela; 4 aldeanos en la mitad de tiempo para Asmodeus) tras 2 días de Minecraft (`48,000` ticks).
+- **Milagro de Restauración** en `SinAltarBlockEntity`: permite a jugadores con `favor >= +30` ofrecer un tributo sagrado en el Altar Mayor de una aldea `DESOLADA` para invocar inmediatamente la Caravana de Peregrinos y revitalizar el templo.
+
 ## [1.6.0] - 2026-11-02
 
 ### Added
