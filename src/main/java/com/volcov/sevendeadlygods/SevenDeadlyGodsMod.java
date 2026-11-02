@@ -12,6 +12,7 @@ import com.volcov.sevendeadlygods.registry.ModEntities;
 import com.volcov.sevendeadlygods.registry.ModItems;
 import com.volcov.sevendeadlygods.registry.ModLootModifiers;
 import com.volcov.sevendeadlygods.registry.ModMobEffects;
+import com.volcov.sevendeadlygods.village.GodVillageRaidManager;
 import com.volcov.sevendeadlygods.worldgen.VillageStructureInjector;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -44,6 +45,7 @@ public class SevenDeadlyGodsMod {
         NeoForge.EVENT_BUS.register(new DivineChatRouter());
         NeoForge.EVENT_BUS.register(new GodsCommands());
         NeoForge.EVENT_BUS.register(new VillageStructureInjector());
+        NeoForge.EVENT_BUS.register(new GodVillageRaidManager());
 
         LOGGER.info("Seven Deadly Gods inicializado para NeoForge 26.3 — Los 7 Pecados Capitales observan el mundo.");
     }
