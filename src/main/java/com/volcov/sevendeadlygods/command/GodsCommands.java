@@ -37,6 +37,9 @@ public final class GodsCommands {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
 
         dispatcher.register(Commands.literal("gods")
+                .executes(ctx -> executeHelp(ctx.getSource()))
+                .then(Commands.literal("help")
+                        .executes(ctx -> executeHelp(ctx.getSource())))
                 .then(Commands.literal("favor")
                         .executes(ctx -> {
                             ServerPlayer player = ctx.getSource().getPlayerOrException();
@@ -367,6 +370,65 @@ public final class GodsCommands {
         GodVillageSavedData.GodVillageRecord village = opt.get();
         GodVillageRaidManager.transitionToDesolated(level.getServer(), level, data, village, level.getGameTime());
         source.sendSuccess(() -> Component.literal("La aldea de " + village.patronGod().getDisplayName() + " ha sido puesta en estado DESOLADA."), true);
+        return 1;
+    }
+
+    private static int executeHelp(CommandSourceStack source) {
+        source.sendSuccess(() -> Component.literal("═══ Seven Deadly Gods — Ayuda de Comandos ═══")
+                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), false);
+
+        source.sendSuccess(() -> Component.literal("Comandos Públicos:")
+                .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD), false);
+        source.sendSuccess(() -> Component.literal(" • /gods help")
+                .withStyle(ChatFormatting.YELLOW)
+                .append(Component.literal(" — Muestra este menú de ayuda.").withStyle(ChatFormatting.GRAY)), false);
+        source.sendSuccess(() -> Component.literal(" • /gods favor")
+                .withStyle(ChatFormatting.YELLOW)
+                .append(Component.literal(" — Consulta tu nivel de favor y títulos con los 7 Pecados.").withStyle(ChatFormatting.GRAY)), false);
+        source.sendSuccess(() -> Component.literal(" • /gods next")
+                .withStyle(ChatFormatting.YELLOW)
+                .append(Component.literal(" — Consulta el temporizador de la próxima intervención divina.").withStyle(ChatFormatting.GRAY)), false);
+        source.sendSuccess(() -> Component.literal(" • /gods village info")
+                .withStyle(ChatFormatting.YELLOW)
+                .append(Component.literal(" — Consulta el estado y patrón de la aldea consagrada actual.").withStyle(ChatFormatting.GRAY)), false);
+
+        if (Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source)) {
+            source.sendSuccess(() -> Component.literal("Comandos de Administración (OP):")
+                    .withStyle(ChatFormatting.RED, ChatFormatting.BOLD), false);
+            source.sendSuccess(() -> Component.literal(" • /gods setfavor <dios> <valor>")
+                    .withStyle(ChatFormatting.GOLD)
+                    .append(Component.literal(" — Modifica el favor de un jugador (-100 a +100).").withStyle(ChatFormatting.GRAY)), false);
+            source.sendSuccess(() -> Component.literal(" • /gods setinterval [jugador] <min> <max>")
+                    .withStyle(ChatFormatting.GOLD)
+                    .append(Component.literal(" — Ajusta intervalo de intervenciones (ticks).").withStyle(ChatFormatting.GRAY)), false);
+            source.sendSuccess(() -> Component.literal(" • /gods manifest <dios>")
+                    .withStyle(ChatFormatting.GOLD)
+                    .append(Component.literal(" — Manifiesta al Avatar del dios (pacífico o cacería).").withStyle(ChatFormatting.GRAY)), false);
+            source.sendSuccess(() -> Component.literal(" • /gods lorebook <dios>")
+                    .withStyle(ChatFormatting.GOLD)
+                    .append(Component.literal(" — Otorga un tomo sagrado de relato del dios.").withStyle(ChatFormatting.GRAY)), false);
+            source.sendSuccess(() -> Component.literal(" • /gods action <dios>")
+                    .withStyle(ChatFormatting.GOLD)
+                    .append(Component.literal(" — Ejecuta la bendición o castigo periódico del dios.").withStyle(ChatFormatting.GRAY)), false);
+            source.sendSuccess(() -> Component.literal(" • /gods trigger_periodic")
+                    .withStyle(ChatFormatting.GOLD)
+                    .append(Component.literal(" — Fuerza el ciclo periódico entre dioses elegibles.").withStyle(ChatFormatting.GRAY)), false);
+            source.sendSuccess(() -> Component.literal(" • /gods village consecrate <dios>")
+                    .withStyle(ChatFormatting.GOLD)
+                    .append(Component.literal(" — Consagra la aldea actual y erige su Altar Mayor.").withStyle(ChatFormatting.GRAY)), false);
+            source.sendSuccess(() -> Component.literal(" • /gods village raid [atacante] [avatar]")
+                    .withStyle(ChatFormatting.GOLD)
+                    .append(Component.literal(" — Inicia un asedio/Guerra Santa contra la aldea.").withStyle(ChatFormatting.GRAY)), false);
+            source.sendSuccess(() -> Component.literal(" • /gods village desolate")
+                    .withStyle(ChatFormatting.GOLD)
+                    .append(Component.literal(" — Pone la aldea consagrada en estado DESOLADA.").withStyle(ChatFormatting.GRAY)), false);
+            source.sendSuccess(() -> Component.literal("Nota: <dios> acepta nombres (mammon), inglés (greed) o español (avaricia).")
+                    .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC), false);
+        } else {
+            source.sendSuccess(() -> Component.literal("Nota: Los administradores (OP) disponen de comandos adicionales para gestionar dioses y aldeas.")
+                    .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC), false);
+        }
+
         return 1;
     }
 }

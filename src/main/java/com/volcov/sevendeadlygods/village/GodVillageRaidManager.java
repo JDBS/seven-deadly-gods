@@ -58,6 +58,10 @@ public class GodVillageRaidManager {
             long activeTicks,
             boolean pausedByChunkUnload
     ) {
+        public boolean isConquest() {
+            return this.attackerGod != SinGod.ENVY;
+        }
+
         public ActiveRaidContext withPaused(boolean paused) {
             return new ActiveRaidContext(villageId, defenderGod, attackerGod, activeTicks, paused);
         }
@@ -147,14 +151,14 @@ public class GodVillageRaidManager {
         long gameTime = level.getGameTime();
 
         // 1. Notificación en el Chat Global
-        Component msg = Component.literal("⚔ ¡GUERRA SANTA! ")
-                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)
-                .append(Component.literal("Acólitos de ").withStyle(ChatFormatting.GRAY))
-                .append(Component.literal(attacker.getDisplayName()).withStyle(attacker.getChatColor(), ChatFormatting.BOLD))
-                .append(Component.literal(" marchan para saquear el Templo de ").withStyle(ChatFormatting.GRAY))
-                .append(Component.literal(defender.getDisplayName()).withStyle(defender.getChatColor(), ChatFormatting.BOLD))
-                .append(Component.literal(String.format(" en [%d, %d]!", altarPos.getX(), altarPos.getZ()))
-                        .withStyle(ChatFormatting.YELLOW));
+        Component msg = Component.literal("⚔ ")
+                .append(Component.translatable("message.sevendeadlygods.raid.declared_header").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD))
+                .append(Component.translatable("message.sevendeadlygods.raid.declared_body",
+                        attacker.getDisplayNameComponent(),
+                        defender.getDisplayNameComponent(),
+                        altarPos.getX(),
+                        altarPos.getZ()
+                ).withStyle(ChatFormatting.YELLOW));
 
         server.getPlayerList().broadcastSystemMessage(msg, false);
         level.playSound(null, altarPos, SoundEvents.RAID_HORN.value(), SoundSource.HOSTILE, 3.0F, 0.85F);
@@ -284,7 +288,7 @@ public class GodVillageRaidManager {
                 if (huntedPlayer != null) {
                     huntedPlayer.sendSystemMessage(
                             appearingGod.getFormattedPrefix().append(
-                                    Component.literal("«¡Mortal insolente! Tu juicio queda aplazado: mi templo sagrado clama por mi presencia divina. ¡Considera este día un préstamo de vida!»")
+                                    Component.translatable("message.sevendeadlygods.raid.avatar_hunt_postponed")
                                             .withStyle(ChatFormatting.RED, ChatFormatting.ITALIC)
                             )
                     );
@@ -360,7 +364,7 @@ public class GodVillageRaidManager {
                     avatar.setVillageRaidAvatar(false, null, null);
                     targetPlayer.sendSystemMessage(
                             god.getFormattedPrefix().append(
-                                    Component.literal("«Mi templo sagrado está a salvo. Ahora... volvamos a nuestra deuda pendiente, mortal.»")
+                                    Component.translatable("message.sevendeadlygods.raid.hunting_avatar_resumed")
                                             .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)
                             )
                     );
@@ -496,13 +500,12 @@ public class GodVillageRaidManager {
         level.playSound(null, altarPos, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.BLOCKS, 1.5F, 1.0F);
         level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, altarPos.getX() + 0.5D, altarPos.getY() + 1.5D, altarPos.getZ() + 0.5D, 60, 1.5D, 1.5D, 1.5D, 0.2D);
 
-        Component victoryMsg = Component.literal("🛡 ¡VICTORIA DEL TEMPLO! ")
-                .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)
-                .append(Component.literal("Los fieles de ").withStyle(ChatFormatting.GRAY))
-                .append(Component.literal(ctx.defenderGod().getDisplayName()).withStyle(ctx.defenderGod().getChatColor(), ChatFormatting.BOLD))
-                .append(Component.literal(" han repelido la invasión de ").withStyle(ChatFormatting.GRAY))
-                .append(Component.literal(ctx.attackerGod().getDisplayName()).withStyle(ctx.attackerGod().getChatColor(), ChatFormatting.BOLD))
-                .append(Component.literal(".").withStyle(ChatFormatting.GRAY));
+        Component victoryMsg = Component.literal("🛡 ")
+                .append(Component.translatable("message.sevendeadlygods.raid.victory_header").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD))
+                .append(Component.translatable("message.sevendeadlygods.raid.victory_body",
+                        ctx.defenderGod().getDisplayNameComponent(),
+                        ctx.attackerGod().getDisplayNameComponent()
+                ).withStyle(ChatFormatting.GRAY));
         server.getPlayerList().broadcastSystemMessage(victoryMsg, false);
 
         // Recompensar a los jugadores fieles cercanos que participaron en la defensa
@@ -551,17 +554,18 @@ public class GodVillageRaidManager {
         level.playSound(null, altarPos, SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 1.5F, 0.8F);
         level.sendParticles(ParticleTypes.FLAME, altarPos.getX() + 0.5D, altarPos.getY() + 1.2D, altarPos.getZ() + 0.5D, 80, 1.5D, 1.5D, 1.5D, 0.1D);
 
-        String actionDesc = (winner == SinGod.ENVY)
-                ? " ha arrasado y reducido a ruinas el Templo de "
-                : " ha conquistado y reclamado el Templo de ";
-
-        Component conquestMsg = Component.literal("🔥 ¡CAÍDA DEL SANTUARIO! ")
-                .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)
-                .append(Component.literal("El culto de ").withStyle(ChatFormatting.GRAY))
-                .append(Component.literal(winner.getDisplayName()).withStyle(winner.getChatColor(), ChatFormatting.BOLD))
-                .append(Component.literal(actionDesc).withStyle(ChatFormatting.GRAY))
-                .append(Component.literal(ctx.defenderGod().getDisplayName()).withStyle(ctx.defenderGod().getChatColor(), ChatFormatting.BOLD))
-                .append(Component.literal(String.format(" en [%d, %d]!", altarPos.getX(), altarPos.getZ())).withStyle(ChatFormatting.RED));
+        Component actionDescComp = ctx.isConquest()
+                ? Component.translatable("message.sevendeadlygods.raid.fall_conquered_action")
+                : Component.translatable("message.sevendeadlygods.raid.fall_ruined_action");
+        Component conquestMsg = Component.literal("🔥 ")
+                .append(Component.translatable("message.sevendeadlygods.raid.fall_header").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD))
+                .append(Component.translatable("message.sevendeadlygods.raid.fall_body",
+                        winner.getDisplayNameComponent(),
+                        actionDescComp,
+                        ctx.defenderGod().getDisplayNameComponent(),
+                        altarPos.getX(),
+                        altarPos.getZ()
+                ).withStyle(ChatFormatting.RED));
         server.getPlayerList().broadcastSystemMessage(conquestMsg, false);
 
         // Recompensar a los jugadores conquistadores cercanos y conceder avance
@@ -690,12 +694,13 @@ public class GodVillageRaidManager {
             }
         }
 
-        Component msg = Component.literal("🕯 ¡SANTUARIO DESOLADO! ")
-                .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.BOLD)
-                .append(Component.literal("La aldea consagrada a ").withStyle(ChatFormatting.GRAY))
-                .append(Component.literal(village.patronGod().getDisplayName()).withStyle(village.patronGod().getChatColor(), ChatFormatting.BOLD))
-                .append(Component.literal(String.format(" en [%d, %d] ha perdido a todos sus habitantes. Su altar entra en vigilia...", altarPos.getX(), altarPos.getZ()))
-                        .withStyle(ChatFormatting.GRAY));
+        Component msg = Component.literal("🕯 ")
+                .append(Component.translatable("message.sevendeadlygods.raid.desolate_header").withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.BOLD))
+                .append(Component.translatable("message.sevendeadlygods.raid.desolate_body",
+                        village.patronGod().getDisplayNameComponent(),
+                        altarPos.getX(),
+                        altarPos.getZ()
+                ).withStyle(ChatFormatting.GRAY));
         server.getPlayerList().broadcastSystemMessage(msg, false);
     }
 
@@ -739,11 +744,11 @@ public class GodVillageRaidManager {
 
             data.updateVillage(village.withState(GodVillageState.CONSAGRADA, level.getGameTime()));
 
-            Component msg = Component.literal("✨ ¡EL LLAMADO DE LOS FIELES! ")
-                    .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)
-                    .append(Component.literal("Nuevos devotos llegan en peregrinación para reavivar el Templo de ").withStyle(ChatFormatting.WHITE))
-                    .append(Component.literal(village.patronGod().getDisplayName()).withStyle(village.patronGod().getChatColor(), ChatFormatting.BOLD))
-                    .append(Component.literal("!").withStyle(ChatFormatting.WHITE));
+            Component msg = Component.literal("✨ ")
+                    .append(Component.translatable("message.sevendeadlygods.raid.pilgrims_header").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD))
+                    .append(Component.translatable("message.sevendeadlygods.raid.pilgrims_body",
+                            village.patronGod().getDisplayNameComponent()
+                    ).withStyle(ChatFormatting.WHITE));
 
             server.getPlayerList().broadcastSystemMessage(msg, false);
         }

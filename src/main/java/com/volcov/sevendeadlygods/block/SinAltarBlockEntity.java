@@ -98,7 +98,7 @@ public class SinAltarBlockEntity extends BlockEntity {
         if (favor < 30) {
             player.sendSystemMessage(
                     altarGod.getFormattedPrefix().append(
-                            Component.literal("«Este santuario llora a sus caídos en silencio. Solo un devoto fiel (+30 de Favor) puede encabezar su restauración.»")
+                            Component.translatable("altar.sevendeadlygods.desolate_insufficient_favor")
                                     .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC)
                     )
             );
@@ -108,7 +108,7 @@ public class SinAltarBlockEntity extends BlockEntity {
         if (!isValidRevitalizationOffering(altarGod, offering)) {
             player.sendSystemMessage(
                     altarGod.getFormattedPrefix().append(
-                            Component.literal("«El templo yace desolado.Deposita una ofrenda sagrada digna de mi culto para convocar de inmediato a una nueva Caravana de Peregrinos.»")
+                            Component.translatable("altar.sevendeadlygods.desolate_prompt")
                                     .withStyle(ChatFormatting.YELLOW)
                     )
             );
@@ -134,7 +134,7 @@ public class SinAltarBlockEntity extends BlockEntity {
 
         player.sendSystemMessage(
                 altarGod.getFormattedPrefix().append(
-                        Component.literal("«¡Tu ofrenda ha reavivado la llama de mi templo! ¡He convocado a mis peregrinos para repoblar esta tierra sagrada!»")
+                        Component.translatable("altar.sevendeadlygods.miracle_restored")
                                 .withStyle(altarGod.getChatColor(), ChatFormatting.BOLD)
                 )
         );
@@ -193,7 +193,7 @@ public class SinAltarBlockEntity extends BlockEntity {
 
             player.sendSystemMessage(
                     altarGod.getFormattedPrefix().append(
-                            Component.literal("«El Altar yace inerte y frío. Tras la destrucción de su Avatar terrenal, la presencia de " + altarGod.getDisplayName() + " descansa en un profundo letargo cósmico... Ninguna ofrenda será escuchada hasta que su espíritu despierte del vacío.»")
+                            Component.translatable("altar.sevendeadlygods.avatar_slumber", altarGod.getDisplayNameComponent())
                                     .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC)
                     )
             );
@@ -222,7 +222,7 @@ public class SinAltarBlockEntity extends BlockEntity {
     private InteractionResult handleGreedRitual(ServerLevel level, ServerPlayer player, ItemStack stack) {
         if (stack.is(Items.RAW_GOLD) || stack.is(Items.RAW_GOLD_BLOCK)) {
             player.sendSystemMessage(SinGod.GREED.getFormattedPrefix()
-                    .append(Component.literal("«¿Pretendes ofrecerme mineral sucio sin fundir? El oro en bruto es una ofensa para mi altar; fúndelo si deseas mi favor.»")
+                    .append(Component.translatable("altar.sevendeadlygods.greed.raw_ore")
                             .withStyle(ChatFormatting.GOLD)));
             return InteractionResult.SUCCESS;
         }
@@ -230,7 +230,7 @@ public class SinAltarBlockEntity extends BlockEntity {
         float tributeValue = evaluateGreedValue(stack);
         if (tributeValue <= 0.0F) {
             player.sendSystemMessage(SinGod.GREED.getFormattedPrefix()
-                    .append(Component.literal("«¿Pretendes sobornarme con baratijas? Trae oro, amatistas, esmeraldas, diamantes o netherite a mi altar.»")
+                    .append(Component.translatable("altar.sevendeadlygods.greed.trinkets")
                             .withStyle(ChatFormatting.YELLOW)));
             return InteractionResult.SUCCESS;
         }
@@ -300,7 +300,7 @@ public class SinAltarBlockEntity extends BlockEntity {
     private InteractionResult handleWrathRitual(ServerLevel level, ServerPlayer player, ItemStack stack) {
         if (player.getHealth() <= 8.5F) {
             player.sendSystemMessage(SinGod.WRATH.getFormattedPrefix()
-                    .append(Component.literal("«Estás demasiado débil para desangrarte aquí. ¡Mata enemigos junto a mi altar o vuelve con más sangre!»")
+                    .append(Component.translatable("altar.sevendeadlygods.wrath.too_weak")
                             .withStyle(ChatFormatting.RED)));
             return InteractionResult.SUCCESS;
         }
@@ -351,14 +351,14 @@ public class SinAltarBlockEntity extends BlockEntity {
                         "«¡Un festín digno de mi fauces! ¡Come y no conozcas jamás el vacío del hambre!»");
             } else {
                 player.sendSystemMessage(SinGod.GLUTTONY.getFormattedPrefix()
-                        .append(Component.literal("«¡Más! ¡Mi mesa aún tiene hambre! (" + this.ritualCharges + "/3 platos servidos)»")
+                        .append(Component.translatable("altar.sevendeadlygods.gluttony.progress", this.ritualCharges)
                                 .withStyle(ChatFormatting.GOLD)));
             }
             return InteractionResult.SUCCESS;
         }
 
         player.sendSystemMessage(SinGod.GLUTTONY.getFormattedPrefix()
-                .append(Component.literal("«Trae verdaderos manjares (carnes asadas, pasteles, manzanas doradas, miel) o devóralos frente a mi altar.»")
+                .append(Component.translatable("altar.sevendeadlygods.gluttony.hint")
                         .withStyle(ChatFormatting.GOLD)));
         return InteractionResult.SUCCESS;
     }
@@ -381,14 +381,14 @@ public class SinAltarBlockEntity extends BlockEntity {
         boolean isVillageCathedral = isCanonicalVillageAltar(level);
         if (!isVillageCathedral && (worldPosition.getY() <= 120 || !level.canSeeSky(worldPosition.above()))) {
             player.sendSystemMessage(SinGod.PRIDE.getFormattedPrefix()
-                    .append(Component.literal("«¿Pretendes adorarme en las sombras del suelo? Erige mi altar sobre las cumbres más altas del mundo, por encima de las nubes y bajo el cielo abierto.»")
+                    .append(Component.translatable("altar.sevendeadlygods.pride.low_altitude")
                             .withStyle(ChatFormatting.RED)));
             return InteractionResult.SUCCESS;
         }
 
         if (!player.isCrouching()) {
             player.sendSystemMessage(SinGod.PRIDE.getFormattedPrefix()
-                    .append(Component.literal("«¡Arrodíllate (Shift) antes de tocar el altar de Lucian, mortal insolente!»")
+                    .append(Component.translatable("altar.sevendeadlygods.pride.not_kneeling")
                             .withStyle(ChatFormatting.RED)));
             SinFavorManager.addEffort(player, SinGod.PRIDE, -0.5F, "Falta de reverencia ante el Altar de Soberbia");
             return InteractionResult.SUCCESS;
@@ -400,13 +400,13 @@ public class SinAltarBlockEntity extends BlockEntity {
             this.awaitingCondition = true;
             setChanged();
             player.sendSystemMessage(SinGod.PRIDE.getFormattedPrefix()
-                    .append(Component.literal("«He recibido tu ofrenda en las alturas. Ahora permanece arrodillado y pronuncia tus alabanzas hacia mí en el chat.»")
+                    .append(Component.translatable("altar.sevendeadlygods.pride.offer_accepted")
                             .withStyle(ChatFormatting.YELLOW)));
             return InteractionResult.SUCCESS;
         }
 
         player.sendSystemMessage(SinGod.PRIDE.getFormattedPrefix()
-                .append(Component.literal("«Arrodíllate en las cumbres más altas, entrégame un tributo digno (oro, joyas, trofeos) y alábame en el chat.»")
+                .append(Component.translatable("altar.sevendeadlygods.pride.hint")
                         .withStyle(ChatFormatting.YELLOW)));
         return InteractionResult.SUCCESS;
     }
@@ -418,7 +418,7 @@ public class SinAltarBlockEntity extends BlockEntity {
         boolean isVillageCathedral = isCanonicalVillageAltar(level);
         if ((!isVillageCathedral && worldPosition.getY() <= 120) || !player.isCrouching()) {
             player.sendSystemMessage(SinGod.PRIDE.getFormattedPrefix()
-                    .append(Component.literal("«Alábame de rodillas (Shift) en las cumbres si deseas mi favor.»")
+                    .append(Component.translatable("altar.sevendeadlygods.pride.praise_hint")
                             .withStyle(ChatFormatting.RED)));
             return;
         }
@@ -445,7 +445,7 @@ public class SinAltarBlockEntity extends BlockEntity {
         }
 
         player.sendSystemMessage(SinGod.ENVY.getFormattedPrefix()
-                .append(Component.literal("«Tráeme el botín que hayas arrebatado a aldeanos o cofres ajenos (esmeraldas, libros encantados, perlas, reliquias) para destruirlo aquí.»")
+                .append(Component.translatable("altar.sevendeadlygods.envy.hint")
                         .withStyle(ChatFormatting.DARK_AQUA)));
         return InteractionResult.SUCCESS;
     }
@@ -461,13 +461,13 @@ public class SinAltarBlockEntity extends BlockEntity {
             this.awaitingCondition = true;
             setChanged();
             player.sendSystemMessage(SinGod.SLOTH.getFormattedPrefix()
-                    .append(Component.literal("«Bien... ahora deja de moverte. Quédate completamente quieto junto a mi altar durante 30 segundos y respira la calma...»")
+                    .append(Component.translatable("altar.sevendeadlygods.sloth.started")
                             .withStyle(ChatFormatting.BLUE)));
             return InteractionResult.SUCCESS;
         }
 
         player.sendSystemMessage(SinGod.SLOTH.getFormattedPrefix()
-                .append(Component.literal("«Deja lana, una pluma, un reloj o pescado en mi altar y quédate quieto 30 segundos sin hacer absolutamente nada.»")
+                .append(Component.translatable("altar.sevendeadlygods.sloth.hint")
                         .withStyle(ChatFormatting.BLUE)));
         return InteractionResult.SUCCESS;
     }
@@ -491,7 +491,7 @@ public class SinAltarBlockEntity extends BlockEntity {
         int beautyScore = countNearbyBeautyBlocks(level, worldPosition, 4);
         if (beautyScore < 3) {
             player.sendSystemMessage(SinGod.LUST.getFormattedPrefix()
-                    .append(Component.literal("«Este lugar es demasiado frío y austero. Rodea mi altar con al menos 3 flores, amatistas o bloques musicales/tocadiscos.»")
+                    .append(Component.translatable("altar.sevendeadlygods.lust.cold_environment")
                             .withStyle(ChatFormatting.LIGHT_PURPLE)));
             return InteractionResult.SUCCESS;
         }
@@ -506,7 +506,7 @@ public class SinAltarBlockEntity extends BlockEntity {
         }
 
         player.sendSystemMessage(SinGod.LUST.getFormattedPrefix()
-                .append(Component.literal("«Entrégame amatistas, flores raras o panales (o engendra nueva vida junto a mi altar florido).»")
+                .append(Component.translatable("altar.sevendeadlygods.lust.hint")
                         .withStyle(ChatFormatting.LIGHT_PURPLE)));
         return InteractionResult.SUCCESS;
     }

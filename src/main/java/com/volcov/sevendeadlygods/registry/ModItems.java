@@ -3,6 +3,7 @@ package com.volcov.sevendeadlygods.registry;
 import com.volcov.sevendeadlygods.SevenDeadlyGodsMod;
 import com.volcov.sevendeadlygods.god.SinGod;
 import com.volcov.sevendeadlygods.item.DivineWarHornItem;
+import com.volcov.sevendeadlygods.item.GodAcolyteSpawnEggItem;
 import com.volcov.sevendeadlygods.lore.SinLoreLibrary;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -14,6 +15,9 @@ import net.minecraft.world.item.Rarity;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.EnumMap;
+import java.util.Map;
 
 public final class ModItems {
     public static final DeferredRegister.Items ITEMS =
@@ -35,6 +39,33 @@ public final class ModItems {
             props -> new DivineWarHornItem(props.stacksTo(1).rarity(Rarity.RARE))
     );
 
+    // Huevos Generadores (Spawn Eggs) para los Acólitos de cada Dios del Pecado
+    public static final DeferredItem<GodAcolyteSpawnEggItem> GREED_ACOLYTE_SPAWN_EGG = ITEMS.registerItem(
+            "greed_acolyte_spawn_egg", props -> new GodAcolyteSpawnEggItem(SinGod.GREED, props));
+    public static final DeferredItem<GodAcolyteSpawnEggItem> WRATH_ACOLYTE_SPAWN_EGG = ITEMS.registerItem(
+            "wrath_acolyte_spawn_egg", props -> new GodAcolyteSpawnEggItem(SinGod.WRATH, props));
+    public static final DeferredItem<GodAcolyteSpawnEggItem> GLUTTONY_ACOLYTE_SPAWN_EGG = ITEMS.registerItem(
+            "gluttony_acolyte_spawn_egg", props -> new GodAcolyteSpawnEggItem(SinGod.GLUTTONY, props));
+    public static final DeferredItem<GodAcolyteSpawnEggItem> PRIDE_ACOLYTE_SPAWN_EGG = ITEMS.registerItem(
+            "pride_acolyte_spawn_egg", props -> new GodAcolyteSpawnEggItem(SinGod.PRIDE, props));
+    public static final DeferredItem<GodAcolyteSpawnEggItem> ENVY_ACOLYTE_SPAWN_EGG = ITEMS.registerItem(
+            "envy_acolyte_spawn_egg", props -> new GodAcolyteSpawnEggItem(SinGod.ENVY, props));
+    public static final DeferredItem<GodAcolyteSpawnEggItem> SLOTH_ACOLYTE_SPAWN_EGG = ITEMS.registerItem(
+            "sloth_acolyte_spawn_egg", props -> new GodAcolyteSpawnEggItem(SinGod.SLOTH, props));
+    public static final DeferredItem<GodAcolyteSpawnEggItem> LUST_ACOLYTE_SPAWN_EGG = ITEMS.registerItem(
+            "lust_acolyte_spawn_egg", props -> new GodAcolyteSpawnEggItem(SinGod.LUST, props));
+
+    public static final Map<SinGod, DeferredItem<GodAcolyteSpawnEggItem>> ACOLYTE_SPAWN_EGGS = new EnumMap<>(SinGod.class);
+    static {
+        ACOLYTE_SPAWN_EGGS.put(SinGod.GREED, GREED_ACOLYTE_SPAWN_EGG);
+        ACOLYTE_SPAWN_EGGS.put(SinGod.WRATH, WRATH_ACOLYTE_SPAWN_EGG);
+        ACOLYTE_SPAWN_EGGS.put(SinGod.GLUTTONY, GLUTTONY_ACOLYTE_SPAWN_EGG);
+        ACOLYTE_SPAWN_EGGS.put(SinGod.PRIDE, PRIDE_ACOLYTE_SPAWN_EGG);
+        ACOLYTE_SPAWN_EGGS.put(SinGod.ENVY, ENVY_ACOLYTE_SPAWN_EGG);
+        ACOLYTE_SPAWN_EGGS.put(SinGod.SLOTH, SLOTH_ACOLYTE_SPAWN_EGG);
+        ACOLYTE_SPAWN_EGGS.put(SinGod.LUST, LUST_ACOLYTE_SPAWN_EGG);
+    }
+
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> SEVEN_DEADLY_GODS_TAB =
             CREATIVE_MODE_TABS.register("seven_deadly_gods_tab", () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.sevendeadlygods"))
@@ -48,6 +79,10 @@ public final class ModItems {
                         output.accept(SLOTH_ALTAR_ITEM.get());
                         output.accept(LUST_ALTAR_ITEM.get());
                         output.accept(DIVINE_WAR_HORN.get());
+                        // Huevos Generadores de Acólitos
+                        for (DeferredItem<GodAcolyteSpawnEggItem> egg : ACOLYTE_SPAWN_EGGS.values()) {
+                            output.accept(egg.get());
+                        }
                         // Incluir todos los 42 libros sagrados de lore en la pestana creativa para facil inspeccion
                         for (SinGod god : SinGod.values()) {
                             for (SinLoreLibrary.LoreBookEntry entry : SinLoreLibrary.getBooksForGod(god)) {

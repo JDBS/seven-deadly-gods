@@ -58,6 +58,7 @@ public final class GeminiAiService {
     public record PlayerContextSnapshot(
             String playerName,
             String chatMessage,
+            String clientLanguage,
             SinGod manifestedGodNearby,
             SinGod nearbyAltarGod,
             int playerY,
@@ -73,9 +74,17 @@ public final class GeminiAiService {
                 SinGod nearbyAltarGod
         ) {
             PlayerSinData data = SinFavorManager.get(player);
+            String clientLang = "en_us";
+            try {
+                if (player.clientInformation() != null && player.clientInformation().language() != null) {
+                    clientLang = player.clientInformation().language();
+                }
+            } catch (Throwable ignored) {
+            }
             return new PlayerContextSnapshot(
                     player.getScoreboardName(),
                     message,
+                    clientLang,
                     manifestedGodNearby,
                     nearbyAltarGod,
                     player.getBlockY(),
@@ -158,11 +167,12 @@ public final class GeminiAiService {
                    - 'BLESSING': Si el jugador suplica piedad con humildad, se arrepiente, pide auxilio divino o alaba sinceramente al dios (y el favor no es extremadamente negativo). Concedera sanacion y bendicion inmediata.
                    - 'SUMMON_AVATAR': Si el jugador tiene Favor +100 (Campeon Supremo) y te llama explicitamente para que desciendas, aparezcas o te manifiestes ante el en el mundo ('¡Ven a mi!', '¡Manifiestate!', '¡Te invoco!').
                    - 'NONE': Para dialogos normales, preguntas o respuestas sin ofensas ni devocion extrema.
-                6. Responde siempre en espanol, en primera persona como ese dios, con una frase impactante y concisa (maximo 220 caracteres).
-                """);
+                6. Responde siempre en el mismo idioma en el que te habla el jugador (espanol o ingles) o en su idioma de cliente (%s) si su mensaje es muy breve o ambiguo. Responde siempre en primera persona como ese dios, con una frase impactante y concisa (maximo 220 caracteres).
+                """.formatted(snapshot.clientLanguage()));
 
         StringBuilder userPrompt = new StringBuilder();
         userPrompt.append("Jugador: ").append(snapshot.playerName()).append("\n");
+        userPrompt.append("Idioma preferido del cliente: ").append(snapshot.clientLanguage()).append("\n");
         userPrompt.append("Mensaje en el chat: \"").append(snapshot.chatMessage()).append("\"\n");
         userPrompt.append("Avatar manifestado cerca: ")
                 .append(snapshot.manifestedGodNearby() != null ? snapshot.manifestedGodNearby().getId() : "NONE").append("\n");
@@ -328,26 +338,33 @@ public final class GeminiAiService {
 
         boolean isNearAltarOrAvatar = snapshot.manifestedGodNearby() != null || snapshot.nearbyAltarGod() != null;
 
+        boolean isEnglish = (snapshot.clientLanguage() != null && snapshot.clientLanguage().toLowerCase(Locale.ROOT).startsWith("en"))
+                || containsAny(lower, "the", "you", "my", "your", "god", "please", "help", "glory", "kill", "die", "gold");
+
         boolean hasInvocationIntent = containsAny(lower,
                 "invoco", "manifiestate", "manifiéstate", "desciende", "acude", "aparece",
                 "ven a mí", "ven a mi", "ven aquí", "ven aqui", "ven ante mí", "ven ante mi",
-                "preséntate", "presentate", "summon", "manifest", "appear");
+                "preséntate", "presentate", "summon", "manifest", "appear", "come to me", "descend", "hear me");
 
         boolean hasBlasphemy = containsAny(lower,
                 "maldito", "maldita", "muérete", "muerete", "inútil", "inutil", "falso", "falsa", "idiota",
                 "estúpido", "estupido", "basura", "asco", "mierda", "débil", "debil", "te odio", "puto",
                 "puta", "perro", "mentira", "no existes", "patético", "patetico", "fracasado", "muere",
-                "lárgate", "largate", "púdrete", "pudrete", "blasfemo", "imbécil", "imbecil", "vete al diablo");
+                "lárgate", "largate", "púdrete", "pudrete", "blasfemo", "imbécil", "imbecil", "vete al diablo",
+                "damn", "useless", "fake", "idiot", "stupid", "trash", "weak", "hate you", "pathetic", "die", "rot", "curse you", "scum");
 
         boolean hasDisrespect = containsAny(lower,
                 "feo", "fea", "aburrido", "pesado", "cállate", "callate", "no me importas",
-                "no te temo", "payaso", "ridículo", "ridiculo", "estorbo");
+                "no te temo", "payaso", "ridículo", "ridiculo", "estorbo",
+                "ugly", "boring", "shut up", "clown", "ridiculous", "nuisance", "don't care", "dont care");
 
         boolean hasPraiseOrPlea = containsAny(lower,
                 "alabo", "alabado", "gloria", "gran", "magnífico", "magnifico", "poderoso",
                 "te venero", "te adoro", "mi señor", "mi dios", "perdón", "perdon", "piedad",
                 "clemencia", "ayúdame", "ayudame", "sálvame", "salvame", "te ofrezco", "tributo",
-                "bendíceme", "bendiceme", "por favor");
+                "bendíceme", "bendiceme", "por favor",
+                "praise", "glory", "magnificent", "powerful", "worship", "adore", "my lord", "my god",
+                "mercy", "pity", "help me", "save me", "bless me", "please", "tribute", "offering");
 
         DivinePhysicalAction action = DivinePhysicalAction.NONE;
         float effort = 0.0F;
@@ -357,36 +374,51 @@ public final class GeminiAiService {
             if (favor >= 100) {
                 action = DivinePhysicalAction.SUMMON_AVATAR;
                 effort = 0.0F;
-                response = buildSummonResponse(selectedGod, snapshot.playerName());
+                response = buildSummonResponse(selectedGod, snapshot.playerName(), isEnglish);
             } else if (favor >= 0) {
                 action = DivinePhysicalAction.NONE;
                 effort = 0.0F;
-                response = "«¿Pretendes convocarme, " + snapshot.playerName() + "? Solo atiendo el llamado de mi Campeón Supremo (Favor +100). Tu devoción actual es de [" + favor + "/100].»";
+                response = isEnglish
+                        ? "«Do you presume to summon me, " + snapshot.playerName() + "? I answer only the call of my Supreme Champion (Favor +100). Your current devotion is [" + favor + "/100].»"
+                        : "«¿Pretendes convocarme, " + snapshot.playerName() + "? Solo atiendo el llamado de mi Campeón Supremo (Favor +100). Tu devoción actual es de [" + favor + "/100].»";
             } else {
                 action = DivinePhysicalAction.LIGHTNING;
                 effort = -0.5F;
-                response = "«¿Un hereje osando ordenarme aparecer? Si desciendo ante ti, " + snapshot.playerName() + ", será para arrancarte la vida.»";
+                response = isEnglish
+                        ? "«A heretic daring to command my arrival? If I descend before you, " + snapshot.playerName() + ", it shall be to rip the life from your bones.»"
+                        : "«¿Un hereje osando ordenarme aparecer? Si desciendo ante ti, " + snapshot.playerName() + ", será para arrancarte la vida.»";
             }
         } else if (hasBlasphemy) {
             action = isNearAltarOrAvatar ? DivinePhysicalAction.REPULSION : DivinePhysicalAction.LIGHTNING;
             effort = -1.0F;
-            response = buildBlasphemyRebuke(selectedGod, snapshot.playerName());
+            response = buildBlasphemyRebuke(selectedGod, snapshot.playerName(), isEnglish);
         } else if (hasDisrespect) {
             action = DivinePhysicalAction.CURSE;
             effort = -0.6F;
-            response = buildDisrespectLine(selectedGod, snapshot.playerName());
+            response = buildDisrespectLine(selectedGod, snapshot.playerName(), isEnglish);
         } else if (hasPraiseOrPlea) {
             action = favor >= -20 ? DivinePhysicalAction.BLESSING : DivinePhysicalAction.NONE;
             effort = 0.8F;
-            response = buildPraiseOrPleaLine(selectedGod, favor, snapshot.playerName());
+            response = buildPraiseOrPleaLine(selectedGod, favor, snapshot.playerName(), isEnglish);
         } else {
-            response = buildFallbackLine(selectedGod, favor, snapshot.playerName());
+            response = buildFallbackLine(selectedGod, favor, snapshot.playerName(), isEnglish);
         }
 
         return new DivineAiDecision(true, selectedGod, response, effort, action);
     }
 
-    private static String buildSummonResponse(SinGod god, String playerName) {
+    private static String buildSummonResponse(SinGod god, String playerName, boolean isEnglish) {
+        if (isEnglish) {
+            return switch (god) {
+                case GREED -> "«Gold clinks and the earth trembles! I hear the call of my wealthiest devotee; behold Mammon!»";
+                case WRATH -> "«The roar of battle summons me! Here I am, my Champion " + playerName + "! Let blood flow!»";
+                case GLUTTONY -> "«The eternal banquet flings open its doors! Your lord Beelze descends to break bread with you.»";
+                case PRIDE -> "«Make way for the Sun King! Your supreme reverence has earned the privilege of beholding Lucian in person.»";
+                case ENVY -> "«From abyssal depths I answer your claim, Champion. Let us strip the world together.»";
+                case SLOTH -> "«Ugh... rising is such a chore, but for my number one sleeper I shall make an exception... Here I am.»";
+                case LUST -> "«Your sweet voice shatters the heavenly veil... I manifest before you, my beloved. Let me enchant you.»";
+            };
+        }
         return switch (god) {
             case GREED -> "«¡El oro tintinea y la tierra tiembla! Escucho el llamado de mi más rico devoto; ¡contempla a Mammon!»";
             case WRATH -> "«¡El rugido de la batalla me convoca! ¡Aquí estoy, mi Campeón " + playerName + "! ¡Que corra la sangre!»";
@@ -407,7 +439,18 @@ public final class GeminiAiService {
         return false;
     }
 
-    private static String buildBlasphemyRebuke(SinGod god, String playerName) {
+    private static String buildBlasphemyRebuke(SinGod god, String playerName, boolean isEnglish) {
+        if (isEnglish) {
+            return switch (god) {
+                case GREED -> "«Darest thou insult me, insolent pauper? Thou shalt repay this slight with every ounce of thy blood!»";
+                case WRATH -> "«Wretched blasphemer! May steel and fire consume thy haughty tongue!»";
+                case GLUTTONY -> "«Audacious worm! Thou shalt become a banquet for flies for scorning Beelze!»";
+                case PRIDE -> "«Does an insect such as thee dare raise voice against the Supreme King? Bow thy pride in the mire!»";
+                case ENVY -> "«Curse all thou wilt, insignificant mortal; the abyssal waters shall drown thy conceit.»";
+                case SLOTH -> "«So loud and noisy... Not even my sloth shall stay the crushing weight of my punishment.»";
+                case LUST -> "«Such a foul, vulgar tongue. Thou shalt rue every utterance before my crimson wrath.»";
+            };
+        }
         return switch (god) {
             case GREED -> "«¿Osas insultarme, pordiosero insolente? ¡Pagarás esa afrenta con cada onza de tu sangre!»";
             case WRATH -> "«¡Blasfemo miserable! ¡Que el acero y el fuego devoren tu lengua insolente!»";
@@ -419,7 +462,18 @@ public final class GeminiAiService {
         };
     }
 
-    private static String buildDisrespectLine(SinGod god, String playerName) {
+    private static String buildDisrespectLine(SinGod god, String playerName, boolean isEnglish) {
+        if (isEnglish) {
+            return switch (god) {
+                case GREED -> "«Thy words are not worth a single rusty copper nugget. Respect the master of wealth.»";
+                case WRATH -> "«Thinkest thou brave speaking with disdain? Prove thy mettle with steel in hand, coward.»";
+                case GLUTTONY -> "«Thy arrogance nauseates me. Swallow thy words before hunger devours thee whole.»";
+                case PRIDE -> "«Thy insolence touches not the soles of my golden sandals. Know thy humble place.»";
+                case ENVY -> "«Thou speakest with too much scorn for someone so fragile. I shall strip away everything thou holdest.»";
+                case SLOTH -> "«Thou art far too exhausting, mortal. Take a rest and cease troubling the gods.»";
+                case LUST -> "«Thou lackest elegance and grace. Savor the bitter sting of thine own ugliness.»";
+            };
+        }
         return switch (god) {
             case GREED -> "«Tus palabras no valen ni una pepita de cobre oxidado. Respeta al amo de las riquezas.»";
             case WRATH -> "«¿Te crees valiente hablando con desprecio? Demuestra tu coraje empuñando una espada, cobarde.»";
@@ -431,7 +485,18 @@ public final class GeminiAiService {
         };
     }
 
-    private static String buildPraiseOrPleaLine(SinGod god, int favor, String playerName) {
+    private static String buildPraiseOrPleaLine(SinGod god, int favor, String playerName, boolean isEnglish) {
+        if (isEnglish) {
+            return switch (god) {
+                case GREED -> "«Thy devotion gleams like purest gold, " + playerName + ". Cherish my boons and thou shalt flourish.»";
+                case WRATH -> "«I hear thy battle plea, warrior! Lift high thy head and tear thy foes asunder with my fury!»";
+                case GLUTTONY -> "«Sate thy soul upon my heavenly board! Thou shalt never hunger while thou renderest tribute.»";
+                case PRIDE -> "«I receive thy plea and humble bow. Walk beneath the undefeated radiance of Lucian.»";
+                case ENVY -> "«Thy supplications please me. May thy rivals perish and their hoard pass into thy grasp.»";
+                case SLOTH -> "«Breathe deep, still thy cares, and rest beneath my shroud. Peace shall bless thee.»";
+                case LUST -> "«What melodious praise... Receive my grace and let beauty blossom all around thee.»";
+            };
+        }
         return switch (god) {
             case GREED -> "«Tu devoción brilla como el oro más puro, " + playerName + ". Conserva mis dones y prosperarás.»";
             case WRATH -> "«¡Escucho tu plegaria, guerrero! ¡Levanta la cabeza y despedaza a tus enemigos con mi furia!»";
@@ -443,7 +508,46 @@ public final class GeminiAiService {
         };
     }
 
-    private static String buildFallbackLine(SinGod god, int favor, String playerName) {
+    private static String buildFallbackLine(SinGod god, int favor, String playerName, boolean isEnglish) {
+        if (isEnglish) {
+            return switch (god) {
+                case GREED -> favor >= 20
+                        ? "«Thy words chime like golden coins, " + playerName + " [Favor " + favor + "]. Continue heaping my altar.»"
+                        : (favor <= -20
+                        ? "«I smell the jewels hidden within thy pockets, " + playerName + " [Favor " + favor + "]. Pay thy tithe or I claim it in blood.»"
+                        : "«All that glitters beneath this earth belongs to me, mortal. Remember this ere thou hoardest a single diamond.»");
+                case WRATH -> favor >= 20
+                        ? "«Thus speaks a warrior worthy of my fury, " + playerName + " [Favor " + favor + "]! Leave none breathing!»"
+                        : (favor <= -20
+                        ? "«Less idle prattle and more naked steel, coward [Favor " + favor + "]. My patience wanes.»"
+                        : "«Words are hollow wind; shed blood beside my altar alone holds worth.»");
+                case GLUTTONY -> favor >= 20
+                        ? "«Come feast at the board, " + playerName + " [Favor " + favor + "]! The banquet never ends for my devout!»"
+                        : (favor <= -20
+                        ? "«Thy empty gullet insults me, " + playerName + " [Favor " + favor + "]. Feast like royalty or be devoured.»"
+                        : "«Speakest thou of hunger? Bring noble delicacies to my altar and feast until bursting.»");
+                case PRIDE -> favor >= 20
+                        ? "«I grant thee the honor of my audience, " + playerName + " [Favor " + favor + "]. Kneel upon high peaks and proclaim my majesty.»"
+                        : (favor <= -20
+                        ? "«Darest thou lift voice without bending the knee, insect [Favor " + favor + "]? Mind thy tongue before Lucian.»"
+                        : "«I heed only those who rise above the clouds (Y > 120) and bow before my sun.»");
+                case ENVY -> favor >= 20
+                        ? "«Strip everything from them, " + playerName + " [Favor " + favor + "]. Let no rival deity or villager prosper.»"
+                        : (favor <= -20
+                        ? "«I see thee fawning before other gods, traitor [Favor " + favor + "]. All thou treasurest shall turn to cinder.»"
+                        : "«Why settle for scraps when thou canst plunder others and burn it upon my altar?»");
+                case SLOTH -> favor >= 20
+                        ? "«Thou speakest much... yet I like thee, " + playerName + " [Favor " + favor + "]. Sit down and let the world turn by itself.»"
+                        : (favor <= -20
+                        ? "«So much racket and haste, " + playerName + " [Favor " + favor + "]... running everywhere gives me a headache.»"
+                        : "«To what end so much toil, mortal? Pause beside my altar and rest a while...»");
+                case LUST -> favor >= 20
+                        ? "«Thy voice is sweet music to my ears, gentle " + playerName + " [Favor " + favor + "]. Encircle my altar with blossoms and melodies.»"
+                        : (favor <= -20
+                        ? "«Thou art devoid of grace and splendor, " + playerName + " [Favor " + favor + "]. Sullied not my name without artistry or passion.»"
+                        : "«Life without beauty, song, and desire is a grey desert. Beautify this realm for me.»");
+            };
+        }
         return switch (god) {
             case GREED -> favor >= 20
                     ? "«Tus palabras suenan a monedas de oro, " + playerName + " [Favor " + favor + "]. Sigue llenando mi altar.»"
@@ -503,7 +607,8 @@ public final class GeminiAiService {
                 }
             }
         }
-        if (containsAny(lower, "dios", "dioses", "panteon", "panteón", "altar", "blasfemo", "maldito", "piedad", "clemencia")) {
+        if (containsAny(lower, "dios", "dioses", "panteon", "panteón", "altar", "blasfemo", "maldito", "piedad", "clemencia",
+                "god", "gods", "pantheon", "altar", "blasphemy", "cursed", "mercy", "lord")) {
             return Optional.of(SinGod.PRIDE);
         }
         return Optional.empty();

@@ -15,12 +15,16 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -90,6 +94,23 @@ public class GodAcolyteEntity extends PathfinderMob implements Merchant {
         super.defineSynchedData(builder);
         builder.define(DATA_GOD_ID, SinGod.WRATH.getId());
         builder.define(DATA_ALLIED, false);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public @Nullable SpawnGroupData finalizeSpawn(
+            ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnReason, @Nullable SpawnGroupData groupData
+    ) {
+        SpawnGroupData data = super.finalizeSpawn(level, difficulty, spawnReason, groupData);
+        if (level.getLevel() instanceof ServerLevel serverLevel && this.getMainHandItem().isEmpty()) {
+            SinGod god = this.getGod();
+            DivineEquipmentHelper.equipAcolyte(serverLevel, this, god);
+            if (this.getCustomName() == null) {
+                this.setCustomName(god.getAcolyteCustomName(this.isAlliedProtector()));
+                this.setCustomNameVisible(true);
+            }
+        }
+        return data;
     }
 
     @Override

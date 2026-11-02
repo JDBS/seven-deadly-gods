@@ -48,7 +48,7 @@ public class DivineWarHornItem extends Item {
         SinGod playerGod = findPrimaryPatronGod(serverPlayer);
         if (playerGod == null) {
             serverPlayer.sendSystemMessage(
-                    Component.literal("Ningún dios te considera digno de liderar un asedio (necesitas al menos +40 de Favor).")
+                    Component.translatable("message.sevendeadlygods.war_horn.insufficient_favor")
                             .withStyle(ChatFormatting.RED)
             );
             return InteractionResult.FAIL;
@@ -60,7 +60,7 @@ public class DivineWarHornItem extends Item {
 
         if (villageOpt.isEmpty()) {
             serverPlayer.sendSystemMessage(
-                    Component.literal("No te encuentras dentro de ninguna aldea consagrada que asediar.")
+                    Component.translatable("message.sevendeadlygods.war_horn.not_in_village")
                             .withStyle(ChatFormatting.YELLOW)
             );
             return InteractionResult.FAIL;
@@ -70,7 +70,7 @@ public class DivineWarHornItem extends Item {
         if (village.patronGod() == playerGod) {
             serverPlayer.sendSystemMessage(
                     playerGod.getFormattedPrefix().append(
-                            Component.literal("«¿Pretendes tocar el cuerno de guerra contra mi propio templo sagrado? ¡Insensato!»")
+                            Component.translatable("message.sevendeadlygods.war_horn.friendly_fire")
                                     .withStyle(ChatFormatting.RED)
                     )
             );
@@ -79,7 +79,7 @@ public class DivineWarHornItem extends Item {
 
         if (village.state() == GodVillageState.EN_ASEDIO) {
             serverPlayer.sendSystemMessage(
-                    Component.literal("Esta aldea ya se encuentra bajo asedio.")
+                    Component.translatable("message.sevendeadlygods.war_horn.already_besieged")
                             .withStyle(ChatFormatting.YELLOW)
             );
             return InteractionResult.FAIL;
@@ -101,7 +101,7 @@ public class DivineWarHornItem extends Item {
 
         serverPlayer.sendSystemMessage(
                 playerGod.getFormattedPrefix().append(
-                        Component.literal("«¡Que arda el santuario de " + village.patronGod().getDisplayName() + "! ¡Mis Acólitos marchan a tu lado!»")
+                        Component.translatable("message.sevendeadlygods.war_horn.assault_started", village.patronGod().getDisplayNameComponent())
                                 .withStyle(playerGod.getChatColor(), ChatFormatting.BOLD)
                 )
         );

@@ -62,7 +62,7 @@ public class GodAcolyteModel extends EntityModel<GodAcolyteRenderState> implemen
         );
         head.addOrReplaceChild(
                 "nose",
-                CubeListBuilder.create().texOffs(24, 0).addBox(-1.0F, -1.0F, -6.0F, 2.0F, 4.0F, 2.0F),
+                CubeListBuilder.create().texOffs(55, 64).addBox(-1.0F, -1.0F, -6.0F, 2.0F, 4.0F, 2.0F),
                 PartPose.offset(0.0F, -2.0F, 0.0F)
         );
 
@@ -70,7 +70,7 @@ public class GodAcolyteModel extends EntityModel<GodAcolyteRenderState> implemen
         root.addOrReplaceChild(
                 "body",
                 CubeListBuilder.create()
-                        .texOffs(16, 20).addBox(-4.0F, 0.0F, -3.0F, 8.0F, 12.0F, 6.0F)
+                        .texOffs(16, 18).addBox(-4.0F, 0.0F, -3.0F, 8.0F, 12.0F, 6.0F)
                         .texOffs(0, 38).addBox(-4.0F, 0.0F, -3.0F, 8.0F, 18.0F, 6.0F, new CubeDeformation(0.45F)),
                 PartPose.offset(0.0F, 0.0F, 0.0F)
         );
@@ -78,40 +78,40 @@ public class GodAcolyteModel extends EntityModel<GodAcolyteRenderState> implemen
         // Brazos para sostener armas
         root.addOrReplaceChild(
                 "right_arm",
-                CubeListBuilder.create().texOffs(40, 46).addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F),
+                CubeListBuilder.create().texOffs(44, 18).addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F),
                 PartPose.offset(-5.0F, 2.0F, 0.0F)
         );
         root.addOrReplaceChild(
                 "left_arm",
-                CubeListBuilder.create().texOffs(40, 46).mirror().addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F),
+                CubeListBuilder.create().texOffs(28, 38).addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F),
                 PartPose.offset(5.0F, 2.0F, 0.0F)
         );
 
         // Piernas
         root.addOrReplaceChild(
                 "right_leg",
-                CubeListBuilder.create().texOffs(0, 22).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F),
+                CubeListBuilder.create().texOffs(44, 38).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F),
                 PartPose.offset(-2.0F, 12.0F, 0.0F)
         );
         root.addOrReplaceChild(
                 "left_leg",
-                CubeListBuilder.create().texOffs(0, 22).mirror().addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F),
+                CubeListBuilder.create().texOffs(0, 18).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F),
                 PartPose.offset(2.0F, 12.0F, 0.0F)
         );
 
         // Alas divinas en la espalda
         root.addOrReplaceChild(
                 "left_wing",
-                CubeListBuilder.create().texOffs(36, 20).mirror().addBox(0.0F, -4.0F, 0.0F, 12.0F, 16.0F, 1.0F),
+                CubeListBuilder.create().texOffs(0, 64).addBox(0.0F, -4.0F, 0.0F, 12.0F, 16.0F, 1.0F),
                 PartPose.offset(1.5F, 3.0F, 3.2F)
         );
         root.addOrReplaceChild(
                 "right_wing",
-                CubeListBuilder.create().texOffs(36, 20).addBox(-12.0F, -4.0F, 0.0F, 12.0F, 16.0F, 1.0F),
+                CubeListBuilder.create().texOffs(28, 64).addBox(-12.0F, -4.0F, 0.0F, 12.0F, 16.0F, 1.0F),
                 PartPose.offset(-1.5F, 3.0F, 3.2F)
         );
 
-        return LayerDefinition.create(mesh, 64, 64);
+        return LayerDefinition.create(mesh, 64, 128);
     }
 
     @Override

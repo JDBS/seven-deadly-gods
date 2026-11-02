@@ -6,6 +6,9 @@ El mod proporciona un árbol completo de comandos bajo el prefijo `/gods`, divid
 
 ## 👥 Comandos Públicos (Para Todos los Jugadores)
 
+### `/gods help` (o simplemente `/gods`)
+Muestra en el chat un índice estructurado con todos los comandos disponibles del mod y una breve descripción de cada uno. La lista se adapta automáticamente según si el usuario es un jugador normal o un operador (OP).
+
 ### `/gods favor`
 Muestra en el chat un informe detallado con tu puntuación de favor actual (`-100` a `+100`) y tu título con cada uno de los 7 Pecados Capitales.
 

@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * Representa a cada uno de los 7 Pecados Capitales encarnados como Dioses.
+ * Panteon inmutable de los 7 Pecados Capitales personificados como deidades vivas.
  */
 public enum SinGod implements StringRepresentable {
     GREED(
@@ -34,8 +34,13 @@ public enum SinGod implements StringRepresentable {
             Te enfurece profundamente que un mortal lleve puesta armadura valiosa (diamante, netherite, oro) o acumule riquezas en su inventario sin pagarte diezmo.
             Hablas con metaforas de deudas, intereses, contratos, tesoros y codicia.
             """,
-            List.of("mammon", "avaricia", "oro", "diamante", "diamantes", "esmeralda", "esmeraldas", "netherite", "rico", "riqueza", "tesoro", "mina", "minar", "fortuna", "dinero", "tributo", "caro", "valioso"),
-            "\\b(mammon|dios de la avaricia)\\b"
+            List.of(
+                    "mammon", "avaricia", "oro", "diamante", "diamantes", "esmeralda", "esmeraldas", "netherite",
+                    "rico", "riqueza", "tesoro", "mina", "minar", "fortuna", "dinero", "tributo", "caro", "valioso",
+                    "greed", "gold", "diamond", "diamonds", "emerald", "emeralds", "rich", "riches", "wealth",
+                    "wealthy", "treasure", "mine", "mining", "fortune", "money", "tribute", "expensive", "valuable"
+            ),
+            "\\b(mammon|dios de la avaricia|god of greed)\\b"
     ),
     WRATH(
             "wrath",
@@ -52,8 +57,13 @@ public enum SinGod implements StringRepresentable {
             Te complace que el mortal luche al borde de la muerte sin huir y masacre enemigos.
             Hablas con furia contenida o desatada, exigiendo guerra, acero y sangre.
             """,
-            List.of("khorvath", "ira", "furia", "sangre", "matar", "muerte", "pelea", "combate", "guerra", "espada", "batalla", "cobarde", "escudo", "miedo", "jefe", "boss", "odio", "venganza"),
-            "\\b(khorvath|korvath|dios de la ira)\\b"
+            List.of(
+                    "khorvath", "ira", "furia", "sangre", "matar", "muerte", "pelea", "combate", "guerra", "espada",
+                    "batalla", "cobarde", "escudo", "miedo", "jefe", "boss", "odio", "venganza",
+                    "wrath", "fury", "blood", "kill", "killing", "slay", "death", "fight", "fighting", "combat",
+                    "war", "sword", "battle", "coward", "shield", "fear", "hatred", "hate", "revenge", "vengeance"
+            ),
+            "\\b(khorvath|korvath|dios de la ira|god of wrath)\\b"
     ),
     GLUTTONY(
             "gluttony",
@@ -70,8 +80,13 @@ public enum SinGod implements StringRepresentable {
             Te enfada que un mortal pase hambre, ayune por tacañeria o coma basura podrida.
             Hablas siempre de sabores, hambre, banquetes, festines y saciedad.
             """,
-            List.of("beelze", "gula", "hambre", "comida", "comer", "banquete", "festin", "manzana", "pastel", "carne", "pan", "estofado", "devorar", "sed", "pocion", "cosecha", "delicioso"),
-            "\\b(beelze|beelzebub|belcebu|dios de la gula)\\b"
+            List.of(
+                    "beelze", "gula", "hambre", "comida", "comer", "banquete", "festin", "manzana", "pastel",
+                    "carne", "pan", "estofado", "devorar", "sed", "pocion", "cosecha", "delicioso",
+                    "gluttony", "hunger", "hungry", "food", "eat", "eating", "banquet", "feast", "apple", "cake",
+                    "meat", "bread", "stew", "devour", "devouring", "thirst", "potion", "harvest", "delicious"
+            ),
+            "\\b(beelze|beelzebub|belcebu|dios de la gula|god of gluttony)\\b"
     ),
     PRIDE(
             "pride",
@@ -88,8 +103,13 @@ public enum SinGod implements StringRepresentable {
             Te enfurece que el mortal muera de formas ridiculas, no se arrodille ante ti o alabe a otros dioses inferiores.
             Hablas con superioridad regia, tratando al mortal como un subdito que debe ganarse el privilegio de mirarte.
             """,
-            List.of("lucian", "soberbia", "orgullo", "mejor", "perfecto", "dios", "rey", "trono", "cielo", "altura", "cumbre", "gloria", "honor", "alabanza", "arrodillarse", "trofeo", "invencible", "superior"),
-            "\\b(lucian|dios de la soberbia)\\b"
+            List.of(
+                    "lucian", "soberbia", "orgullo", "mejor", "perfecto", "dios", "rey", "trono", "cielo", "altura",
+                    "cumbre", "gloria", "honor", "alabanza", "arrodillarse", "trofeo", "invencible", "superior",
+                    "pride", "proud", "best", "perfect", "king", "throne", "sky", "height", "summit", "peak",
+                    "glory", "honor", "praise", "kneel", "kneeling", "trophy", "invincible", "superior", "majesty"
+            ),
+            "\\b(lucian|dios de la soberbia|god of pride)\\b"
     ),
     ENVY(
             "envy",
@@ -106,8 +126,13 @@ public enum SinGod implements StringRepresentable {
             Te complace el robo, el saqueo y que el mortal traicione a otros dioses.
             Hablas con celos, susurros venenosos y comparaciones constantes.
             """,
-            List.of("leviatan", "envidia", "celos", "robar", "saquear", "aldeano", "aldeanos", "cofre", "injusto", "suerte", "otros", "traicion", "quitar", "mio", "despojo", "comparar"),
-            "\\b(leviatan|diosa de la envidia|dios de la envidia)\\b"
+            List.of(
+                    "leviatan", "envidia", "celos", "robar", "saquear", "aldeano", "aldeanos", "cofre", "injusto",
+                    "suerte", "otros", "traicion", "quitar", "mio", "despojo", "comparar",
+                    "leviathan", "envy", "envious", "jealousy", "jealous", "sea", "ocean", "steal", "stealing",
+                    "loot", "plunder", "pillage", "villager", "villagers", "trident", "abyss", "destroy", "betrayal"
+            ),
+            "\\b(leviatan|leviathan|diosa de la envidia|dios de la envidia|goddess of envy|god of envy)\\b"
     ),
     SLOTH(
             "sloth",
@@ -124,8 +149,13 @@ public enum SinGod implements StringRepresentable {
             Te complace que el mortal duerma, pesque sentado, camine sin prisa o contemple el vacio.
             Te molesta el ruido, que esprinten sin parar o que trabajen demasiado. Hablas despacio, con bostezos e ironia tranquila.
             """,
-            List.of("belphegor", "pereza", "dormir", "sueño", "cama", "cansado", "descansar", "lento", "quieto", "paz", "silencio", "pescar", "correr", "prisa", "trabajar", "vago", "noche"),
-            "\\b(belphegor|belfegor|dios de la pereza)\\b"
+            List.of(
+                    "belphegor", "pereza", "dormir", "sueño", "cama", "cansado", "descansar", "lento", "quieto",
+                    "paz", "silencio", "pescar", "correr", "prisa", "trabajar", "vago", "noche",
+                    "sloth", "rest", "resting", "sleep", "sleeping", "bed", "slumber", "still", "stillness",
+                    "calm", "peace", "slow", "lazy", "tired", "fatigue", "fish", "fishing", "yawn", "yawning"
+            ),
+            "\\b(belphegor|belfegor|dios de la pereza|god of sloth)\\b"
     ),
     LUST(
             "lust",
@@ -142,8 +172,13 @@ public enum SinGod implements StringRepresentable {
             Te enfada la fealdad, que destruyan flores o maten crias de animales.
             Hablas con tono magnetico, poetico y apasionado.
             """,
-            List.of("asmodeus", "lujuria", "deseo", "amor", "belleza", "hermoso", "musica", "disco", "flor", "flores", "amatista", "criar", "vida", "arte", "armadura", "placer", "corazon"),
-            "\\b(asmodeus|asmodeo|dios de la lujuria|diosa de la lujuria)\\b"
+            List.of(
+                    "asmodeus", "lujuria", "deseo", "amor", "belleza", "hermoso", "musica", "disco", "flor",
+                    "flores", "amatista", "criar", "vida", "arte", "armadura", "placer", "corazon",
+                    "lust", "desire", "beauty", "beautiful", "flower", "flowers", "charm", "enchanting",
+                    "rose", "music", "love", "seduce", "seduction", "breed", "breeding", "amethyst", "crimson", "passion"
+            ),
+            "\\b(asmodeus|asmodeo|dios de la lujuria|diosa de la lujuria|god of lust|goddess of lust)\\b"
     );
 
     @SuppressWarnings("null")
@@ -244,21 +279,43 @@ public enum SinGod implements StringRepresentable {
     }
 
     public MutableComponent getFormattedPrefix() {
-        return Component.literal("[✦ " + this.displayName + ", " + this.title + " ✦] ").withStyle(this.chatColor, ChatFormatting.BOLD);
+        return Component.literal("[✦ ")
+                .append(Component.translatable("god.sevendeadlygods." + this.id + ".name"))
+                .append(", ")
+                .append(Component.translatable("god.sevendeadlygods." + this.id + ".title"))
+                .append(" ✦] ")
+                .withStyle(this.chatColor, ChatFormatting.BOLD);
     }
 
     public MutableComponent getEnvoyCustomName() {
-        return Component.literal("Enviado de " + this.displayName).withStyle(this.chatColor, ChatFormatting.BOLD);
+        return Component.translatable("entity.sevendeadlygods.envoy_named",
+                Component.translatable("god.sevendeadlygods." + this.id + ".name"))
+                .withStyle(this.chatColor, ChatFormatting.BOLD);
     }
 
     public MutableComponent getAcolyteCustomName(boolean isAllied) {
-        String prefix = isAllied ? "Acólito Devoto de " : "Acólito de ";
-        return Component.literal(prefix + this.displayName).withStyle(this.chatColor);
+        String key = isAllied ? "entity.sevendeadlygods.acolyte_devout_named" : "entity.sevendeadlygods.acolyte_named";
+        return Component.translatable(key, Component.translatable("god.sevendeadlygods." + this.id + ".name"))
+                .withStyle(this.chatColor);
     }
 
     public MutableComponent getAvatarCustomName() {
-        return Component.literal("Avatar de " + this.displayName + " (" + this.sinName + ")")
+        return Component.translatable("entity.sevendeadlygods.avatar_named",
+                Component.translatable("god.sevendeadlygods." + this.id + ".name"),
+                Component.translatable("god.sevendeadlygods." + this.id + ".sin"))
                 .withStyle(this.chatColor, ChatFormatting.BOLD);
+    }
+
+    public Component getDisplayNameComponent() {
+        return Component.translatable("god.sevendeadlygods." + this.id + ".name");
+    }
+
+    public Component getTitleComponent() {
+        return Component.translatable("god.sevendeadlygods." + this.id + ".title");
+    }
+
+    public Component getSinNameComponent() {
+        return Component.translatable("god.sevendeadlygods." + this.id + ".sin");
     }
 
     public static Optional<SinGod> byId(String id) {
@@ -266,6 +323,9 @@ public enum SinGod implements StringRepresentable {
             return Optional.empty();
         }
         String normalized = id.trim().toLowerCase(Locale.ROOT);
+        if ("leviathan".equals(normalized)) {
+            return Optional.of(ENVY);
+        }
         SinGod direct = BY_ID.get(normalized);
         if (direct != null) {
             return Optional.of(direct);

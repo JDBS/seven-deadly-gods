@@ -5,6 +5,30 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.2.0] - 2026-11-02
+
+### Added
+- **Localización Integral y Adaptación Bilingüe Dinámica (Inglés y Español)**:
+  - Soporte de cliente nativo mediante `Component.translatable` en la totalidad de sistemas interactivos del mod: 49 Tomos de Lore Sagrado, nombres, títulos e identidades de las 7 Deidades y sus siervos (`GodAcolyteEntity`, `GodAvatarEntity`, `GodEnvoySkeleton`), diálogos y pistas místicas de ritual en altares (`SinAltarBlockEntity`), transmisiones globales de Guerras Santas y asedios territoriales (`GodVillageRaidManager`), reliquias bendecidas y trofeos de deicidio conmemorativos (`DivineEquipmentHelper`), catálogo íntegro de comercio sagrado de 23 artefactos (`DivineTradingRegistry`), exigencias culturales de aldea (`VillageCultureApplier`), notificaciones de traición y salvación divina (`PlayerSinBehaviorEvents`) y uso táctico del cuerno de guerra (`DivineWarHornItem`).
+  - Adaptación lingüística contextual en el servicio de IA Gemini (`GeminiAiService`): captura del idioma del cliente (`player.clientInformation().language()`) inyectada en el prompt del sistema para que las deidades respondan orgánicamente en el idioma utilizado por el devoto (inglés o español), incorporando además vocabulario bilingüe de invocación directa y un motor de evaluación local de respaldo con respuestas completas en ambos idiomas.
+  - Paridad estricta del 100% con 476 claves entre los archivos de lenguaje `es_es.json` y `en_us.json`.
+- **Recompensa de Experiencia y Sabiduría Arcana en Libros Sagrados**:
+  - Al asimilar o leer por primera vez cualquiera de las 49 escrituras sagradas (`PlayerSinBehaviorEvents.handleLoreBookRead`), el jugador recibe `25` puntos de experiencia (configurable mediante `loreBookFirstReadXp` en `ModConfig`), acompañado de partículas de encantamiento (`ParticleTypes.ENCHANT`), efectos acústicos sagrados (`SoundEvents.EXPERIENCE_ORB_PICKUP`) y mensaje temático en el chat.
+  - Validación de mano principal (`InteractionHand.MAIN_HAND`) al consultar atriles (`LecternBlockEntity`) para una interacción más limpia y consistente.
+- **Huevos Generadores de Acólitos y Centinelas por Deidad (`GodAcolyteSpawnEggItem`, `ModItems`)**:
+  - Implementación de 7 Huevos Generadores dedicados para cada Dios del Pecado (`greed_acolyte_spawn_egg`, `wrath_acolyte_spawn_egg`, `gluttony_acolyte_spawn_egg`, `pride_acolyte_spawn_egg`, `envy_acolyte_spawn_egg`, `sloth_acolyte_spawn_egg`, `lust_acolyte_spawn_egg`) con paletas de color y manchas temáticas auténticas de Minecraft (16×16).
+  - Dualidad de invocación: clic derecho convencional genera un Acólito armado con sus atributos y armas sagradas; clic derecho con `Shift` (agachado) genera un Centinela Permanente pacífico para devotos con comercio divino habilitado.
+  - Inclusión de los 7 huevos generadores en la pestaña creativa de Seven Deadly Gods y traducciones completas en `es_es.json` y `en_us.json`.
+- **Comando de Ayuda Adaptativo (`/gods help`)**:
+  - Subcomando público `/gods help` (y ejecución por defecto de `/gods` sin argumentos) que presenta un índice estructurado y estilizado de todos los comandos disponibles, adaptando dinámicamente la información según si el usuario es un jugador común o un operador (OP).
+
+### Fixed
+- **Avance de Deicidio en Minecraft 26.3 (`slay_god_avatar.json`)**: corrección de la definición del criterio de avance sustituyendo el disparador `minecraft:player_killed_entity` con predicado incompatible por `minecraft:impossible`, resolviendo el crash fatal de arranque por error de carga de registros (`loot_condition_type`) y alineándolo con la arquitectura del mod donde el logro es otorgado programáticamente por `GodAvatarEntity` vía `ModAdvancements.award(...)`.
+- **Texturizado y Mapeo UV de Entidades (`GodAcolyteModel`, `GodAvatarRenderer`)**:
+  - Reestructuración completa del mapa UV de [`GodAcolyteModel`](src/main/java/com/volcov/sevendeadlygods/client/model/GodAcolyteModel.java) a resolución 64×128, eliminando el solapamiento de coordenadas entre las alas y el torso, y reubicando la nariz para evitar colisiones con la cabeza.
+  - Generación de texturas dedicadas con canal alfa y sombreado para los Acólitos y Centinelas en los 7 Pecados Capitales, aplicando apertura transparente en la capucha y túnica ceremonial para revelar el rostro y evitar cubos macizos inflados.
+  - Creación de skins completas de formato estándar de jugador (64×64) para los Avatares Divinos de los 7 Pecados, con capas exteriores transparentes y alineación pixel-perfect con la capa emisiva de ojos brillantes ([`avatar_glowing_eyes.png`](src/main/resources/assets/sevendeadlygods/textures/entity/avatar/avatar_glowing_eyes.png)).
+
 ## [1.1.0] - 2026-11-02
 
 ### Added
