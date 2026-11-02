@@ -53,3 +53,6 @@ docs/
 ### 6. ⚙️ Administración y Servidores
 * [Comandos del Mod](administracion/comandos.md): Referencia exhaustiva de `/gods favor`, `/gods village`, `/gods manifest`, etc.
 * [Opciones de Configuración](administracion/configuracion.md): Parámetros de `sevendeadlygods-common.toml`.
+
+### 7. 🛠️ Documentación de Desarrollo
+* [Portal Técnico de Desarrollo e Internals](dev/README.md): Cuaderno de notas técnicas, ciclo de vida Jigsaw, persistencia multidimensional, motor de IA híbrido, sistema de favor y renderizado moderno.
