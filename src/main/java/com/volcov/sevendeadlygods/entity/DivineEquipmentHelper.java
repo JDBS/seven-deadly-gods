@@ -88,7 +88,7 @@ public final class DivineEquipmentHelper {
         ItemStack boots = new ItemStack(goldenTheme ? Items.GOLDEN_BOOTS : Items.NETHERITE_BOOTS);
 
         for (ItemStack armor : List.of(helmet, chest, legs, boots)) {
-            applyEnchant(level, armor, Enchantments.PROTECTION, 7);
+            applyEnchant(level, armor, Enchantments.PROTECTION, 5);
             applyEnchant(level, armor, Enchantments.UNBREAKING, 10);
             applyEnchant(level, armor, Enchantments.THORNS, 5);
         }

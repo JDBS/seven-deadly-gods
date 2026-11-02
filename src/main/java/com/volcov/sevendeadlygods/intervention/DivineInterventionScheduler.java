@@ -38,6 +38,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.Map;
 
 public final class DivineInterventionScheduler {
@@ -536,9 +537,11 @@ public final class DivineInterventionScheduler {
             if (existingAvatar.isVillageRaidAvatar()) {
                 UUID villageId = existingAvatar.getRaidVillageId();
                 if (villageId == null && existingAvatar.getRaidAltarPos() != null) {
-                    villageId = GodVillageSavedData.get(level).findVillageAt(existingAvatar.getRaidAltarPos())
-                            .map(GodVillageSavedData.GodVillageRecord::id)
-                            .orElse(null);
+                    ServerLevel avatarLevel = existingAvatar.level() instanceof ServerLevel sl ? sl : level;
+                    var village = GodVillageSavedData.get(avatarLevel).findVillageAt(existingAvatar.getRaidAltarPos());
+                    if (village.isPresent()) {
+                        villageId = village.get().id();
+                    }
                 }
                 GodVillageRaidManager.postponeWrathHunt(villageId, god, player.getUUID());
                 player.sendSystemMessage(

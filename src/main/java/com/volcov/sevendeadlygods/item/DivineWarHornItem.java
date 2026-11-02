@@ -1,10 +1,8 @@
 package com.volcov.sevendeadlygods.item;
 
 import com.volcov.sevendeadlygods.advancement.ModAdvancements;
-import com.volcov.sevendeadlygods.entity.GodAcolyteEntity;
 import com.volcov.sevendeadlygods.favor.SinFavorManager;
 import com.volcov.sevendeadlygods.god.SinGod;
-import com.volcov.sevendeadlygods.registry.ModEntities;
 import com.volcov.sevendeadlygods.village.GodVillageRaidManager;
 import com.volcov.sevendeadlygods.village.GodVillageSavedData;
 import com.volcov.sevendeadlygods.village.GodVillageState;
@@ -17,12 +15,10 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.levelgen.Heightmap;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;

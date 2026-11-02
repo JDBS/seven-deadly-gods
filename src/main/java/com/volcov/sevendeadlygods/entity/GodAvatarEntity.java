@@ -60,8 +60,8 @@ import java.util.UUID;
 /**
  * Avatar fisico de uno de los 7 Dioses de los Pecados Capitales.
  * - Escala de altura: 1.5x respecto al jugador.
- * - Salud: 500 puntos de vida.
- * - Resistencia al dano del 80%, regeneracion y efectos de duracion infinita.
+ * - Salud: 400 puntos de vida.
+ * - Resistencia al dano del 50%, regeneracion equilibrada y efectos divinos permanentes.
  * - Armas y armaduras equipadas con encantamientos mas alla del limite de la mesa de encantamientos.
  * - Se manifiesta para cazar al jugador SOLO a -100 de favor, o de forma benevola SOLO entre +91 y +100.
  */
@@ -95,7 +95,7 @@ public class GodAvatarEntity extends PathfinderMob {
 
     public static AttributeSupplier.Builder createAttributes() {
         return PathfinderMob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 500.0D)
+                .add(Attributes.MAX_HEALTH, 400.0D)
                 .add(Attributes.SCALE, 1.5D)
                 .add(Attributes.MOVEMENT_SPEED, 0.36D)
                 .add(Attributes.ATTACK_DAMAGE, 18.0D)
@@ -207,7 +207,7 @@ public class GodAvatarEntity extends PathfinderMob {
         // Equipar armas y armaduras sobre-encantadas
         DivineEquipmentHelper.equipAvatarWithOverleveledGear(level, this, god);
 
-        // Aplicar efectos de duracion infinita (Regeneracion, Resistencia IV = 80%, Fuerza, Resistencia al Fuego)
+        // Aplicar efectos de duracion infinita (Regeneracion I, Resistencia II = 40%, Fuerza, Resistencia al Fuego)
         applyInfiniteDivineEffects();
         this.setHealth(this.getMaxHealth());
 
@@ -216,8 +216,8 @@ public class GodAvatarEntity extends PathfinderMob {
 
     private void applyInfiniteDivineEffects() {
         int inf = MobEffectInstance.INFINITE_DURATION;
-        this.addEffect(new MobEffectInstance(MobEffects.REGENERATION, inf, 1, false, false));
-        this.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, inf, 3, false, false)); // 80% reduccion
+        this.addEffect(new MobEffectInstance(MobEffects.REGENERATION, inf, 0, false, false));
+        this.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, inf, 1, false, false)); // 40% reduccion
         this.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, inf, 0, false, false));
         this.addEffect(new MobEffectInstance(MobEffects.STRENGTH, inf, 1, false, false));
     }
@@ -300,9 +300,9 @@ public class GodAvatarEntity extends PathfinderMob {
                 DivineInterventionScheduler.onAvatarTick(this);
             }
 
-            // Asegurar regeneracion continua (500 HP max)
-            if (this.manifestationTicks % 20 == 0 && this.getHealth() < this.getMaxHealth()) {
-                this.heal(2.5F);
+            // Asegurar regeneracion continua moderada (400 HP max)
+            if (this.manifestationTicks % 40 == 0 && this.getHealth() < this.getMaxHealth()) {
+                this.heal(1.0F);
             }
 
             if (this.isWrathHunter() && this.targetPlayerUuid != null && this.manifestationTicks % 20 == 0) {
@@ -365,11 +365,11 @@ public class GodAvatarEntity extends PathfinderMob {
     }
 
     /**
-     * Garantia explicita de 80% de resistencia al dano en el Avatar.
+     * Reduccion balanceada al 50% de resistencia innata al dano en el Avatar.
      */
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
-        float reducedAmount = amount * 0.20F; // 80% de resistencia al dano
+        float reducedAmount = amount * 0.50F; // 50% de resistencia al dano innata
         return super.hurtServer(level, source, reducedAmount);
     }
 

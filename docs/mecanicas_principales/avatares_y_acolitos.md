@@ -19,7 +19,7 @@ Los Acólitos son humanoides alados encapuchados que visten las túnicas sagrada
 ## ⚡ Avatares del Pecado (`GodAvatarEntity`)
 
 El Avatar es la manifestación física directa y colosal de la deidad:
-* **Estadísticas de Jefe**: `500 HP`, escala visual colosal (`1.5x`), `80% de reducción pasiva de daño`, inmunidad a proyectiles débiles, ignífugos e inmunes a caída.
+* **Estadísticas de Jefe**: `400 HP`, escala visual colosal (`1.5x`), `50% de reducción pasiva de daño innata`, buffs de `Resistencia II` (40%) y `Regeneración I`, armadura con `Protección V`, ignífugos e inmunes a caída.
 * **Barra de Jefe Dinámica**: Muestra el nombre sagrado del dios en su color temático y su título.
 * **Equipamiento Sobre-encantado**: Portan armadura completa personalizada y armas legendarias con encantamientos de nivel superior (*Filo VIII*, *Frenesí de Furia*, etc.).
 * **Persistencia y Scoping Territorial**: Su estado como defensor de asedio (`villageRaidAvatar`) y su altar de pertenencia (`raidAltarPos`) se guardan en el NBT de la entidad; no expiran a los 4.800 ticks de una manifestación ordinaria mientras la aldea siga en asedio, y suspenden su tarea de seguimiento a campeones (`StayNearChampionGoal`) para centrarse en el santuario.

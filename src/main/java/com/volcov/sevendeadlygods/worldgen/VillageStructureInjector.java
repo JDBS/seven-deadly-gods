@@ -23,10 +23,21 @@ import java.util.List;
 
 /**
  * Inyecta los Templos Consagrados de los 7 Dioses del Pecado en las piscinas de plantillas
- * Jigsaw de las aldeas vanilla (plains, desert, savanna, taiga, snowy) manteniendo una
- * probabilidad aproximada del 20% por aldea generada.
+ * Jigsaw de las aldeas vanilla (plains, desert, savanna, taiga, snowy) y registra el rastreador
+ * de inicio de aldea (town_centers) para garantizar:
+ * 1. Decisión de consagración del 20% indexada por la posición de inicio real de la aldea.
+ * 2. Un único Dios del Pecado elegido por aldea consagrada.
+ * 3. Exactamente un único santuario físico colocado por aldea con rollback si un intento colisiona.
  */
 public final class VillageStructureInjector {
+    private static final List<Identifier> VILLAGE_TOWN_CENTERS_POOLS = List.of(
+            Identifier.withDefaultNamespace("village/plains/town_centers"),
+            Identifier.withDefaultNamespace("village/desert/town_centers"),
+            Identifier.withDefaultNamespace("village/savanna/town_centers"),
+            Identifier.withDefaultNamespace("village/taiga/town_centers"),
+            Identifier.withDefaultNamespace("village/snowy/town_centers")
+    );
+
     private static final List<Identifier> VILLAGE_HOUSES_POOLS = List.of(
             Identifier.withDefaultNamespace("village/plains/houses"),
             Identifier.withDefaultNamespace("village/desert/houses"),
@@ -66,6 +77,16 @@ public final class VillageStructureInjector {
         ResourceKey<StructureProcessorList> emptyKey = ResourceKey.create(Registries.PROCESSOR_LIST, Identifier.withDefaultNamespace("empty"));
         Holder<StructureProcessorList> emptyProcessors = processorRegistry.getOrThrow(emptyKey);
 
+        // 1. Envolver los centros de aldea para capturar la posición de inicio real de la aldea
+        int trackedTownCenters = 0;
+        for (Identifier centerPoolId : VILLAGE_TOWN_CENTERS_POOLS) {
+            StructureTemplatePool pool = poolRegistry.getValue(centerPoolId);
+            if (pool != null && wrapTownCentersPool(pool)) {
+                trackedTownCenters++;
+            }
+        }
+
+        // 2. Inyectar templos de los 7 pecados en las casas de aldea
         int injectedPools = 0;
         for (Identifier poolId : VILLAGE_HOUSES_POOLS) {
             StructureTemplatePool pool = poolRegistry.getValue(poolId);
@@ -79,9 +100,45 @@ public final class VillageStructureInjector {
         }
 
         SevenDeadlyGodsMod.LOGGER.info(
-                "Templos de los 7 Pecados Capitales inyectados en {} piscinas Jigsaw de aldeas (tirada única 20% por aldea).",
-                injectedPools
+                "Templos de los 7 Pecados Capitales inyectados en {} piscinas de casas y rastreados en {} centros de aldeas.",
+                injectedPools,
+                trackedTownCenters
         );
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean wrapTownCentersPool(StructureTemplatePool pool) {
+        try {
+            List<Pair<StructurePoolElement, Integer>> currentRaw =
+                    (List<Pair<StructurePoolElement, Integer>>) rawTemplatesField.get(pool);
+
+            boolean modified = false;
+            List<Pair<StructurePoolElement, Integer>> newRaw = new ArrayList<>();
+            ObjectArrayList<StructurePoolElement> newTemplates = new ObjectArrayList<>();
+
+            for (Pair<StructurePoolElement, Integer> pair : currentRaw) {
+                StructurePoolElement el = pair.getFirst();
+                StructurePoolElement wrapped = el;
+                if (el instanceof SinglePoolElement single && !(el instanceof TownCenterTrackerElement)) {
+                    wrapped = new TownCenterTrackerElement(single);
+                    modified = true;
+                }
+                newRaw.add(Pair.of(wrapped, pair.getSecond()));
+                for (int i = 0; i < pair.getSecond(); i++) {
+                    newTemplates.add(wrapped);
+                }
+            }
+
+            if (modified) {
+                rawTemplatesField.set(pool, newRaw);
+                templatesField.set(pool, newTemplates);
+                return true;
+            }
+            return false;
+        } catch (IllegalAccessException e) {
+            SevenDeadlyGodsMod.LOGGER.error("Error al envolver centros de aldea para tracking de inicio Jigsaw", e);
+            return false;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -113,7 +170,7 @@ public final class VillageStructureInjector {
                         god,
                         templateId,
                         emptyProcessors,
-                        StructureTemplatePool.Projection.RIGID
+                        StructureTemplatePool.Projection.TERRAIN_MATCHING
                 );
 
                 int weight = 2;
