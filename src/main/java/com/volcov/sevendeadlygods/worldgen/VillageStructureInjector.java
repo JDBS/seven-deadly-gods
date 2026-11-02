@@ -4,13 +4,16 @@ import com.mojang.datafixers.util.Pair;
 import com.volcov.sevendeadlygods.SevenDeadlyGodsMod;
 import com.volcov.sevendeadlygods.god.SinGod;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 
@@ -55,8 +58,13 @@ public final class VillageStructureInjector {
             return;
         }
 
+        ConsecratedVillageShrineElement.clearCache();
+
         MinecraftServer server = event.getServer();
         Registry<StructureTemplatePool> poolRegistry = server.registryAccess().lookupOrThrow(Registries.TEMPLATE_POOL);
+        Registry<StructureProcessorList> processorRegistry = server.registryAccess().lookupOrThrow(Registries.PROCESSOR_LIST);
+        ResourceKey<StructureProcessorList> emptyKey = ResourceKey.create(Registries.PROCESSOR_LIST, Identifier.withDefaultNamespace("empty"));
+        Holder<StructureProcessorList> emptyProcessors = processorRegistry.getOrThrow(emptyKey);
 
         int injectedPools = 0;
         for (Identifier poolId : VILLAGE_HOUSES_POOLS) {
@@ -65,19 +73,22 @@ public final class VillageStructureInjector {
                 continue;
             }
 
-            if (injectGodShrinesIntoPool(pool)) {
+            if (injectGodShrinesIntoPool(pool, emptyProcessors)) {
                 injectedPools++;
             }
         }
 
         SevenDeadlyGodsMod.LOGGER.info(
-                "Templos de los 7 Pecados Capitales inyectados en {} piscinas Jigsaw de aldeas.",
+                "Templos de los 7 Pecados Capitales inyectados en {} piscinas Jigsaw de aldeas (tirada única 20% por aldea).",
                 injectedPools
         );
     }
 
     @SuppressWarnings("unchecked")
-    private boolean injectGodShrinesIntoPool(StructureTemplatePool pool) {
+    private boolean injectGodShrinesIntoPool(
+            StructureTemplatePool pool,
+            Holder<StructureProcessorList> emptyProcessors
+    ) {
         try {
             List<Pair<StructurePoolElement, Integer>> currentRaw =
                     (List<Pair<StructurePoolElement, Integer>>) rawTemplatesField.get(pool);
@@ -86,21 +97,26 @@ public final class VillageStructureInjector {
 
             // Evitar doble inyección si el pool ya contiene nuestros templos
             for (Pair<StructurePoolElement, Integer> pair : currentRaw) {
-                if (pair.getFirst() instanceof SinglePoolElement single
-                        && single.toString().contains(SevenDeadlyGodsMod.MOD_ID + ":village/")) {
+                if (pair.getFirst() instanceof ConsecratedVillageShrineElement
+                        || (pair.getFirst() instanceof SinglePoolElement single
+                        && single.toString().contains(SevenDeadlyGodsMod.MOD_ID + ":village/"))) {
                     return false;
                 }
             }
 
             List<Pair<StructurePoolElement, Integer>> mutableRaw = new ArrayList<>(currentRaw);
 
-            // Inyectamos cada uno de los 7 templos con peso = 1 (calibrado para ~20% de probabilidad por aldea)
+            // Inyectar elementos con tirada única por aldea y límite de 1 santuario
             for (SinGod god : SinGod.values()) {
-                String templatePath = SevenDeadlyGodsMod.MOD_ID + ":village/" + god.getId() + "_shrine";
-                StructurePoolElement piece = StructurePoolElement.single(templatePath)
-                        .apply(StructureTemplatePool.Projection.RIGID);
+                Identifier templateId = Identifier.fromNamespaceAndPath(SevenDeadlyGodsMod.MOD_ID, "village/" + god.getId() + "_shrine");
+                ConsecratedVillageShrineElement piece = new ConsecratedVillageShrineElement(
+                        god,
+                        templateId,
+                        emptyProcessors,
+                        StructureTemplatePool.Projection.RIGID
+                );
 
-                int weight = 1;
+                int weight = 2;
                 mutableRaw.add(Pair.of(piece, weight));
                 for (int i = 0; i < weight; i++) {
                     currentTemplates.add(piece);

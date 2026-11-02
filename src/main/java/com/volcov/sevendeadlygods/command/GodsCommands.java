@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.volcov.sevendeadlygods.block.SinAltarBlockEntity;
+import com.volcov.sevendeadlygods.config.ModConfig;
 import com.volcov.sevendeadlygods.favor.PlayerSinData;
 import com.volcov.sevendeadlygods.favor.SinFavorManager;
 import com.volcov.sevendeadlygods.god.SinGod;
@@ -263,7 +264,8 @@ public final class GodsCommands {
         GodVillageSavedData.GodVillageRecord v = opt.get();
         long now = level.getGameTime();
         long sinceRaid = Math.max(0L, now - v.lastRaidTick());
-        long cooldownRem = Math.max(0L, GodVillageRaidManager.RAID_COOLDOWN_TICKS - sinceRaid);
+        long raidCooldown = ModConfig.VILLAGE_RAID_COOLDOWN_TICKS.get();
+        long cooldownRem = Math.max(0L, raidCooldown - sinceRaid);
 
         player.sendSystemMessage(Component.literal("═══ Información de Aldea Consagrada ═══")
                 .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));

@@ -159,13 +159,14 @@ public class GodVillageRaidManager {
         server.getPlayerList().broadcastSystemMessage(msg, false);
         level.playSound(null, altarPos, SoundEvents.RAID_HORN.value(), SoundSource.HOSTILE, 3.0F, 0.85F);
 
-        // 2. Spawneo de Escuadrón Invasor (8 acólitos) y refuerzo defensivo si no había centinelas
+        // 2. Spawneo de fuerzas atacantes y refuerzo defensivo
         ensureMinimumDefenders(level, altarPos, defender, 3);
-        List<GodAcolyteEntity> invaders = spawnInvasionForces(level, altarPos, attacker, 8);
         if (instigator != null) {
-            for (GodAcolyteEntity invader : invaders) {
-                invader.getNavigation().moveTo(altarPos.getX() + 0.5D, altarPos.getY(), altarPos.getZ() + 0.5D, 1.15D);
-            }
+            // Asalto liderado por jugador (Cuerno de Guerra Divino): 6 Acólitos tácticos subordinados al comandante
+            spawnPlayerAssaultSquad(level, instigator, attacker, altarPos);
+        } else {
+            // Asedio autónomo entre deidades: 8 invasores autónomos
+            spawnInvasionForces(level, altarPos, attacker, 8);
         }
 
         // 3. Actualizar estado en persistencia y contexto activo
@@ -205,8 +206,8 @@ public class GodVillageRaidManager {
 
         // 15% dentro del 5%: El Gran Choque de Dioses (descienden ambos Avatares)
         if (level.getRandom().nextFloat() < 0.15F) {
-            manifestSingleRaidAvatar(server, level, villageId, altarPos.offset(-4, 0, 0), defenderGod);
-            manifestSingleRaidAvatar(server, level, villageId, altarPos.offset(4, 0, 0), attackerGod);
+            manifestSingleRaidAvatar(server, level, villageId, altarPos, altarPos.offset(-4, 0, 0), defenderGod);
+            manifestSingleRaidAvatar(server, level, villageId, altarPos, altarPos.offset(4, 0, 0), attackerGod);
 
             Component clashMsg = Component.literal("⚡ ¡CHOQUE DE DIOSES! ")
                     .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD)
@@ -244,7 +245,7 @@ public class GodVillageRaidManager {
             BlockPos altarPos,
             SinGod appearingGod
     ) {
-        manifestSingleRaidAvatar(server, level, null, altarPos, appearingGod);
+        manifestSingleRaidAvatar(server, level, null, altarPos, altarPos, appearingGod);
     }
 
     public static void manifestSingleRaidAvatar(
@@ -254,12 +255,23 @@ public class GodVillageRaidManager {
             BlockPos altarPos,
             SinGod appearingGod
     ) {
+        manifestSingleRaidAvatar(server, level, villageId, altarPos, altarPos, appearingGod);
+    }
+
+    public static void manifestSingleRaidAvatar(
+            MinecraftServer server,
+            ServerLevel level,
+            @Nullable UUID villageId,
+            BlockPos canonicalAltarPos,
+            BlockPos spawnPos,
+            SinGod appearingGod
+    ) {
         // --- REGLA DE AVATAR ÚNICO ---
         GodAvatarEntity existingAvatar = DivineInterventionScheduler.getActiveAvatar(server, appearingGod);
         BlockPos landingPos = new BlockPos(
-                altarPos.getX(),
-                level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, altarPos.getX(), altarPos.getZ()),
-                altarPos.getZ()
+                spawnPos.getX(),
+                level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, spawnPos.getX(), spawnPos.getZ()),
+                spawnPos.getZ()
         );
 
         if (existingAvatar != null) {
@@ -287,7 +299,7 @@ public class GodVillageRaidManager {
                 existingAvatar.snapTo(landingPos.getX() + 0.5D, landingPos.getY(), landingPos.getZ() + 0.5D, 0.0F, 0.0F);
                 existingAvatar.getNavigation().stop();
                 existingAvatar.initializeAvatar(level, appearingGod, null, false);
-                existingAvatar.setVillageRaidAvatar(true, altarPos);
+                existingAvatar.setVillageRaidAvatar(true, villageId, canonicalAltarPos);
                 existingAvatar.setHealth(Math.min(currentHealth, existingAvatar.getMaxHealth()));
             } else {
                 existingAvatar.discard();
@@ -295,7 +307,7 @@ public class GodVillageRaidManager {
                 if (transferred != null) {
                     transferred.snapTo(landingPos.getX() + 0.5D, landingPos.getY(), landingPos.getZ() + 0.5D, 0.0F, 0.0F);
                     transferred.initializeAvatar(level, appearingGod, null, false);
-                    transferred.setVillageRaidAvatar(true, altarPos);
+                    transferred.setVillageRaidAvatar(true, villageId, canonicalAltarPos);
                     transferred.setHealth(Math.min(currentHealth, transferred.getMaxHealth()));
                     level.addFreshEntity(transferred);
                 }
@@ -305,7 +317,7 @@ public class GodVillageRaidManager {
             if (avatar != null) {
                 avatar.snapTo(landingPos.getX() + 0.5D, landingPos.getY(), landingPos.getZ() + 0.5D, 0.0F, 0.0F);
                 avatar.initializeAvatar(level, appearingGod, null, false);
-                avatar.setVillageRaidAvatar(true, altarPos);
+                avatar.setVillageRaidAvatar(true, villageId, canonicalAltarPos);
                 level.addFreshEntity(avatar);
             }
         }
@@ -330,17 +342,22 @@ public class GodVillageRaidManager {
             @Nullable BlockPos altarPos,
             SinGod god
     ) {
-        UUID targetUuid = villageId != null ? POSTPONED_WRATH_HUNTS.remove(new RaidGodKey(villageId, god)) : null;
-        if (targetUuid == null) {
+        GodAvatarEntity avatar = DivineInterventionScheduler.getActiveAvatar(server, god);
+        boolean isOwningRaid = (avatar == null) || matchesRaid(avatar, villageId, altarPos);
+
+        UUID targetUuid = null;
+        if (villageId != null) {
+            targetUuid = POSTPONED_WRATH_HUNTS.remove(new RaidGodKey(villageId, god));
+        }
+        if (targetUuid == null && isOwningRaid) {
             targetUuid = POSTPONED_GLOBAL_WRATH_HUNTS.remove(god);
         }
-        GodAvatarEntity avatar = DivineInterventionScheduler.getActiveAvatar(server, god);
 
         if (targetUuid != null) {
             ServerPlayer targetPlayer = server.getPlayerList().getPlayer(targetUuid);
             if (targetPlayer != null && targetPlayer.isAlive() && avatar != null && avatar.isAlive()) {
-                if (altarPos == null || altarPos.equals(avatar.getRaidAltarPos())) {
-                    avatar.setVillageRaidAvatar(false, null);
+                if (isOwningRaid) {
+                    avatar.setVillageRaidAvatar(false, null, null);
                     targetPlayer.sendSystemMessage(
                             god.getFormattedPrefix().append(
                                     Component.literal("«Mi templo sagrado está a salvo. Ahora... volvamos a nuestra deuda pendiente, mortal.»")
@@ -354,12 +371,46 @@ public class GodVillageRaidManager {
         }
 
         if (avatar != null && avatar.isAlive() && avatar.isVillageRaidAvatar()) {
-            if (altarPos == null || altarPos.equals(avatar.getRaidAltarPos())) {
+            if (isOwningRaid) {
                 if (avatar.level() instanceof ServerLevel avatarLevel) {
                     avatarLevel.sendParticles(ParticleTypes.END_ROD, avatar.getX(), avatar.getY() + 1.5D, avatar.getZ(), 60, 0.5D, 1.0D, 0.5D, 0.1D);
                     avatarLevel.playSound(null, avatar.blockPosition(), SoundEvents.ILLUSIONER_MIRROR_MOVE, SoundSource.HOSTILE, 1.2F, 1.1F);
                 }
                 avatar.discard();
+            }
+        }
+    }
+
+    private static boolean matchesRaid(GodAvatarEntity avatar, @Nullable UUID villageId, @Nullable BlockPos altarPos) {
+        if (villageId != null && avatar.getRaidVillageId() != null) {
+            return villageId.equals(avatar.getRaidVillageId());
+        }
+        if (altarPos != null && avatar.getRaidAltarPos() != null) {
+            return altarPos.equals(avatar.getRaidAltarPos());
+        }
+        return true;
+    }
+
+    public static void spawnPlayerAssaultSquad(
+            ServerLevel level,
+            ServerPlayer commander,
+            SinGod attackerGod,
+            BlockPos targetAltarPos
+    ) {
+        BlockPos basePos = commander.blockPosition();
+        for (int i = 0; i < 6; i++) {
+            GodAcolyteEntity acolyte = ModEntities.GOD_ACOLYTE.get().create(level, EntitySpawnReason.EVENT);
+            if (acolyte != null) {
+                double angle = (2.0D * Math.PI / 6.0D) * i;
+                int x = (int) Math.round(basePos.getX() + 4.0D * Math.cos(angle));
+                int z = (int) Math.round(basePos.getZ() + 4.0D * Math.sin(angle));
+                int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+
+                acolyte.snapTo(x + 0.5D, y, z + 0.5D, 0.0F, 0.0F);
+                acolyte.configureAcolyte(level, attackerGod, commander.getUUID(), true);
+                acolyte.setHomeAltarPos(targetAltarPos);
+                acolyte.getNavigation().moveTo(targetAltarPos.getX() + 0.5D, targetAltarPos.getY(), targetAltarPos.getZ() + 0.5D, 1.2D);
+                level.addFreshEntity(acolyte);
             }
         }
     }

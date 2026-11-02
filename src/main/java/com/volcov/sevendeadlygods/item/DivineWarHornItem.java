@@ -103,8 +103,6 @@ public class DivineWarHornItem extends Item {
                 serverPlayer
         );
 
-        spawnPlayerAssaultSquad(serverLevel, serverPlayer, playerGod, village.altarPos());
-
         serverPlayer.sendSystemMessage(
                 playerGod.getFormattedPrefix().append(
                         Component.literal("«¡Que arda el santuario de " + village.patronGod().getDisplayName() + "! ¡Mis Acólitos marchan a tu lado!»")
@@ -115,28 +113,13 @@ public class DivineWarHornItem extends Item {
         return InteractionResult.SUCCESS;
     }
 
-    private static void spawnPlayerAssaultSquad(
+    public static void spawnPlayerAssaultSquad(
             ServerLevel level,
             ServerPlayer commander,
             SinGod attackerGod,
             BlockPos targetAltarPos
     ) {
-        BlockPos basePos = commander.blockPosition();
-        for (int i = 0; i < 6; i++) {
-            GodAcolyteEntity acolyte = ModEntities.GOD_ACOLYTE.get().create(level, EntitySpawnReason.EVENT);
-            if (acolyte != null) {
-                double angle = (2.0D * Math.PI / 6.0D) * i;
-                int x = (int) Math.round(basePos.getX() + 4.0D * Math.cos(angle));
-                int z = (int) Math.round(basePos.getZ() + 4.0D * Math.sin(angle));
-                int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
-
-                acolyte.snapTo(x + 0.5D, y, z + 0.5D, 0.0F, 0.0F);
-                acolyte.configureAcolyte(level, attackerGod, commander.getUUID(), true);
-                acolyte.setHomeAltarPos(targetAltarPos);
-                acolyte.getNavigation().moveTo(targetAltarPos.getX() + 0.5D, targetAltarPos.getY(), targetAltarPos.getZ() + 0.5D, 1.2D);
-                level.addFreshEntity(acolyte);
-            }
-        }
+        GodVillageRaidManager.spawnPlayerAssaultSquad(level, commander, attackerGod, targetAltarPos);
     }
 
     @Nullable

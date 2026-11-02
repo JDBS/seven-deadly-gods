@@ -9,6 +9,7 @@ import com.volcov.sevendeadlygods.god.SinGod;
 import com.volcov.sevendeadlygods.registry.ModEntities;
 import com.volcov.sevendeadlygods.registry.ModMobEffects;
 import com.volcov.sevendeadlygods.village.GodVillageRaidManager;
+import com.volcov.sevendeadlygods.village.GodVillageSavedData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ColorParticleOption;
@@ -533,7 +534,13 @@ public final class DivineInterventionScheduler {
             // Prioridad Absoluta del Asedio Territorial sobre la Caza Individual:
             // Si el Avatar está combatiendo en una Guerra Santa de aldea, se pospone la caza del jugador hasta concluir.
             if (existingAvatar.isVillageRaidAvatar()) {
-                GodVillageRaidManager.postponeWrathHunt(god, player.getUUID());
+                UUID villageId = existingAvatar.getRaidVillageId();
+                if (villageId == null && existingAvatar.getRaidAltarPos() != null) {
+                    villageId = GodVillageSavedData.get(level).findVillageAt(existingAvatar.getRaidAltarPos())
+                            .map(GodVillageSavedData.GodVillageRecord::id)
+                            .orElse(null);
+                }
+                GodVillageRaidManager.postponeWrathHunt(villageId, god, player.getUUID());
                 player.sendSystemMessage(
                         god.getFormattedPrefix()
                                 .append(Component.literal("«¡Tu sentencia de muerte aguarda, mortal! En cuanto concluya la Guerra Santa en mi templo sagrado, descenderé por tu cabeza.»")

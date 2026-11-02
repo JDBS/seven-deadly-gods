@@ -85,6 +85,8 @@ public class GodAvatarEntity extends PathfinderMob {
     private boolean villageRaidAvatar = false;
     @Nullable
     private BlockPos raidAltarPos;
+    @Nullable
+    private UUID raidVillageId;
 
     public GodAvatarEntity(EntityType<? extends GodAvatarEntity> entityType, Level level) {
         super(entityType, level);
@@ -242,13 +244,23 @@ public class GodAvatarEntity extends PathfinderMob {
     }
 
     public void setVillageRaidAvatar(boolean villageRaidAvatar, @Nullable BlockPos altarPos) {
+        setVillageRaidAvatar(villageRaidAvatar, null, altarPos);
+    }
+
+    public void setVillageRaidAvatar(boolean villageRaidAvatar, @Nullable UUID villageId, @Nullable BlockPos altarPos) {
         this.villageRaidAvatar = villageRaidAvatar;
+        this.raidVillageId = villageId;
         this.raidAltarPos = altarPos != null ? altarPos.immutable() : null;
     }
 
     @Nullable
     public BlockPos getRaidAltarPos() {
         return this.raidAltarPos;
+    }
+
+    @Nullable
+    public UUID getRaidVillageId() {
+        return this.raidVillageId;
     }
 
     @Nullable
@@ -676,6 +688,9 @@ public class GodAvatarEntity extends PathfinderMob {
         if (this.raidAltarPos != null) {
             output.putLong("raid_altar_pos", this.raidAltarPos.asLong());
         }
+        if (this.raidVillageId != null) {
+            output.putString("raid_village_id", this.raidVillageId.toString());
+        }
         if (this.targetPlayerUuid != null) {
             output.putString("target_player", this.targetPlayerUuid.toString());
         }
@@ -693,6 +708,14 @@ public class GodAvatarEntity extends PathfinderMob {
         this.villageRaidAvatar = input.getBooleanOr("village_raid_avatar", false);
         long altarLong = input.getLongOr("raid_altar_pos", Long.MIN_VALUE);
         this.raidAltarPos = altarLong != Long.MIN_VALUE ? BlockPos.of(altarLong) : null;
+        String raidVillageIdStr = input.getStringOr("raid_village_id", "");
+        if (!raidVillageIdStr.isBlank()) {
+            try {
+                this.raidVillageId = UUID.fromString(raidVillageIdStr);
+            } catch (IllegalArgumentException ignored) {
+                this.raidVillageId = null;
+            }
+        }
         this.bossEvent.setName(god.getAvatarCustomName());
         this.bossEvent.setColor(god.getBossBarColor());
 
