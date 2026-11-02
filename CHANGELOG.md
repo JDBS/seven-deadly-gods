@@ -80,6 +80,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   - `VillageCultureApplier`: llamada corregida al método de record `villager.getVillagerData().level()` en lugar de `getLevel()` en el protocolo de reverencia de Soberbia.
   - Resolución completa de advertencias del compilador de Eclipse / JDT LS sobre `Null type safety` (`@Nonnull LivingEntity` y funciones de `Codec`) mediante expresiones lambda explícitas en `GodVillageRaidManager`, `VillageCultureApplier`, `GodsCommands` y `GodVillageSavedData`.
 - Corrección de referencias de texturas de cuarzo en el modelo `pride_altar.json` para Minecraft 26.3 (`quartz_block_side` y `quartz_block_bottom`).
+- **Avance de Deicidio en Minecraft 26.3 (`slay_god_avatar.json`)**: corrección de la definición del criterio de avance sustituyendo el disparador `minecraft:player_killed_entity` con predicado incompatible por `minecraft:impossible`, resolviendo el crash fatal de arranque por error de carga de registros (`loot_condition_type`) y alineándolo con la arquitectura del mod donde el logro es otorgado programáticamente por `GodAvatarEntity` vía `ModAdvancements.award(...)`.
 
 ## [1.0.0] - 2026-11-02
 
