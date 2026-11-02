@@ -13,8 +13,7 @@ docs/
 ├── dioses_y_altares/         # Guía de crafteo de altares y rituales de los 7 pecados
 ├── aldeas_consagradas/       # Facciones, comercio divino, asedios y repoblación
 ├── lore_y_avances/           # Los 49 tomos arcanos y árbol de avances
-├── administracion/           # Comandos de operador y opciones de configuración
-└── dev/                      # Cuaderno técnico, arquitectura del motor e internals
+└── administracion/           # Comandos de operador y opciones de configuración
 ```
 
 ---
@@ -53,6 +52,3 @@ docs/
 ### 6. ⚙️ Administración y Servidores
 * [Comandos del Mod](administracion/comandos.md): Referencia exhaustiva de `/gods favor`, `/gods village`, `/gods manifest`, etc.
 * [Opciones de Configuración](administracion/configuracion.md): Parámetros de `sevendeadlygods-common.toml`.
-
-### 7. 🛠️ Documentación de Desarrollo
-* [Portal Técnico de Desarrollo e Internals](dev/README.md): Cuaderno de notas técnicas, ciclo de vida Jigsaw, persistencia multidimensional, motor de IA híbrido, sistema de favor y renderizado moderno.
