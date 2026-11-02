@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:shield"
+    },
+    "title": {
+      "translate": "advancements.sevendeadlygods.defend_shrine_victory.title"
+    },
+    "description": {
+      "translate": "advancements.sevendeadlygods.defend_shrine_victory.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "sevendeadlygods:divine_war_horn_use",
+  "criteria": {
+    "defend_victory": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

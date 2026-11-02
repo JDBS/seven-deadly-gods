@@ -44,7 +44,30 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   - Desacoplamiento del `README.md` monolítico hacia una arquitectura modular en `docs/` con guías temáticas navegables (`guia_inicio/`, `mecanicas_principales/`, `dioses_y_altares/`, `aldeas_consagradas/`, `lore_y_avances/`, `administracion/` y `dev/`).
   - Rediseño del `README.md` principal como portal de bienvenida con badges, resumen visual y mapa interactivo hacia la Wiki.
 
+- **Biblioteca Sagrada Ampliada (49 Tomos Arcanos)**:
+  - Registro del 7º Libro Sagrado para cada uno de los 7 Dioses del Pecado (`greed_7`, `wrath_7`, `gluttony_7`, `pride_7`, `envy_7`, `sloth_7`, `lust_7`), narrando en prosa bíblica los orígenes de sus Santuarios Mayores, leyes territoriales, centinelas y guerras santas.
+  - Actualización de los textos de avance de «Archivero de los Siete Dioses» para reflejar la colección de 49 tomos sagrados.
+- **Sistema de Avances y Logros de Aldeas Consagradas (14 Nuevos Avances)**:
+  - **7 Avances Normales**: «Santuario de los Fieles» (`village_discovery`), «Comercio Devoto» (`divine_trade_master`), «Heraldo de la Guerra Santa» (`divine_war_horn_use`), «Bastión de la Fe» (`defend_shrine_victory`), «Conquistador de Altares» (`temple_conquest`), «Aliento de los Dioses» (`village_miracle_restore`) y «Deicidio» (`slay_god_avatar`).
+  - **7 Logros Ocultos y Secretos**: «Alta Traición» (`secret_high_treason`), «Choque de Inmortales» (`secret_clash_of_the_gods`), «Envidia Devoradora» (`secret_ruined_envy_village`), «La Siesta de los Fieles» (`secret_sloth_society`), «De Rodillas ante la Realeza» (`secret_pride_humiliation`), «Peaje de Oro» (`secret_greed_tax_paid`) y «Pasión Desenfrenada» (`secret_lust_wild_passion`).
+  - Archivos JSON de avances en `data/sevendeadlygods/advancement/` con textos 100% localizados en inglés (`en_us.json`) y español (`es_es.json`).
+  - Hooks de activación en `GodAvatarEntity`, `PlayerSinBehaviorEvents`, `DivineTradingRegistry`, `GodAcolyteEntity`, `DivineWarHornItem`, `GodVillageRaidManager`, `SinAltarBlockEntity` y `VillageCultureApplier`.
+
 ### Fixed
+- **IA y Lealtad de Acólitos Centinelas (`GodAcolyteEntity`)**: desvinculación explícita del jugador comandante (`assignedPlayerUuid = null`) y reinicio de objetivo al convertirse en centinela permanente tras la conquista de una aldea.
+- **Persistencia y Comportamiento de Avatares en Asedio (`GodAvatarEntity`)**: serialización completa de `villageRaidAvatar` y `raidAltarPos` en NBT para evitar expiración tras 4.800 ticks o recarga de chunks, y suspensión inmediata del goal `StayNearChampionGoal` al transferirse a un asedio.
+- **Gestión de Asedios y Sincronización Territorial (`GodVillageRaidManager`)**:
+  - Persistencia del dios atacante (`attackerGod`) y tiempo activo de asedio (`activeRaidTicks`) en `GodVillageSavedData`, impidiendo victorias defensivas erróneas por sorteo aleatorio tras reiniciar el servidor.
+  - Pausa efectiva del timeout máximo (6.000 ticks) cuando no hay jugadores en 128 bloques, midiendo exclusivamente duración activa de combate.
+  - Scoping estricto de Avatares y cazas de ira pospuestas por aldea específica (`RaidGodKey`), evitando descartar avatares que combatan en otras aldeas.
+  - Recarga del registro aldeano tras `checkDesolationState()` para proteger el ciclo de duelo de aldeas desoladas contra sobrescrituras inmediatas de asedios.
+  - Filtro estricto en `ensureMinimumDefenders()` contabilizando exclusivamente centinelas permanentes del altar para evitar que escoltas aliadas temporales agoten el cupo de la guarnición.
+- **Interacción y Comercio en Aldeas de Soberbia (`VillageCultureApplier`)**: apertura explícita del menú de comercio del aldeano al arrodillarse (`Shift`) con favor inferior a +60, evitando que la interacción secundaria vanilla bloquee el intercambio.
+- **Cobro Preciso del Peaje de Avaricia (`VillageCultureApplier`)**: migración del cobro de la pepita de oro al evento `PlayerContainerEvent.Open`, cobrando únicamente cuando el cofre o barril se abre exitosamente y previniendo pérdidas de oro ante cofres bloqueados o intentos fallidos.
+- **Correcciones de Compilación y Tipado Estricto (Java / NeoForge 26.3)**:
+  - `GodVillageRaidManager`: añadido el `import java.util.concurrent.ConcurrentHashMap` que impedía compilar `POSTPONED_WRATH_HUNTS` y `POSTPONED_GLOBAL_WRATH_HUNTS`.
+  - `VillageCultureApplier`: llamada corregida al método de record `villager.getVillagerData().level()` en lugar de `getLevel()` en el protocolo de reverencia de Soberbia.
+  - Resolución completa de advertencias del compilador de Eclipse / JDT LS sobre `Null type safety` (`@Nonnull LivingEntity` y funciones de `Codec`) mediante expresiones lambda explícitas en `GodVillageRaidManager`, `VillageCultureApplier`, `GodsCommands` y `GodVillageSavedData`.
 - Corrección de referencias de texturas de cuarzo en el modelo `pride_altar.json` para Minecraft 26.3 (`quartz_block_side` y `quartz_block_bottom`).
 
 ## [1.0.0] - 2026-11-02

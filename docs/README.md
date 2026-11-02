@@ -12,7 +12,7 @@ docs/
 ├── mecanicas_principales/    # Favor/Ira, IA conversacional de Gemini y Avatares
 ├── dioses_y_altares/         # Guía de crafteo de altares y rituales de los 7 pecados
 ├── aldeas_consagradas/       # Facciones, comercio divino, asedios y repoblación
-├── lore_y_avances/           # Los 42 tomos arcanos y árbol de avances
+├── lore_y_avances/           # Los 49 tomos arcanos y árbol de avances
 ├── administracion/           # Comandos de operador y opciones de configuración
 └── dev/                      # Arquitectura técnica, diseño y análisis de licencias
 ```
@@ -47,7 +47,7 @@ docs/
 * [Desolación y Caravana de Peregrinos](aldeas_consagradas/desolacion_y_milagros.md): Vigilia de templos sin civiles, gólems guardianes y milagro de restauración.
 
 ### 5. 📜 Lore y Logros
-* [Biblioteca Sagrada (42 Libros de Lore)](lore_y_avances/biblioteca_sagrada.md): Distribución en cofres, desbloqueo de cultos y títulos arcanos.
+* [Biblioteca Sagrada (49 Libros de Lore)](lore_y_avances/biblioteca_sagrada.md): Distribución en cofres, desbloqueo de cultos y títulos arcanos.
 * [Árbol de Avances](lore_y_avances/arbol_de_avances.md): Progresión de logros de cultos, cacerías, coleccionismo y favores divinos.
 
 ### 6. ⚙️ Administración y Servidores

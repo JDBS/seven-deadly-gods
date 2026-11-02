@@ -1,5 +1,6 @@
 package com.volcov.sevendeadlygods.village;
 
+import com.volcov.sevendeadlygods.advancement.ModAdvancements;
 import com.volcov.sevendeadlygods.entity.GodAcolyteEntity;
 import com.volcov.sevendeadlygods.favor.SinFavorManager;
 import com.volcov.sevendeadlygods.god.SinGod;
@@ -46,6 +47,9 @@ public final class DivineTradingRegistry {
         acolyte.setTradingPlayer(player);
 
         int traderLevel = favor >= 60 ? 5 : favor >= 35 ? 4 : favor >= 15 ? 3 : favor >= 5 ? 2 : 1;
+        if (favor >= 60) {
+            ModAdvancements.award(player, "divine_trade_master");
+        }
         Component title = Component.literal(god.getDisplayName() + " — Mercader del Templo")
                 .withStyle(god.getChatColor(), ChatFormatting.BOLD);
         acolyte.openTradingScreen(player, title, traderLevel);

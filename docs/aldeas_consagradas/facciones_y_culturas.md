@@ -51,11 +51,11 @@ Cada culto transforma la vida cotidiana de los aldeanos y la aldea:
 ### 1. 🪙 Culto de Mammon (Avaricia)
 * **Predilección Laboral**: Los aldeanos sin empleo se convierten prioritariamente en **Armeros (`ARMORER`)** y herreros.
 * **Peaje de Puertas**: Las puertas de las casas no se abrirán ante ti a menos que sostengas al menos 1 Pepita, Lingote o Bloque de Oro en la mano (salvo Discípulos con `favor >= +60`).
-* **Peaje de Bóvedas**: Abrir cualquier cofre o barril dentro de la aldea te cobrará automáticamente **1 Pepita de Oro** de tu inventario. Si no llevas oro, el cofre no se abrirá y los aldeanos te rechazarán.
+* **Peaje de Bóvedas**: Abrir cualquier cofre o barril dentro de la aldea te cobrará automáticamente **1 Pepita de Oro** de tu inventario **únicamente tras una apertura exitosa del contenedor**. Si un cofre está obstruido o intentas colocar un bloque agachado, no se cobrará peaje; si no portas al menos una pepita al momento de abrir, el acceso será denegado y los aldeanos te rechazarán.
 * **Ambiente**: Destellos áureos continuos sobre la plaza.
 
 ### 2. 🩸 Culto de Khorvath (Ira)
-* **Guarnición Pesada**: Custodiada por una milicia reforzada de **6 Acólitos de élite** fuertemente armados con espadas y hachas.
+* **Guarnición Pesada**: Custodiada por una milicia reforzada de **6 Acólitos Centinelas Permanentes** fuertemente armados con espadas y hachas. Solo los centinelas asignados a este altar cuentan para la guarnición (los acólitos de escolta temporales no satisfacen este cupo).
 * **Fosos de Arena**: La plaza incorpora fosos de combate con hogueras y antorchas de **fuego de alma**.
 
 ### 3. 🍖 Culto de Beelze (Gula)
@@ -65,7 +65,7 @@ Cada culto transforma la vida cotidiana de los aldeanos y la aldea:
 
 ### 4. ☀️ Culto de Lucian (Soberbia)
 * **Catedral de Mármol y Cuarzo**: Exenta por decreto divino del requisito de altitud (`Y > 120`).
-* **Protocolo de Reverencia Imperial**: Los aldeanos se niegan a hablar contigo si no te **arrodillas (`Shift`)** ante ellos, salvo que seas un Discípulo consagrado (`favor >= +60`).
+* **Protocolo de Reverencia Imperial**: Los aldeanos se niegan a hablar contigo si no te **arrodillas (`Shift`)** ante ellos, salvo que seas un Discípulo consagrado (`favor >= +60`). **Al arrodillarte (`Shift`) ante un ciudadano elegible, este acepta tu reverencia y abre de inmediato su catálogo de comercio**, superando la omisión vanilla habitual durante el agachamiento.
 * **Ambiente**: Columnas de luz y destellos solares sobre la nave central.
 
 ### 5. 🌊 Culto de Leviatán (Envidia)

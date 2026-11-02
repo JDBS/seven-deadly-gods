@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:emerald"
+    },
+    "title": {
+      "translate": "advancements.sevendeadlygods.divine_trade_master.title"
+    },
+    "description": {
+      "translate": "advancements.sevendeadlygods.divine_trade_master.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "sevendeadlygods:village_discovery",
+  "criteria": {
+    "trade_tier_5": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

@@ -42,7 +42,7 @@ La documentación detallada del mod ha sido completamente modularizada para faci
 * 📦 **[Comercio Divino y Alta Traición](docs/aldeas_consagradas/comercio_divino.md)**: Catálogo de 5 tiers de Acólitos y penalización de -60 de favor por traición.
 * ⚔️ **[Guerras Santas y Cuerno de Guerra](docs/aldeas_consagradas/guerras_santas.md)**: Asaltos autónomos, asedios convocados por el jugador y Choque de Dioses.
 * 🕯️ **[Desolación y Caravana de Peregrinos](docs/aldeas_consagradas/desolacion_y_milagros.md)**: Ciclo de vida ante pérdida de civiles y milagros de restauración.
-* 📜 **[Biblioteca Sagrada y Lore (42 Libros)](docs/lore_y_avances/biblioteca_sagrada.md)**: Distribución en cofres del mundo y árbol de avances.
+* 📜 **[Biblioteca Sagrada y Lore (49 Libros)](docs/lore_y_avances/biblioteca_sagrada.md)**: Distribución en cofres del mundo y árbol de avances.
 * 💻 **[Referencia de Comandos (`/gods ...`)](docs/administracion/comandos.md)**: Comandos para jugadores y herramientas de operador.
 * ⚙️ **[Configuración del Mod](docs/administracion/configuracion.md)**: Opciones de `sevendeadlygods-common.toml`.
 

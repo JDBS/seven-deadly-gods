@@ -44,18 +44,26 @@ Durante cualquier asedio (autónomo o liderado por el jugador), la sangre derram
 ## 🏛️ Prioridad Territorial y Regla de Avatar Único
 
 Si el Avatar elegido para manifestarse en la aldea estaba en ese momento persiguiendo a muerte a un jugador en una Caza de Ira individual (`favor <= -100`):
-* **El asedio territorial tiene prioridad absoluta**: Se pausa la cacería individual y se le notifica al jugador condenado que su juicio queda aplazado.
-* El Avatar se teletransporta instantáneamente al santuario aldeano **conservando su barra de salud actual**.
-* Al finalizar el asedio (por victoria o conquista), si el Avatar sobrevive, **se reanuda automáticamente la cacería de ira** contra el jugador sentenciado.
+* **El asedio territorial tiene prioridad absoluta**: Se pausa la cacería individual y se le notifica al jugador condenado que su juicio queda aplazado, vinculando la suspensión exclusivamente a esa aldea.
+* El Avatar se teletransporta instantáneamente al santuario aldeano **conservando su barra de salud actual**, desactiva cualquier tarea de escolta de jugador previo (`StayNearChampionGoal`) y adopta asignación territorial fija (`raidAltarPos`).
+* Su estado de asedio queda **persistido en disco**, impidiendo que expire tras 4.800 ticks o tras una recarga de chunks.
+* Al finalizar el asedio en esa aldea concreta (por victoria o conquista), si el Avatar sobrevive, **se reanuda automáticamente la cacería de ira** pospuesta contra el jugador sentenciado; los asedios en otras aldeas no son afectados por esta resolución.
+
+---
+
+## ⏸️ Persistencia, Pausa y Duración Activa
+
+* **Persistencia Integral**: El estado de asedio (`EN_ASEDIO`), el dios atacante original (`attackerGod`) y el tiempo activo transcurrido (`activeRaidTicks`) se guardan en el archivo de datos de la dimensión (`GodVillageSavedData`). Tras un reinicio del servidor, el combate se reanuda con el mismo rival sin sortear deidades erróneas.
+* **Pausa por Descarga de Chunks**: Si ningún jugador permanece a menos de 128 bloques del altar, la evaluación del asalto se congela. El límite máximo de 5 minutos (**6.000 ticks**) mide **exclusivamente tiempo activo en combate**; ausentarse de la aldea no consumirá el tiempo ni concederá victorias por timeout anticipadas.
 
 ---
 
 ## 🏆 Resolución del Asedio: Victoria o Conquista
 
 * **Victoria de los Defensores**:
-  * Si todos los invasores son repelidos (o se agotan los 5 minutos máximos de asedio), el templo prevalece.
+  * Si todos los invasores son repelidos (o se agotan los 5 minutos máximos de combate activo), el templo prevalece.
   * Suena fanfarria victoriosa (`TOTEM_OF_UNDYING`), la aldea vuelve a estado `CONSAGRADA` y **todos los jugadores fieles cercanos reciben +3.0 de esfuerzo devocional** por defender el templo.
 * **Conquista del Templo (Victoria Invasora)**:
   * Si la guarnición defensora cae por completo, el Altar Mayor es profanado y **reconvertido automáticamente al bloque de altar del dios conquistador**.
-  * Los acólitos invasores supervivientes se transforman en **Centinelas Permanentes** del nuevo culto.
+  * Los acólitos invasores supervivientes se transforman en **Centinelas Permanentes** del nuevo culto, desligándose de cualquier comandante jugador previo y fijando su patrulla sobre el nuevo altar.
   * La aldea pasa a ser consagrada al nuevo dios (**o pasa a estado `ARRASADA` si el conquistador fue Leviatán**).

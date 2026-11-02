@@ -1,5 +1,6 @@
 package com.volcov.sevendeadlygods.village;
 
+import com.volcov.sevendeadlygods.advancement.ModAdvancements;
 import com.volcov.sevendeadlygods.block.SinAltarBlockEntity;
 import com.volcov.sevendeadlygods.config.ModConfig;
 import com.volcov.sevendeadlygods.entity.GodAcolyteEntity;
@@ -33,11 +34,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Gestor de Asaltos Autónomos y Guerras Santas entre las facciones de los 7 Dioses del Pecado.
@@ -54,19 +55,34 @@ public class GodVillageRaidManager {
             UUID villageId,
             SinGod defenderGod,
             SinGod attackerGod,
-            long startTick,
+            long activeTicks,
             boolean pausedByChunkUnload
     ) {
         public ActiveRaidContext withPaused(boolean paused) {
-            return new ActiveRaidContext(villageId, defenderGod, attackerGod, startTick, paused);
+            return new ActiveRaidContext(villageId, defenderGod, attackerGod, activeTicks, paused);
+        }
+
+        public ActiveRaidContext withActiveTicks(long ticks) {
+            return new ActiveRaidContext(villageId, defenderGod, attackerGod, ticks, pausedByChunkUnload);
         }
     }
 
+    public record RaidGodKey(UUID villageId, SinGod god) {}
+
     private static final Map<UUID, ActiveRaidContext> ACTIVE_RAIDS = new HashMap<>();
-    private static final Map<SinGod, UUID> POSTPONED_WRATH_HUNTS = new EnumMap<>(SinGod.class);
+    private static final Map<RaidGodKey, UUID> POSTPONED_WRATH_HUNTS = new ConcurrentHashMap<>();
+    private static final Map<SinGod, UUID> POSTPONED_GLOBAL_WRATH_HUNTS = new ConcurrentHashMap<>();
+
+    public static void postponeWrathHunt(@Nullable UUID villageId, SinGod god, UUID huntedPlayerUuid) {
+        if (villageId != null) {
+            POSTPONED_WRATH_HUNTS.put(new RaidGodKey(villageId, god), huntedPlayerUuid);
+        } else {
+            POSTPONED_GLOBAL_WRATH_HUNTS.put(god, huntedPlayerUuid);
+        }
+    }
 
     public static void postponeWrathHunt(SinGod god, UUID huntedPlayerUuid) {
-        POSTPONED_WRATH_HUNTS.put(god, huntedPlayerUuid);
+        postponeWrathHunt(null, god, huntedPlayerUuid);
     }
 
     @SubscribeEvent
@@ -92,13 +108,14 @@ public class GodVillageRaidManager {
 
             for (GodVillageSavedData.GodVillageRecord village : snapshot) {
                 checkDesolationState(server, level, data, village, gameTime);
+                GodVillageSavedData.GodVillageRecord currentVillage = data.getVillageById(village.id()).orElse(village);
                 long raidCooldown = ModConfig.VILLAGE_RAID_COOLDOWN_TICKS.get();
-                if (village.state() == GodVillageState.CONSAGRADA
-                        && (gameTime - village.lastRaidTick() > raidCooldown)) {
-                    BlockPos altarPos = village.altarPos();
+                if (currentVillage.state() == GodVillageState.CONSAGRADA
+                        && (gameTime - currentVillage.lastRaidTick() > raidCooldown)) {
+                    BlockPos altarPos = currentVillage.altarPos();
                     if (level.hasNearbyAlivePlayer(altarPos.getX() + 0.5D, altarPos.getY() + 0.5D, altarPos.getZ() + 0.5D, 80.0D)) {
                         if (level.getRandom().nextFloat() < 0.15F) {
-                            startAutonomousRaid(server, level, data, village);
+                            startAutonomousRaid(server, level, data, currentVillage);
                         }
                     }
                 }
@@ -152,17 +169,29 @@ public class GodVillageRaidManager {
         }
 
         // 3. Actualizar estado en persistencia y contexto activo
-        GodVillageSavedData.GodVillageRecord updated = village.withLastRaidTick(gameTime, GodVillageState.EN_ASEDIO, gameTime);
+        GodVillageSavedData.GodVillageRecord updated = village.withRaid(attacker, gameTime);
         data.updateVillage(updated);
-        ACTIVE_RAIDS.put(village.id(), new ActiveRaidContext(village.id(), defender, attacker, gameTime, false));
+        ACTIVE_RAIDS.put(village.id(), new ActiveRaidContext(village.id(), defender, attacker, 0L, false));
 
         // 4. Evaluar la tirada del 5% de Manifestación Divina del Avatar (Regla de Avatar Único + Prioridad Territorial)
-        evaluateAvatarManifestation(server, level, altarPos, defender, attacker, false);
+        evaluateAvatarManifestation(server, level, village.id(), altarPos, defender, attacker, false);
     }
 
     public static void evaluateAvatarManifestation(
             MinecraftServer server,
             ServerLevel level,
+            BlockPos altarPos,
+            SinGod defenderGod,
+            SinGod attackerGod,
+            boolean forceManifest
+    ) {
+        evaluateAvatarManifestation(server, level, null, altarPos, defenderGod, attackerGod, forceManifest);
+    }
+
+    public static void evaluateAvatarManifestation(
+            MinecraftServer server,
+            ServerLevel level,
+            @Nullable UUID villageId,
             BlockPos altarPos,
             SinGod defenderGod,
             SinGod attackerGod,
@@ -176,8 +205,8 @@ public class GodVillageRaidManager {
 
         // 15% dentro del 5%: El Gran Choque de Dioses (descienden ambos Avatares)
         if (level.getRandom().nextFloat() < 0.15F) {
-            manifestSingleRaidAvatar(server, level, altarPos.offset(-4, 0, 0), defenderGod);
-            manifestSingleRaidAvatar(server, level, altarPos.offset(4, 0, 0), attackerGod);
+            manifestSingleRaidAvatar(server, level, villageId, altarPos.offset(-4, 0, 0), defenderGod);
+            manifestSingleRaidAvatar(server, level, villageId, altarPos.offset(4, 0, 0), attackerGod);
 
             Component clashMsg = Component.literal("⚡ ¡CHOQUE DE DIOSES! ")
                     .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD)
@@ -187,12 +216,18 @@ public class GodVillageRaidManager {
                     .append(Component.literal(attackerGod.getDisplayName()).withStyle(attackerGod.getChatColor(), ChatFormatting.BOLD))
                     .append(Component.literal(" han descendido en persona para batirse en duelo!").withStyle(ChatFormatting.WHITE));
             server.getPlayerList().broadcastSystemMessage(clashMsg, false);
+
+            for (ServerPlayer player : level.players()) {
+                if (player.blockPosition().closerThan(altarPos, 96.0D)) {
+                    ModAdvancements.award(player, "secret_clash_of_the_gods");
+                }
+            }
             return;
         }
 
         // Elegir quién desciende (50% Defensor, 50% Atacante)
         SinGod appearingGod = level.getRandom().nextBoolean() ? defenderGod : attackerGod;
-        manifestSingleRaidAvatar(server, level, altarPos, appearingGod);
+        manifestSingleRaidAvatar(server, level, villageId, altarPos, appearingGod);
 
         Component announcement = Component.literal("⚡ ¡MANIFESTACIÓN DIVINA! ")
                 .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD)
@@ -209,6 +244,16 @@ public class GodVillageRaidManager {
             BlockPos altarPos,
             SinGod appearingGod
     ) {
+        manifestSingleRaidAvatar(server, level, null, altarPos, appearingGod);
+    }
+
+    public static void manifestSingleRaidAvatar(
+            MinecraftServer server,
+            ServerLevel level,
+            @Nullable UUID villageId,
+            BlockPos altarPos,
+            SinGod appearingGod
+    ) {
         // --- REGLA DE AVATAR ÚNICO ---
         GodAvatarEntity existingAvatar = DivineInterventionScheduler.getActiveAvatar(server, appearingGod);
         BlockPos landingPos = new BlockPos(
@@ -221,7 +266,7 @@ public class GodVillageRaidManager {
             // Si el Avatar está en una Caza de Ira, el asedio a la aldea tiene PRIORIDAD ABSOLUTA:
             if (existingAvatar.isWrathHunter() && existingAvatar.getTargetPlayerUuid() != null) {
                 UUID huntedPlayerUuid = existingAvatar.getTargetPlayerUuid();
-                POSTPONED_WRATH_HUNTS.put(appearingGod, huntedPlayerUuid);
+                postponeWrathHunt(villageId, appearingGod, huntedPlayerUuid);
 
                 ServerPlayer huntedPlayer = server.getPlayerList().getPlayer(huntedPlayerUuid);
                 if (huntedPlayer != null) {
@@ -275,30 +320,47 @@ public class GodVillageRaidManager {
     }
 
     public static void onVillageRaidEnded(MinecraftServer server, ServerLevel level, SinGod god) {
-        UUID targetUuid = POSTPONED_WRATH_HUNTS.remove(god);
+        onVillageRaidEnded(server, level, null, null, god);
+    }
+
+    public static void onVillageRaidEnded(
+            MinecraftServer server,
+            ServerLevel level,
+            @Nullable UUID villageId,
+            @Nullable BlockPos altarPos,
+            SinGod god
+    ) {
+        UUID targetUuid = villageId != null ? POSTPONED_WRATH_HUNTS.remove(new RaidGodKey(villageId, god)) : null;
+        if (targetUuid == null) {
+            targetUuid = POSTPONED_GLOBAL_WRATH_HUNTS.remove(god);
+        }
         GodAvatarEntity avatar = DivineInterventionScheduler.getActiveAvatar(server, god);
 
         if (targetUuid != null) {
             ServerPlayer targetPlayer = server.getPlayerList().getPlayer(targetUuid);
             if (targetPlayer != null && targetPlayer.isAlive() && avatar != null && avatar.isAlive()) {
-                avatar.setVillageRaidAvatar(false, null);
-                targetPlayer.sendSystemMessage(
-                        god.getFormattedPrefix().append(
-                                Component.literal("«Mi templo sagrado está a salvo. Ahora... volvamos a nuestra deuda pendiente, mortal.»")
-                                        .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)
-                        )
-                );
-                DivineInterventionScheduler.triggerWrathAvatarHunt(targetPlayer, god);
-                return;
+                if (altarPos == null || altarPos.equals(avatar.getRaidAltarPos())) {
+                    avatar.setVillageRaidAvatar(false, null);
+                    targetPlayer.sendSystemMessage(
+                            god.getFormattedPrefix().append(
+                                    Component.literal("«Mi templo sagrado está a salvo. Ahora... volvamos a nuestra deuda pendiente, mortal.»")
+                                            .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)
+                            )
+                    );
+                    DivineInterventionScheduler.triggerWrathAvatarHunt(targetPlayer, god);
+                    return;
+                }
             }
         }
 
         if (avatar != null && avatar.isAlive() && avatar.isVillageRaidAvatar()) {
-            if (avatar.level() instanceof ServerLevel avatarLevel) {
-                avatarLevel.sendParticles(ParticleTypes.END_ROD, avatar.getX(), avatar.getY() + 1.5D, avatar.getZ(), 60, 0.5D, 1.0D, 0.5D, 0.1D);
-                avatarLevel.playSound(null, avatar.blockPosition(), SoundEvents.ILLUSIONER_MIRROR_MOVE, SoundSource.HOSTILE, 1.2F, 1.1F);
+            if (altarPos == null || altarPos.equals(avatar.getRaidAltarPos())) {
+                if (avatar.level() instanceof ServerLevel avatarLevel) {
+                    avatarLevel.sendParticles(ParticleTypes.END_ROD, avatar.getX(), avatar.getY() + 1.5D, avatar.getZ(), 60, 0.5D, 1.0D, 0.5D, 0.1D);
+                    avatarLevel.playSound(null, avatar.blockPosition(), SoundEvents.ILLUSIONER_MIRROR_MOVE, SoundSource.HOSTILE, 1.2F, 1.1F);
+                }
+                avatar.discard();
             }
-            avatar.discard();
         }
     }
 
@@ -314,9 +376,13 @@ public class GodVillageRaidManager {
             }
 
             BlockPos altarPos = village.altarPos();
+            SinGod restoredAttacker = village.attackerGod() != null
+                    ? village.attackerGod()
+                    : pickRivalGod(village.patronGod(), level.getRandom());
+
             ActiveRaidContext ctx = ACTIVE_RAIDS.computeIfAbsent(
                     village.id(),
-                    id -> new ActiveRaidContext(id, village.patronGod(), pickRivalGod(village.patronGod(), level.getRandom()), village.stateSinceTick(), false)
+                    id -> new ActiveRaidContext(id, village.patronGod(), restoredAttacker, village.activeRaidTicks(), false)
             );
 
             // Protección contra Chunk Unload: pausar evaluación si no hay jugadores en 128 bloques
@@ -326,11 +392,20 @@ public class GodVillageRaidManager {
                 }
                 continue;
             } else if (ctx.pausedByChunkUnload()) {
-                ACTIVE_RAIDS.put(village.id(), ctx.withPaused(false));
+                ctx = ctx.withPaused(false);
+                ACTIVE_RAIDS.put(village.id(), ctx);
+            }
+
+            // Excluir el tiempo pausado: acumular ticks activos solo cuando hay jugadores en la aldea
+            long currentActiveTicks = ctx.activeTicks() + ACTIVE_RAID_TICK_INTERVAL;
+            ctx = ctx.withActiveTicks(currentActiveTicks);
+            ACTIVE_RAIDS.put(village.id(), ctx);
+            if (currentActiveTicks % 200 == 0) {
+                data.updateVillage(village.withActiveRaidTicks(currentActiveTicks));
             }
 
             AABB searchBox = new AABB(altarPos).inflate(village.radius() + 24.0D);
-            List<GodAcolyteEntity> allAcolytes = level.getEntitiesOfClass(GodAcolyteEntity.class, searchBox, GodAcolyteEntity::isAlive);
+            List<GodAcolyteEntity> allAcolytes = level.getEntitiesOfClass(GodAcolyteEntity.class, searchBox, a -> a.isAlive());
 
             int attackersAlive = 0;
             int defendersAlive = 0;
@@ -345,7 +420,7 @@ public class GodVillageRaidManager {
                 }
             }
 
-            boolean timedOut = (gameTime - ctx.startTick()) > MAX_RAID_DURATION_TICKS;
+            boolean timedOut = ctx.activeTicks() >= MAX_RAID_DURATION_TICKS;
 
             if (attackersAlive == 0 || timedOut) {
                 resolveDefenderVictory(server, level, data, village, ctx, gameTime);
@@ -381,14 +456,15 @@ public class GodVillageRaidManager {
 
         // Recompensar a los jugadores fieles cercanos que participaron en la defensa
         AABB rewardBox = new AABB(altarPos).inflate(village.radius() + 16.0D);
-        for (ServerPlayer player : level.getEntitiesOfClass(ServerPlayer.class, rewardBox, ServerPlayer::isAlive)) {
+        for (ServerPlayer player : level.getEntitiesOfClass(ServerPlayer.class, rewardBox, p -> p.isAlive())) {
             if (SinFavorManager.getFavor(player, ctx.defenderGod()) >= 0) {
                 SinFavorManager.addEffort(player, ctx.defenderGod(), 3.0F, "Defensa victoriosa del Templo de " + ctx.defenderGod().getDisplayName());
+                ModAdvancements.award(player, "defend_shrine_victory");
             }
         }
 
-        onVillageRaidEnded(server, level, ctx.defenderGod());
-        onVillageRaidEnded(server, level, ctx.attackerGod());
+        onVillageRaidEnded(server, level, village.id(), altarPos, ctx.defenderGod());
+        onVillageRaidEnded(server, level, village.id(), altarPos, ctx.attackerGod());
     }
 
     private static void resolveAttackerConquest(
@@ -415,7 +491,7 @@ public class GodVillageRaidManager {
 
         // Convertir a los acólitos supervivientes en centinelas del nuevo templo
         AABB searchBox = new AABB(altarPos).inflate(village.radius() + 24.0D);
-        for (GodAcolyteEntity survivor : level.getEntitiesOfClass(GodAcolyteEntity.class, searchBox, GodAcolyteEntity::isAlive)) {
+        for (GodAcolyteEntity survivor : level.getEntitiesOfClass(GodAcolyteEntity.class, searchBox, a -> a.isAlive())) {
             if (survivor.getGod() == winner) {
                 survivor.configureVillageSentinel(level, winner, altarPos);
             }
@@ -437,8 +513,17 @@ public class GodVillageRaidManager {
                 .append(Component.literal(String.format(" en [%d, %d]!", altarPos.getX(), altarPos.getZ())).withStyle(ChatFormatting.RED));
         server.getPlayerList().broadcastSystemMessage(conquestMsg, false);
 
-        onVillageRaidEnded(server, level, ctx.defenderGod());
-        onVillageRaidEnded(server, level, ctx.attackerGod());
+        // Recompensar a los jugadores conquistadores cercanos y conceder avance
+        AABB conquestRewardBox = new AABB(altarPos).inflate(village.radius() + 32.0D);
+        for (ServerPlayer player : level.getEntitiesOfClass(ServerPlayer.class, conquestRewardBox, p -> p.isAlive())) {
+            if (SinFavorManager.getFavor(player, winner) >= 0) {
+                SinFavorManager.addEffort(player, winner, 3.5F, "Conquista del Templo de " + winner.getDisplayName());
+                ModAdvancements.award(player, "temple_conquest");
+            }
+        }
+
+        onVillageRaidEnded(server, level, village.id(), altarPos, ctx.defenderGod());
+        onVillageRaidEnded(server, level, village.id(), altarPos, ctx.attackerGod());
     }
 
     public static List<GodAcolyteEntity> spawnInvasionForces(ServerLevel level, BlockPos center, SinGod attackerGod, int count) {
@@ -467,7 +552,7 @@ public class GodVillageRaidManager {
         List<GodAcolyteEntity> existing = level.getEntitiesOfClass(
                 GodAcolyteEntity.class,
                 box,
-                a -> a.isAlive() && a.getGod() == defenderGod
+                a -> a.isAlive() && a.getGod() == defenderGod && a.isVillageSentinel() && altarPos.equals(a.getHomeAltarPos())
         );
         int needed = Math.max(0, minDefenders - existing.size());
         for (int i = 0; i < needed; i++) {
@@ -520,7 +605,7 @@ public class GodVillageRaidManager {
                 return;
             }
             AABB box = new AABB(altarPos).inflate(village.radius());
-            List<Villager> villagers = level.getEntitiesOfClass(Villager.class, box, Villager::isAlive);
+            List<Villager> villagers = level.getEntitiesOfClass(Villager.class, box, v -> v.isAlive());
             if (villagers.isEmpty()) {
                 transitionToDesolated(server, level, data, village, gameTime);
             }
@@ -565,7 +650,6 @@ public class GodVillageRaidManager {
 
     private static void tickDesolatedVillages(MinecraftServer server, ServerLevel level) {
         GodVillageSavedData data = GodVillageSavedData.get(level);
-        long gameTime = level.getGameTime();
         List<GodVillageSavedData.GodVillageRecord> snapshot = new ArrayList<>(data.getAllVillages());
 
         for (GodVillageSavedData.GodVillageRecord village : snapshot) {

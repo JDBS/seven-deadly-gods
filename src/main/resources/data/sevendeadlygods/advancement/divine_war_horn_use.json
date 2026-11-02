@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "id": "sevendeadlygods:divine_war_horn"
+    },
+    "title": {
+      "translate": "advancements.sevendeadlygods.divine_war_horn_use.title"
+    },
+    "description": {
+      "translate": "advancements.sevendeadlygods.divine_war_horn_use.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "sevendeadlygods:village_discovery",
+  "criteria": {
+    "sound_horn": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

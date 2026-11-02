@@ -1,5 +1,6 @@
 package com.volcov.sevendeadlygods.item;
 
+import com.volcov.sevendeadlygods.advancement.ModAdvancements;
 import com.volcov.sevendeadlygods.entity.GodAcolyteEntity;
 import com.volcov.sevendeadlygods.favor.SinFavorManager;
 import com.volcov.sevendeadlygods.god.SinGod;
@@ -91,6 +92,7 @@ public class DivineWarHornItem extends Item {
         // 3. Ejecutar el llamado: iniciar el asedio de aldea y desplegar los 6 Acólitos aliados
         serverLevel.playSound(null, serverPlayer.blockPosition(), SoundEvents.RAID_HORN.value(), SoundSource.PLAYERS, 3.0F, 1.0F);
         serverPlayer.getCooldowns().addCooldown(stack, 20 * 60); // 60 segundos de cooldown
+        ModAdvancements.award(serverPlayer, "divine_war_horn_use");
 
         GodVillageRaidManager.startRaidOnVillage(
                 serverLevel.getServer(),

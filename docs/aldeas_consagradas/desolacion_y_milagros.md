@@ -8,7 +8,7 @@ En **Seven Deadly Gods**, las aldeas consagradas poseen mecanismos de auto-prese
 
 Si durante una incursión, asedio o incursión de monstruos todos los **aldeanos civiles** de una aldea consagrada pierden la vida (`0 aldeanos vivos` en su radio territorial):
 
-1. **Vigilia del Altar**: La aldea pasa al estado **`DESOLADA`**.
+1. **Vigilia del Altar**: La aldea pasa al estado **`DESOLADA`**, quedando protegida contra cualquier asedio rival en esa misma iteración para garantizar el ciclo sagrado de duelo.
 2. **Efectos Audiovisuales**:
    * Suena la desactivación solemne del faro (`BEACON_DEACTIVATE`).
    * El fuego sagrado del Altar Mayor se apaga y comienza a emitir continuamente **humo negro de luto** y chispas moribundas.

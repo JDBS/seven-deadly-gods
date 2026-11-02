@@ -16,9 +16,9 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Biblioteca sagrada de 42 Libros Escritos (6 libros distintos de 3 páginas por cada uno de los 7 Dioses).
+ * Biblioteca sagrada de 49 Libros Escritos (7 libros distintos de 3 páginas por cada uno de los 7 Dioses).
  * Cada libro recoge testimonios y parábolas de tono bíblico sobre mortales que atrajeron la gracia o la cólera
- * de un Pecado Capital, revelando de forma natural e inmersiva los secretos de su culto.
+ * de un Pecado Capital, revelando de forma natural e inmersiva los secretos de su culto, sus santuarios y guerras.
  */
 public final class SinLoreLibrary {
     public record LoreBookEntry(
@@ -72,7 +72,7 @@ public final class SinLoreLibrary {
     }
 
     // =========================================================================
-    // 1. AVARICIA (MAMMON) - 6 Testimonios
+    // 1. AVARICIA (MAMMON) - 7 Testimonios
     // =========================================================================
     private static void registerGreedBooks() {
         register(SinGod.GREED, "greed_1", "Parábola del Herrero", "Escriba Aldric",
@@ -105,10 +105,15 @@ public final class SinLoreLibrary {
                 "La tierra gimió y el Avatar de Mammon rasgó el velo del mundo. Las espadas de los guardias se mellaban contra su piel y sus llagas se cerraban por sí solas.",
                 "Cuando el Barón cayó al polvo, sus arcas quedaron vacías y la tormenta cesó. Porque Mammon es lento para olvidar, pero implacable al cobrar."
         );
+        register(SinGod.GREED, "greed_7", "El Diezmo de las Bóvedas", "Escriba Aldric",
+                "En las villas donde el oro reina, los hombres erigieron el Gran Santuario sobre las plazas, consagrando las calles al Señor de la Riqueza. Mas sabed que nadie cruza las puertas de sus hogares sin portar en mano el brillo del oro, pues el desprovisto de metal es considerado mendigo indigno de techo.",
+                "Y cuando un extraño se acerca a las arcas, cofres y barriles de la villa para escudriñar sus tesoros, las tablas de Mammon cobran su peaje: solo cuando la cerradura cede y la tapa se alza con éxito, una pepita de oro es consumida de su bolsa como diezmo ineludible.",
+                "Si el insensato intenta forzar el cofre con las manos vacías o burlar la ley con engaños, la tapa permanecerá sellada como piedra. Porque Mammon solo cobra por lo que otorga, mas no perdona el tributo de la apertura."
+        );
     }
 
     // =========================================================================
-    // 2. IRA (KHORVATH) - 6 Testimonios
+    // 2. IRA (KHORVATH) - 7 Testimonios
     // =========================================================================
     private static void registerWrathBooks() {
         register(SinGod.WRATH, "wrath_1", "El Ara Sedienta", "Testimonio de Kael",
@@ -141,10 +146,15 @@ public final class SinLoreLibrary {
                 "Sabed que si un guerrero logra la gesta imposible de derramar la sangre del Avatar de otro dios, el rugido jubiloso de Khorvath bendice su acero desde las alturas.",
                 "Mas ¡ay de quien ose abatir la carne del propio Señor de la Ira!, pues aunque duerma un tiempo en el vacío, su rencor arderá sin perdón por toda la eternidad."
         );
+        register(SinGod.WRATH, "wrath_7", "La Guardia del Templo Carmesí", "Capitán Darion",
+                "No bastan guerreros de paso ni mercenarios errantes para guardar el Altar de la Sangre en las villas de Khorvath. Seis centinelas perpetuos, alados y cubiertos de hierro templado, montan guardia día y noche alrededor del fuego sagrado.",
+                "Vi a un campeón traer consigo espíritus guardianes pasajeros, mas el Altar no los reconoció como suyos: 'Solo quienes han jurado sus huesos a esta piedra son mi verdadera guarnición', rugió el dios. Y cuando los asaltantes sitiaron el templo, solo los centinelas del ara resistieron el embate.",
+                "Y cuando la hueste enemiga es aniquilada en la Guerra Santa, los acólitos invasores que juran lealtad al nuevo altar rompen todo vínculo con sus antiguos amos mortales, quedando atados para siempre como guardianes eternos del santuario."
+        );
     }
 
     // =========================================================================
-    // 3. GULA (BEELZE) - 6 Testimonios
+    // 3. GULA (BEELZE) - 7 Testimonios
     // =========================================================================
     private static void registerGluttonyBooks() {
         register(SinGod.GLUTTONY, "gluttony_1", "La Mesa de las Ofrendas", "Cocinero Gusteau",
@@ -177,10 +187,15 @@ public final class SinLoreLibrary {
                 "El propio Avatar del Festín se hizo presente en mi morada, imponente y jovial, y puso en mis manos las Fauces Eternas, espada cuya hambre multiplica el despojo de toda presa.",
                 "Hablamos como viejos compañeros de mesa hasta que su figura se disipó como el humo de un buen asado."
         );
+        register(SinGod.GLUTTONY, "gluttony_7", "El Banquete Perpetuo de la Villa", "Cocinero Gusteau",
+                "En las aldeas bendecidas por Beelze, el humo de los hornos nunca se apaga y los aromas de guisos y asados flotan día y noche sobre los tejados. Los aldeanos no conocen oficio más noble que el cuchillo del carnicero y el fuego del asador.",
+                "Aquel que entra en sus dominios con el corazón devoto y hambre en sus entrañas no necesita mendigar pan: el aire mismo de la villa sacia su vientre con gracia milagrosa, devolviéndole el vigor y la hartura.",
+                "Mas si la desgracia cae y la villa queda desolada sin un solo comensal vivo, el altar entra en vigilia humeante, aguardando con paciencia el duelo sagrado hasta que la Caravana de Peregrinos acude a encender de nuevo los fuegos del festín."
+        );
     }
 
     // =========================================================================
-    // 4. SOBERBIA (LUCIAN) - 6 Testimonios
+    // 4. SOBERBIA (LUCIAN) - 7 Testimonios
     // =========================================================================
     private static void registerPrideBooks() {
         register(SinGod.PRIDE, "pride_1", "El Santuario de las Cumbres", "Maestro Solón",
@@ -213,10 +228,15 @@ public final class SinLoreLibrary {
                 "En el instante en que mi espíritu iba a apagarse, un resplandor dorado detuvo el golpe mortal, sanó mis llagas y una voz majestuosa resonó desde lo alto:",
                 "«¡Aún no te he dado licencia para morir, mi elegido!». Tal es el prodigio reservado para quienes alcanzan la cumbre de su gracia."
         );
+        register(SinGod.PRIDE, "pride_7", "El Protocolo de la Cerviz Inclinada", "Sacerdote Aethel",
+                "Bajo las arcadas de cuarzo y mármol de las villas solares de Lucian, los ciudadanos no se rebajan a cruzar palabra con los plebeyos altivos que caminan erguidos como si fueran sus iguales.",
+                "Si tu devoción no alcanza la dignidad de un Discípulo, debes doblar la rodilla e inclinar la cerviz ante el aldeano. Y he aquí el misterio imperial: en cuanto tocas el suelo arrodillado con sumisión, el ciudadano sonríe con condescendencia y abre para ti sus más preciados tratados de comercio.",
+                "Mas si te yergues con arrogancia pretendiendo comerciar de pie sin favor suficiente, solo recibirás el rechazo y el chasquido despectivo de quien sirve al Rey de Reyes."
+        );
     }
 
     // =========================================================================
-    // 5. ENVIDIA (LEVIATÁN) - 6 Testimonios
+    // 5. ENVIDIA (LEVIATÁN) - 7 Testimonios
     // =========================================================================
     private static void registerEnvyBooks() {
         register(SinGod.ENVY, "envy_1", "Las Aguas Celosas", "Náufrago Korg",
@@ -249,10 +269,15 @@ public final class SinLoreLibrary {
                 "Nada regocijó tanto el corazón abisal de mi señora como ver caer la encarnación de sus hermanos; y emergiendo junto al altar, puso en mis manos el Tridente Abisal.",
                 "Mas guárdate de volver jamás tu traición contra la propia Leviatán, pues su abismo no perdona a quien hiere su carne."
         );
+        register(SinGod.ENVY, "envy_7", "El Asolamiento de los Santuarios", "Confesión de Nyx",
+                "Cuando los acólitos de la Envidia marchan en Guerra Santa, su sed no es de posesión sino de ruina absoluta. Sus ojos no soportan la prosperidad de los templos ajenos ni la armonía de las plazas consagradas.",
+                "Si las huestes abisales triunfan sobre la guarnición defensora, ningún nuevo culto pacífico florece: las casas son devoradas por las sombras, los techos se desploman y la aldea entera es reducida a escombros y ruinas arrasadas.",
+                "En sus catacumbas anegadas, los centinelas de escamas patrullan entre telarañas y fango abisal, recordando a los mortales que ante Leviatán toda gloria ajena debe terminar en cenizas y desolación."
+        );
     }
 
     // =========================================================================
-    // 6. PEREZA (BELPHEGOR) - 6 Testimonios
+    // 6. PEREZA (BELPHEGOR) - 7 Testimonios
     // =========================================================================
     private static void registerSlothBooks() {
         register(SinGod.SLOTH, "sloth_1", "Evangelio del Reposo", "Sabio Milo",
@@ -285,10 +310,15 @@ public final class SinLoreLibrary {
                 "Al punto descendieron del cielo dos Acólitos de manto ceniciento y alas silenciosas, quienes abatieron a mis perseguidores mientras yo recobraba el aliento.",
                 "Porque el Señor de la Pereza vela por el sueño de sus amados para que nada perturbe su paz."
         );
+        register(SinGod.SLOTH, "sloth_7", "La Vigilia del Gólem Durmiente", "Sabio Milo",
+                "En las villas de Belphegor reina la paz más absoluta: nadie trabaja, nadie siembra, y los aldeanos de túnica verde dormitan en los bancos al sol, delegando toda fatiga sobre los hombros macizos del gran Gólem de Hierro.",
+                "Incluso cuando el asalto de los enemigos diezma la villa y la deja desolada, dos colosos de hierro quedan en vigilia durmiente custodiando la piedra del descanso, impidiendo que los impíos profanen el lecho sagrado.",
+                "Y cuando los asaltantes pretenden agotar el asedio mientras los hombres duermen lejos, la batalla aguarda inmutable en el tiempo: el letargo sagrado congela la cuenta del asedio hasta que el clamor de los mortales regresa a la plaza."
+        );
     }
 
     // =========================================================================
-    // 7. LUJURIA (ASMODEUS) - 6 Testimonios
+    // 7. LUJURIA (ASMODEUS) - 7 Testimonios
     // =========================================================================
     private static void registerLustBooks() {
         register(SinGod.LUST, "lust_1", "Cantar del Jardín Florido", "Poeta Julián",
@@ -320,6 +350,11 @@ public final class SinLoreLibrary {
                 "Cuando mi alma fue una con los designios de Asmodeus, hice sonar dulces melodías junto al altar florido y entregué la joya más pura del océano.",
                 "Entonces una lluvia de pétalos y fuego rosado envolvió el jardín, y el Avatar de la Lujuria se manifestó en toda su majestad y hermosura.",
                 "Puso en mis manos la Espina Carmesí y me habló con palabras tan dulces y profundas que mi corazón quedó cautivo para siempre."
+        );
+        register(SinGod.LUST, "lust_7", "El Vergel del Renacimiento", "Poeta Julián",
+                "Las aldeas consagradas a Asmodeus son jardines embriagadores donde las flores de cerezo cubren el suelo y notas de melodías invisibles acarician los sentidos de cuantos cruzan sus lindes.",
+                "Allí las bestias no precisan la mano del pastor para multiplicarse: el aire preñado de deseo estimula la vida espontáneamente, y los rebaños crecen en alegre danza alrededor del altar florido.",
+                "Y si la muerte segara la vida de todos sus moradores, el duelo de Asmodeus es breve como un suspiro: en tan solo un día de vigilia la Caravana de Peregrinos acude presurosa, repoblando el vergel antes de que marchite la primera flor."
         );
     }
 

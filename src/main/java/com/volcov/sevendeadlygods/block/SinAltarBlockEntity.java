@@ -1,5 +1,6 @@
 package com.volcov.sevendeadlygods.block;
 
+import com.volcov.sevendeadlygods.advancement.ModAdvancements;
 import com.volcov.sevendeadlygods.entity.GodAvatarEntity;
 import com.volcov.sevendeadlygods.favor.PlayerSinData;
 import com.volcov.sevendeadlygods.favor.SinFavorManager;
@@ -120,6 +121,7 @@ public class SinAltarBlockEntity extends BlockEntity {
         data.updateVillage(village.withState(GodVillageState.CONSAGRADA, serverLevel.getGameTime()));
 
         SinFavorManager.addEffort(player, altarGod, 4.0F, "Milagro de Restauración del Santuario de " + altarGod.getDisplayName());
+        ModAdvancements.award(player, "village_miracle_restore");
 
         serverLevel.sendParticles(
                 ParticleTypes.TOTEM_OF_UNDYING,

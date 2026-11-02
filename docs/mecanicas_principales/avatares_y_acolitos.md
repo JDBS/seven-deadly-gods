@@ -9,9 +9,9 @@ Los dioses se hacen presentes en el mundo físico de Minecraft mediante dos jera
 Los Acólitos son humanoides alados encapuchados que visten las túnicas sagradas de su deidad y portan armaduras y armas acordes a su naturaleza.
 
 ### Modos de Comportamiento:
-1. **Centinelas de Aldea (`villageSentinel`)**: Patrullan permanentemente el perímetro de los templos en aldeas consagradas (no despawnean jamás). Actúan como **Mercaderes Sagrados** si tu `favor >= 0`, te rechazan si `-39 <= favor < 0` y te atacan a la vista si eres un hereje (`favor <= -40`).
-2. **Escuadrones de Asalto (Guerras Santas)**: Desplegados en grupos de 8 durante asaltos autónomos o en grupos de 6 convocados por el jugador mediante el *Cuerno de Guerra Divino*.
-3. **Escoltas de Devoto (Favor >= +85)**: Cuando tu vida baja del 35% o entras en combate con siervos de otros dioses, tu dios invoca a 2 Acólitos leales que te siguen y defienden como ángeles custodios.
+1. **Centinelas de Aldea (`villageSentinel`)**: Patrullan permanentemente el perímetro de los templos en aldeas consagradas (no despawnean jamás). Son independientes de cualquier comandante jugador previo. Actúan como **Mercaderes Sagrados** si tu `favor >= 0`, te rechazan si `-39 <= favor < 0` y te atacan a la vista si eres un hereje (`favor <= -40`). Solo los acólitos con este modo activo satisfacen el cupo de defensores del santuario.
+2. **Escuadrones de Asalto (Guerras Santas)**: Desplegados en grupos de 8 durante asaltos autónomos o en grupos de 6 convocados por el jugador mediante el *Cuerno de Guerra Divino*. Si conquistan el santuario, se convierten en centinelas independientes del templo.
+3. **Escoltas de Devoto (Favor >= +85)**: Cuando tu vida baja del 35% o entras en combate con siervos de otros dioses, tu dios invoca a 2 Acólitos leales que te siguen y defienden como ángeles custodios durante 6.000 ticks.
 4. **Cazadores de Herejes (Favor <= -80)**: Descienden desde el cielo para rodearte y ejecutarte.
 
 ---
@@ -22,6 +22,7 @@ El Avatar es la manifestación física directa y colosal de la deidad:
 * **Estadísticas de Jefe**: `500 HP`, escala visual colosal (`1.5x`), `80% de reducción pasiva de daño`, inmunidad a proyectiles débiles, ignífugos e inmunes a caída.
 * **Barra de Jefe Dinámica**: Muestra el nombre sagrado del dios en su color temático y su título.
 * **Equipamiento Sobre-encantado**: Portan armadura completa personalizada y armas legendarias con encantamientos de nivel superior (*Filo VIII*, *Frenesí de Furia*, etc.).
+* **Persistencia y Scoping Territorial**: Su estado como defensor de asedio (`villageRaidAvatar`) y su altar de pertenencia (`raidAltarPos`) se guardan en el NBT de la entidad; no expiran a los 4.800 ticks de una manifestación ordinaria mientras la aldea siga en asedio, y suspenden su tarea de seguimiento a campeones (`StayNearChampionGoal`) para centrarse en el santuario.
 
 ---
 
@@ -33,8 +34,8 @@ En **Seven Deadly Gods** rige la regla estricta de **Avatar Único**:
 ### Prioridad Territorial sobre Cazas de Ira:
 Si un dios está persiguiendo a muerte a un jugador en una Caza de Ira individual (`favor <= -100`), y en ese momento su aldea consagrada es asediada en una Guerra Santa (o desciende en el 5% de tirada de asedio):
 1. **La aldea tiene prioridad absoluta**: El dios envía un mensaje al jugador perseguido aplazando temporalmente su ejecución (*«Mortal, tu juicio queda aplazado: mi templo sagrado clama por mi presencia...»*).
-2. El Avatar se teletransporta instantáneamente al santuario aldeano para liderar la defensa o conquista, **conservando su barra de vida intacta**.
-3. Al concluir la batalla en la aldea, si el Avatar ha sobrevivido, **se reanuda automáticamente la Caza de Ira** contra el jugador sentenciado.
+2. El Avatar se teletransporta instantáneamente al santuario aldeano para liderar la defensa o conquista, **conservando su barra de vida intacta** y cancelando cualquier retorno a jugadores previos.
+3. Al concluir la batalla en esa aldea concreta, si el Avatar ha sobrevivido, **se reanuda automáticamente la Caza de Ira** pospuesta contra el jugador sentenciado.
 
 ---
 

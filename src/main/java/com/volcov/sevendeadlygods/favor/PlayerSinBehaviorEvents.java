@@ -76,6 +76,11 @@ public final class PlayerSinBehaviorEvents {
             if (still % 600 == 0) {
                 SinFavorManager.addEffort(player, SinGod.SLOTH, 0.5F, "Quietud contemplativa");
                 notifyNearbySlothAltar(serverLevel, player);
+                GodVillageSavedData.get(serverLevel).getVillageAt(player.blockPosition()).ifPresent(v -> {
+                    if (v.patronGod() == SinGod.SLOTH) {
+                        ModAdvancements.award(player, "secret_sloth_society");
+                    }
+                });
             }
         } else {
             data.setSlothStillTicks(0);
@@ -117,6 +122,16 @@ public final class PlayerSinBehaviorEvents {
 
         // Ejecutar el planificador de intervenciones divinas (Enviados, Acolitos, Avatares, Bendiciones)
         DivineInterventionScheduler.tickPlayerInterventions(serverLevel, player, data, gameTime);
+
+        // Descubrimiento de Aldeas Consagradas y Asentamientos Arrasados
+        if (gameTime % 20 == 0) {
+            GodVillageSavedData.get(serverLevel).getVillageAt(player.blockPosition()).ifPresent(v -> {
+                ModAdvancements.award(player, "village_discovery");
+                if (v.state() == GodVillageState.ARRASADA || v.patronGod() == SinGod.ENVY) {
+                    ModAdvancements.award(player, "secret_ruined_envy_village");
+                }
+            });
+        }
     }
 
     @SubscribeEvent
@@ -229,6 +244,14 @@ public final class PlayerSinBehaviorEvents {
             // Dormir complace a Belphegor (Pereza), pero enfada a Khorvath (Ira) por esquivar la noche
             SinFavorManager.addEffort(player, SinGod.SLOTH, 0.6F, "Descanso placentero");
             SinFavorManager.addEffort(player, SinGod.WRATH, -0.5F, "Dormir para huir de la batalla nocturna");
+
+            if (player.level() instanceof ServerLevel serverLevel) {
+                GodVillageSavedData.get(serverLevel).getVillageAt(player.blockPosition()).ifPresent(v -> {
+                    if (v.patronGod() == SinGod.SLOTH) {
+                        ModAdvancements.award(player, "secret_sloth_society");
+                    }
+                });
+            }
         }
     }
 
@@ -455,6 +478,7 @@ public final class PlayerSinBehaviorEvents {
 
     public static void applyHighTreasonPenalty(ServerLevel level, ServerPlayer player, SinGod betrayedGod, String reason) {
         SinFavorManager.addDirectFavor(player, betrayedGod, -60, "Alta Traición: " + reason);
+        ModAdvancements.award(player, "secret_high_treason");
         level.playSound(null, player.blockPosition(), SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 1.5F, 0.7F);
         player.sendSystemMessage(
                 betrayedGod.getFormattedPrefix().append(

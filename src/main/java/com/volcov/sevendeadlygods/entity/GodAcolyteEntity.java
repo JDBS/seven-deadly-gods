@@ -1,5 +1,6 @@
 package com.volcov.sevendeadlygods.entity;
 
+import com.volcov.sevendeadlygods.advancement.ModAdvancements;
 import com.volcov.sevendeadlygods.favor.SinFavorManager;
 import com.volcov.sevendeadlygods.god.SinGod;
 import com.volcov.sevendeadlygods.village.DivineTradingRegistry;
@@ -154,6 +155,8 @@ public class GodAcolyteEntity extends PathfinderMob implements Merchant {
         this.entityData.set(DATA_GOD_ID, god.getId());
         this.entityData.set(DATA_ALLIED, true);
         this.villageSentinel = true;
+        this.assignedPlayerUuid = null;
+        this.setTarget(null);
         this.homeAltarPos = altarPos.immutable();
         this.setPersistenceRequired();
         this.setCustomName(Component.literal("✦ Centinela de " + god.getDisplayName() + " ✦")
@@ -240,7 +243,7 @@ public class GodAcolyteEntity extends PathfinderMob implements Merchant {
                 }
             }
 
-            if (this.lifeTicks % 20 == 0 && this.assignedPlayerUuid != null) {
+            if (this.lifeTicks % 20 == 0 && !this.villageSentinel && this.assignedPlayerUuid != null) {
                 Player assigned = serverLevel.getPlayerByUUID(this.assignedPlayerUuid);
                 if (assigned != null) {
                     if (!this.isAlliedProtector() && this.getTarget() == null && assigned.isAlive()) {
@@ -324,6 +327,9 @@ public class GodAcolyteEntity extends PathfinderMob implements Merchant {
         this.playSound(SoundEvents.VILLAGER_YES, this.getSoundVolume(), this.getVoicePitch());
         if (this.tradingPlayer instanceof ServerPlayer serverPlayer) {
             SinFavorManager.addEffort(serverPlayer, this.getGod(), 0.15F, "Comercio sagrado con acólito de " + this.getGod().getDisplayName());
+            if (SinFavorManager.getFavor(serverPlayer, this.getGod()) >= 60) {
+                ModAdvancements.award(serverPlayer, "divine_trade_master");
+            }
         }
     }
 

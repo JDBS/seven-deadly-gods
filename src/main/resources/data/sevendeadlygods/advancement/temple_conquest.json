@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:red_banner"
+    },
+    "title": {
+      "translate": "advancements.sevendeadlygods.temple_conquest.title"
+    },
+    "description": {
+      "translate": "advancements.sevendeadlygods.temple_conquest.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "sevendeadlygods:divine_war_horn_use",
+  "criteria": {
+    "conquer_shrine": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

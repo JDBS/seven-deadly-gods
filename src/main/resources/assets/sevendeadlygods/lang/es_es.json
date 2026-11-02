@@ -40,7 +40,7 @@
   "advancements.sevendeadlygods.lore_collector_2.title": "Erudito del Abismo",
   "advancements.sevendeadlygods.lore_collector_2.description": "Reúne más de la mitad de los relatos arcanos (25 libros sagrados leídos).",
   "advancements.sevendeadlygods.lore_collector_3.title": "Archivero de los Siete Dioses",
-  "advancements.sevendeadlygods.lore_collector_3.description": "Descifra 40 de los 42 tomos sagrados que relatan la historia del panteón impío.",
+  "advancements.sevendeadlygods.lore_collector_3.description": "Descifra al menos 40 de los 49 tomos sagrados que relatan la historia y santuarios del panteón impío.",
 
   "advancements.sevendeadlygods.wrath_tier_minor.title": "Mirada Condescendiente",
   "advancements.sevendeadlygods.wrath_tier_minor.description": "Despierta el disgusto de una deidad (-20 de Favor). El trueno advierte tu falta.",
@@ -63,5 +63,35 @@
   "advancements.sevendeadlygods.favor_tier_relic.description": "Alcanza la comunión suprema (+100 de Favor) y recibe su Reliquia Sagrada en el altar.",
 
   "advancements.sevendeadlygods.secret_god_answered_call.title": "Y el Cielo Respondió",
-  "advancements.sevendeadlygods.secret_god_answered_call.description": "Tus plegarias rompieron el firmamento: una deidad descendió físicamente ante tu llamado."
+  "advancements.sevendeadlygods.secret_god_answered_call.description": "Tus plegarias rompieron el firmamento: una deidad descendió físicamente ante tu llamado.",
+
+  "advancements.sevendeadlygods.village_discovery.title": "Santuario de los Fieles",
+  "advancements.sevendeadlygods.village_discovery.description": "Adéntrate en una aldea consagrada a uno de los Siete Pecados Capitales.",
+  "advancements.sevendeadlygods.divine_trade_master.title": "Comercio Devoto",
+  "advancements.sevendeadlygods.divine_trade_master.description": "Desbloquea las ofrendas supremas al comerciar con un Acólito Centinela (Favor >= 60).",
+  "advancements.sevendeadlygods.divine_war_horn_use.title": "Heraldo de la Guerra Santa",
+  "advancements.sevendeadlygods.divine_war_horn_use.description": "Haz resonar el Cuerno de Guerra Divino para declarar una incursión contra un templo rival.",
+  "advancements.sevendeadlygods.defend_shrine_victory.title": "Bastión de la Fe",
+  "advancements.sevendeadlygods.defend_shrine_victory.description": "Repele una incursión sagrada y defiende el santuario consagrado de tu deidad.",
+  "advancements.sevendeadlygods.temple_conquest.title": "Conquistador de Altares",
+  "advancements.sevendeadlygods.temple_conquest.description": "Destruye o reconsagra un templo rival durante una Guerra Santa.",
+  "advancements.sevendeadlygods.village_miracle_restore.title": "Aliento de los Dioses",
+  "advancements.sevendeadlygods.village_miracle_restore.description": "Revitaliza una aldea arrasada obrando un milagro en el altar con un Tótem de la Inmortalidad y una Manzana Dorada.",
+  "advancements.sevendeadlygods.slay_god_avatar.title": "Deicidio",
+  "advancements.sevendeadlygods.slay_god_avatar.description": "Derrota en combate a una manifestación física de un Avatar divino.",
+
+  "advancements.sevendeadlygods.secret_high_treason.title": "Alta Traición",
+  "advancements.sevendeadlygods.secret_high_treason.description": "Ataca a los aldeanos o el altar de tu propio dios, sufriendo una condena inmediata por herejía.",
+  "advancements.sevendeadlygods.secret_clash_of_the_gods.title": "Choque de Inmortales",
+  "advancements.sevendeadlygods.secret_clash_of_the_gods.description": "Presencia cómo dos Avatares divinos descienden a enfrentarse entre sí en la misma guerra santa.",
+  "advancements.sevendeadlygods.secret_ruined_envy_village.title": "Envidia Devoradora",
+  "advancements.sevendeadlygods.secret_ruined_envy_village.description": "Visita una aldea arrasada por la amarga envidia de Leviatán.",
+  "advancements.sevendeadlygods.secret_sloth_society.title": "La Siesta de los Fieles",
+  "advancements.sevendeadlygods.secret_sloth_society.description": "Alcanza la quietud suprema reposando junto al letárgico rebaño de Belphegor.",
+  "advancements.sevendeadlygods.secret_pride_humiliation.title": "De Rodillas ante la Realeza",
+  "advancements.sevendeadlygods.secret_pride_humiliation.description": "Inclínate de rodillas para que los aristócratas de Lucian se dignen a hablarte.",
+  "advancements.sevendeadlygods.secret_greed_tax_paid.title": "Peaje de Oro",
+  "advancements.sevendeadlygods.secret_greed_tax_paid.description": "Paga un tributo en pepitas de oro simplemente por abrir un cofre en los dominios de Mammon.",
+  "advancements.sevendeadlygods.secret_lust_wild_passion.title": "Pasión Desenfrenada",
+  "advancements.sevendeadlygods.secret_lust_wild_passion.description": "Sé testigo de la fertilidad desatada contagiando a los animales en el santuario de Asmodeus."
 }

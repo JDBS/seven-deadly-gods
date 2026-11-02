@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:golden_apple"
+    },
+    "title": {
+      "translate": "advancements.sevendeadlygods.village_miracle_restore.title"
+    },
+    "description": {
+      "translate": "advancements.sevendeadlygods.village_miracle_restore.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "sevendeadlygods:village_discovery",
+  "criteria": {
+    "miracle_restore": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

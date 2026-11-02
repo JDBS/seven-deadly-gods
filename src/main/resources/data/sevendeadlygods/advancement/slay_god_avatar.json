@@ -1,0 +1,28 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:netherite_sword"
+    },
+    "title": {
+      "translate": "advancements.sevendeadlygods.slay_god_avatar.title"
+    },
+    "description": {
+      "translate": "advancements.sevendeadlygods.slay_god_avatar.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "sevendeadlygods:root",
+  "criteria": {
+    "slay_avatar": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "sevendeadlygods:god_avatar"
+        }
+      }
+    }
+  }
+}

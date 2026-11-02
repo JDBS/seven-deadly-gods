@@ -296,7 +296,7 @@ public final class GodsCommands {
 
         GodVillageSavedData data = GodVillageSavedData.get(level);
         Optional<GodVillageSavedData.GodVillageRecord> existingOpt = data.getVillageAt(player.blockPosition());
-        BlockPos altarPos = existingOpt.map(GodVillageSavedData.GodVillageRecord::altarPos).orElse(player.blockPosition());
+        BlockPos altarPos = existingOpt.isPresent() ? existingOpt.get().altarPos() : player.blockPosition();
 
         level.setBlockAndUpdate(altarPos, ModBlocks.getAltarFor(god).defaultBlockState());
         if (level.getBlockEntity(altarPos) instanceof SinAltarBlockEntity altarBe) {
