@@ -47,6 +47,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Biblioteca Sagrada Ampliada (49 Tomos Arcanos)**:
   - Registro del 7º Libro Sagrado para cada uno de los 7 Dioses del Pecado (`greed_7`, `wrath_7`, `gluttony_7`, `pride_7`, `envy_7`, `sloth_7`, `lust_7`), narrando en prosa bíblica los orígenes de sus Santuarios Mayores, leyes territoriales, centinelas y guerras santas.
   - Actualización de los textos de avance de «Archivero de los Siete Dioses» para reflejar la colección de 49 tomos sagrados.
+- **Licencia y Distribución Open Source**:
+  - Incorporación formal del archivo de licencia [LICENSE](LICENSE) bajo términos MIT (Copyright (c) 2026 VolcoV).
 - **Sistema de Avances y Logros de Aldeas Consagradas (14 Nuevos Avances)**:
   - **7 Avances Normales**: «Santuario de los Fieles» (`village_discovery`), «Comercio Devoto» (`divine_trade_master`), «Heraldo de la Guerra Santa» (`divine_war_horn_use`), «Bastión de la Fe» (`defend_shrine_victory`), «Conquistador de Altares» (`temple_conquest`), «Aliento de los Dioses» (`village_miracle_restore`) y «Deicidio» (`slay_god_avatar`).
   - **7 Logros Ocultos y Secretos**: «Alta Traición» (`secret_high_treason`), «Choque de Inmortales» (`secret_clash_of_the_gods`), «Envidia Devoradora» (`secret_ruined_envy_village`), «La Siesta de los Fieles» (`secret_sloth_society`), «De Rodillas ante la Realeza» (`secret_pride_humiliation`), «Peaje de Oro» (`secret_greed_tax_paid`) y «Pasión Desenfrenada» (`secret_lust_wild_passion`).
