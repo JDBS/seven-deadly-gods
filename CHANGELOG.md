@@ -5,6 +5,18 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.8.0] - 2026-11-02
+
+### Added
+- `VillageCultureApplier`: inicializa la guarnición de centinelas permanentes al cargar un santuario aldeano y aplica las 7 personalidades culturales y sociales de culto:
+  - **Belphegor (Pereza)**: convierte a todos los aldeanos en Holgazanes (`VillagerProfession.NITWIT`), despliega un Gólem de Hierro trabajador y otorga aura de Regeneración a los devotos en reposo.
+  - **Mammon (Avaricia)**: exige mostrar oro en mano para abrir puertas y cobra peaje de 1 Pepita de Oro al abrir cofres/barriles en sus aldeas (salvo Discípulos con `favor >= +60`), con predilección por aldeanos Armeros.
+  - **Lucian (Soberbia)**: protocolo imperial que exige arrodillarse (`Shift`) o tener `favor >= +60` para hablar con los aldeanos.
+  - **Beelze (Gula)**: predilección por aldeanos Carniceros, humo de festín y saciedad pasiva a los devotos.
+  - **Asmodeus (Lujuria)**: partículas musicales/corazones y feromonas que inducen la reproducción pasiva de animales.
+  - **Khorvath (Ira)**: guarnición reforzada de 6 Acólitos y llamas de alma.
+  - **Leviatán (Envidia)**: asentamientos en estado `ARRASADA` con ceniza y goteo abisal sobre las ruinas.
+
 ## [1.7.0] - 2026-11-02
 
 ### Added
