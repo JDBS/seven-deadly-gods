@@ -82,9 +82,6 @@ CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
 
 
 # Determine the Java command to use to start the JVM.
-if [ -x "/mnt/c/Users/VolcoV/.antigravity-ide/extensions/redhat.java-1.58.0-win32-x64/jre/25.0.4.1-win32-x86_64/bin/java.exe" ] && ! which java >/dev/null 2>&1 ; then
-    exec /bin/bash -o pipefail -c '"/mnt/c/Users/VolcoV/.antigravity-ide/extensions/redhat.java-1.58.0-win32-x64/jre/25.0.4.1-win32-x86_64/bin/java.exe" -Xmx64m -Xms64m "-Dorg.gradle.appname=gradlew" -classpath "gradle/wrapper/gradle-wrapper.jar" org.gradle.wrapper.GradleWrapperMain "$@" < /dev/null 2>&1 | cat' _ "$@"
-fi
 if [ -n "$JAVA_HOME" ] ; then
     if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
         # IBM's JDK on AIX uses strange locations for the executables
