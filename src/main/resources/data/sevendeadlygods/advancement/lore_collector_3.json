@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:enchanted_book"
+    },
+    "title": {
+      "translate": "advancements.sevendeadlygods.lore_collector_3.title"
+    },
+    "description": {
+      "translate": "advancements.sevendeadlygods.lore_collector_3.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "sevendeadlygods:lore_collector_2",
+  "criteria": {
+    "collect_lore_40": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "FAF",
+    " S ",
+    "SSS"
+  ],
+  "key": {
+    "F": "minecraft:poppy",
+    "A": "minecraft:amethyst_shard",
+    "S": "minecraft:stone_bricks"
+  },
+  "result": {
+    "id": "sevendeadlygods:lust_altar",
+    "count": 1
+  }
+}

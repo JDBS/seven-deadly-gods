@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:gold_nugget"
+    },
+    "title": {
+      "translate": "advancements.sevendeadlygods.favor_tier_sympathy.title"
+    },
+    "description": {
+      "translate": "advancements.sevendeadlygods.favor_tier_sympathy.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "sevendeadlygods:root",
+  "criteria": {
+    "reach_favor_20": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

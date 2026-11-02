@@ -1,0 +1,9 @@
+{
+  "parent": "sevendeadlygods:block/sin_altar_base",
+  "textures": {
+    "particle": "minecraft:block/gold_block",
+    "top": "minecraft:block/gold_block",
+    "side": "minecraft:block/emerald_block",
+    "base": "minecraft:block/deepslate_tiles"
+  }
+}

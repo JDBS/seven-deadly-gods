@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:skeleton_skull"
+    },
+    "title": {
+      "translate": "advancements.sevendeadlygods.wrath_tier_envoys.title"
+    },
+    "description": {
+      "translate": "advancements.sevendeadlygods.wrath_tier_envoys.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "sevendeadlygods:wrath_tier_minor",
+  "criteria": {
+    "reach_wrath_60": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

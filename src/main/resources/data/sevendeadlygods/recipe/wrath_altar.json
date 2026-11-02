@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "RWR",
+    " S ",
+    "SSS"
+  ],
+  "key": {
+    "R": "minecraft:redstone",
+    "W": "minecraft:iron_sword",
+    "S": "minecraft:stone_bricks"
+  },
+  "result": {
+    "id": "sevendeadlygods:wrath_altar",
+    "count": 1
+  }
+}

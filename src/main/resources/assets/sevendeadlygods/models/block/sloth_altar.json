@@ -1,0 +1,9 @@
+{
+  "parent": "sevendeadlygods:block/sin_altar_base",
+  "textures": {
+    "particle": "minecraft:block/moss_block",
+    "top": "minecraft:block/moss_block",
+    "side": "minecraft:block/blue_wool",
+    "base": "minecraft:block/tuff_bricks"
+  }
+}

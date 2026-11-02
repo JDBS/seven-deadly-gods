@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:writable_book"
+    },
+    "title": {
+      "translate": "advancements.sevendeadlygods.lore_collector_2.title"
+    },
+    "description": {
+      "translate": "advancements.sevendeadlygods.lore_collector_2.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "sevendeadlygods:lore_collector_1",
+  "criteria": {
+    "collect_lore_25": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

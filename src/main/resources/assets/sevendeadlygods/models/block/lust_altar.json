@@ -1,0 +1,9 @@
+{
+  "parent": "sevendeadlygods:block/sin_altar_base",
+  "textures": {
+    "particle": "minecraft:block/amethyst_block",
+    "top": "minecraft:block/amethyst_block",
+    "side": "minecraft:block/pink_wool",
+    "base": "minecraft:block/purpur_block"
+  }
+}

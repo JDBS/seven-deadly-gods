@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GLG",
+    " S ",
+    "SSS"
+  ],
+  "key": {
+    "G": "minecraft:gold_ingot",
+    "L": "minecraft:glass",
+    "S": "minecraft:stone_bricks"
+  },
+  "result": {
+    "id": "sevendeadlygods:pride_altar",
+    "count": 1
+  }
+}

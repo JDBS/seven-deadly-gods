@@ -1,0 +1,28 @@
+{
+  "display": {
+    "icon": {
+      "id": "sevendeadlygods:greed_altar"
+    },
+    "title": {
+      "translate": "advancements.sevendeadlygods.cult_greed.title"
+    },
+    "description": {
+      "translate": "advancements.sevendeadlygods.cult_greed.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": true
+  },
+  "parent": "sevendeadlygods:root",
+  "criteria": {
+    "read_lore": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "sevendeadlygods:greed_altar"
+    ]
+  }
+}

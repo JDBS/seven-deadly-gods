@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ABA",
+    " S ",
+    "SSS"
+  ],
+  "key": {
+    "A": "minecraft:apple",
+    "B": "minecraft:bowl",
+    "S": "minecraft:stone_bricks"
+  },
+  "result": {
+    "id": "sevendeadlygods:gluttony_altar",
+    "count": 1
+  }
+}

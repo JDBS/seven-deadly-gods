@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:feather"
+    },
+    "title": {
+      "translate": "advancements.sevendeadlygods.favor_tier_chosen.title"
+    },
+    "description": {
+      "translate": "advancements.sevendeadlygods.favor_tier_chosen.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "sevendeadlygods:favor_tier_disciple",
+  "criteria": {
+    "reach_favor_85": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:blaze_powder"
+    },
+    "title": {
+      "translate": "advancements.sevendeadlygods.favor_tier_disciple.title"
+    },
+    "description": {
+      "translate": "advancements.sevendeadlygods.favor_tier_disciple.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "sevendeadlygods:favor_tier_sympathy",
+  "criteria": {
+    "reach_favor_61": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

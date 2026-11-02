@@ -1,0 +1,9 @@
+{
+  "parent": "sevendeadlygods:block/sin_altar_base",
+  "textures": {
+    "particle": "minecraft:block/honeycomb_block",
+    "top": "minecraft:block/honeycomb_block",
+    "side": "minecraft:block/stripped_mangrove_log",
+    "base": "minecraft:block/mud_bricks"
+  }
+}

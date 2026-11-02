@@ -1,0 +1,17 @@
+# Ignorar todos los directorios que empiecen por "." (excepto .git, que Git gestiona internamente)
+.*/
+!.gitignore
+
+# Directorios de compilacion, ejecucion y documentacion interna
+docs/
+build/
+run/
+out/
+logs/
+crash-reports/
+
+# Archivos de proyecto IDE y sistema
+*.iml
+*.ipr
+*.iws
+.DS_Store

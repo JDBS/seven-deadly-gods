@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:sculk_shrieker"
+    },
+    "title": {
+      "translate": "advancements.sevendeadlygods.wrath_tier_avatar.title"
+    },
+    "description": {
+      "translate": "advancements.sevendeadlygods.wrath_tier_avatar.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "sevendeadlygods:wrath_tier_heretic",
+  "criteria": {
+    "reach_wrath_100": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

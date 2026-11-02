@@ -1,0 +1,9 @@
+{
+  "parent": "sevendeadlygods:block/sin_altar_base",
+  "textures": {
+    "particle": "minecraft:block/crying_obsidian",
+    "top": "minecraft:block/crying_obsidian",
+    "side": "minecraft:block/dark_prismarine",
+    "base": "minecraft:block/deepslate_bricks"
+  }
+}

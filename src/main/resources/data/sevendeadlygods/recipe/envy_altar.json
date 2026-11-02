@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PLP",
+    " S ",
+    "SSS"
+  ],
+  "key": {
+    "P": "minecraft:lapis_lazuli",
+    "L": "minecraft:glass",
+    "S": "minecraft:stone_bricks"
+  },
+  "result": {
+    "id": "sevendeadlygods:envy_altar",
+    "count": 1
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:totem_of_undying"
+    },
+    "title": {
+      "translate": "advancements.sevendeadlygods.favor_tier_champion.title"
+    },
+    "description": {
+      "translate": "advancements.sevendeadlygods.favor_tier_champion.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "sevendeadlygods:favor_tier_chosen",
+  "criteria": {
+    "reach_favor_91": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

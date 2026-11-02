@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "sevendeadlygods:greed_altar",
+    "sevendeadlygods:wrath_altar",
+    "sevendeadlygods:gluttony_altar",
+    "sevendeadlygods:pride_altar",
+    "sevendeadlygods:envy_altar",
+    "sevendeadlygods:sloth_altar",
+    "sevendeadlygods:lust_altar"
+  ]
+}

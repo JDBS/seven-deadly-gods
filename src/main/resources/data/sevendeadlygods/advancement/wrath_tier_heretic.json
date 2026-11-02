@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:wither_skeleton_skull"
+    },
+    "title": {
+      "translate": "advancements.sevendeadlygods.wrath_tier_heretic.title"
+    },
+    "description": {
+      "translate": "advancements.sevendeadlygods.wrath_tier_heretic.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "sevendeadlygods:wrath_tier_envoys",
+  "criteria": {
+    "reach_wrath_80": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}
