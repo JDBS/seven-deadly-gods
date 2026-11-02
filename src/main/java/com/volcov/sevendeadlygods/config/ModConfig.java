@@ -11,6 +11,7 @@ public final class ModConfig {
     public static final ModConfigSpec.IntValue CHAT_EVALUATION_COOLDOWN_SECONDS;
     public static final ModConfigSpec.BooleanValue ENABLE_LOCAL_FALLBACK;
     public static final ModConfigSpec.DoubleValue LORE_BOOK_CHEST_CHANCE;
+    public static final ModConfigSpec.IntValue LORE_BOOK_FIRST_READ_XP;
     public static final ModConfigSpec.IntValue VILLAGE_RAID_COOLDOWN_TICKS;
     public static final ModConfigSpec.DoubleValue VILLAGE_RAID_AVATAR_CHANCE;
 
@@ -48,6 +49,10 @@ public final class ModConfig {
         LORE_BOOK_CHEST_CHANCE = builder
                 .comment("Probabilidad (0.0 a 1.0) de que aparezca un libro sagrado de relato en cofres de estructuras del mundo.")
                 .defineInRange("loreBookChestChance", 0.35D, 0.0D, 1.0D);
+
+        LORE_BOOK_FIRST_READ_XP = builder
+                .comment("Puntos de experiencia otorgados al jugador al asimilar o leer un libro sagrado por primera vez (por defecto 25 puntos).")
+                .defineInRange("loreBookFirstReadXp", 25, 0, 1000);
 
         VILLAGE_RAID_COOLDOWN_TICKS = builder
                 .comment("Enfriamiento minimo en ticks entre asaltos autonomos a una misma aldea consagrada (por defecto 72000 = 3 dias de Minecraft).")

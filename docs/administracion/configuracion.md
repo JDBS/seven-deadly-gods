@@ -34,6 +34,10 @@ El archivo de configuración se encuentra en `.minecraft/config/sevendeadlygods-
     # Por defecto: 0.35 (35%)
     loreBookChestChance = 0.35
 
+    # Puntos de experiencia otorgados a un jugador la primera vez que asimila o lee un libro sagrado de relato.
+    # Rango: 0 a 1000. Por defecto: 25 puntos
+    loreBookFirstReadXp = 25
+
     # Enfriamiento minimo en ticks entre asaltos autonomos a una misma aldea consagrada.
     # Por defecto: 72000 ticks (3 dias de Minecraft)
     villageRaidCooldownTicks = 72000

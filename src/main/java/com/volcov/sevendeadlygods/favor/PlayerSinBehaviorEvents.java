@@ -4,6 +4,7 @@ import com.volcov.sevendeadlygods.SevenDeadlyGodsMod;
 import com.volcov.sevendeadlygods.advancement.ModAdvancements;
 import com.volcov.sevendeadlygods.block.SinAltarBlock;
 import com.volcov.sevendeadlygods.block.SinAltarBlockEntity;
+import com.volcov.sevendeadlygods.config.ModConfig;
 import com.volcov.sevendeadlygods.entity.GodAcolyteEntity;
 import com.volcov.sevendeadlygods.entity.GodAvatarEntity;
 import com.volcov.sevendeadlygods.god.SinGod;
@@ -26,6 +27,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.AgeableMob;
@@ -297,6 +299,9 @@ public final class PlayerSinBehaviorEvents {
         if (event.getLevel().isClientSide()) {
             return;
         }
+        if (event.getHand() != InteractionHand.MAIN_HAND) {
+            return;
+        }
         if (!(event.getEntity() instanceof ServerPlayer player)) {
             return;
         }
@@ -314,6 +319,37 @@ public final class PlayerSinBehaviorEvents {
             unlockGodCult(player, entry.god());
             PlayerSinData data = SinFavorManager.get(player);
             if (data.markLoreBookRead(entry.id())) {
+                int xpAmount = ModConfig.LORE_BOOK_FIRST_READ_XP.get();
+                if (xpAmount > 0) {
+                    player.giveExperiencePoints(xpAmount);
+                }
+
+                if (player.level() instanceof ServerLevel serverLevel) {
+                    serverLevel.sendParticles(
+                            ParticleTypes.ENCHANT,
+                            player.getX(), player.getY() + 1.0D, player.getZ(),
+                            25, 0.4D, 0.5D, 0.4D, 0.1D
+                    );
+                    serverLevel.playSound(
+                            null,
+                            player.blockPosition(),
+                            SoundEvents.EXPERIENCE_ORB_PICKUP,
+                            SoundSource.PLAYERS,
+                            0.8F,
+                            1.0F
+                    );
+                }
+
+                Component message = Component.literal("✦ ")
+                        .withStyle(ChatFormatting.GOLD)
+                        .append(Component.literal("Has asimilado la escritura sagrada ")
+                                .withStyle(ChatFormatting.GRAY))
+                        .append(Component.literal("«" + entry.title() + "»")
+                                .withStyle(entry.god().getChatColor(), ChatFormatting.ITALIC))
+                        .append(Component.literal(xpAmount > 0 ? " (+%d EXP).".formatted(xpAmount) : ".").withStyle(xpAmount > 0 ? ChatFormatting.GREEN : ChatFormatting.GRAY));
+
+                player.sendSystemMessage(message);
+
                 int readCount = data.getReadLoreBooksCount();
                 if (readCount >= 10) {
                     ModAdvancements.award(player, "lore_collector_1");

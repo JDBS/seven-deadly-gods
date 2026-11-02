@@ -15,9 +15,10 @@ A lo largo del mundo de Minecraft descansan **49 Escrituras Sagradas** distribui
 
 ## 📖 Desbloqueo de Cultos y Lectura
 
-Al abrir y leer un libro sagrado (ya sea teniéndolo en la mano o colocándolo sobre un **Atril / Lectern**):
+Al abrir y leer un libro sagrado por primera vez (ya sea teniéndolo en la mano o colocándolo sobre un **Atril / Lectern**):
 1. **Desbloqueo de la Receta del Altar**: Se te concede automáticamente el avance sagrado del culto correspondiente (*«Culto a Mammon», «Culto a Khorvath», etc.*), grabando en tu alma la receta para construir su Altar de Ritual.
-2. **Registro Arcano**: El libro queda registrado en la memoria de tu personaje (`PlayerSinData.markLoreBookRead`).
+2. **Recompensa de Experiencia y Sabiduría**: Al asimilar cada escritura por primera vez, el jugador recibe **25 puntos de experiencia** (configurable mediante `loreBookFirstReadXp` en `ModConfig`), acompañado de partículas arcanas de encantamiento y el sonido místico de orbe recolectado.
+3. **Registro Arcano**: El libro queda registrado en la memoria de tu personaje (`PlayerSinData.markLoreBookRead`).
 
 ---
 
