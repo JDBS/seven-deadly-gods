@@ -472,6 +472,8 @@ public final class DivineInterventionScheduler {
         envoy.snapTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D, level.getRandom().nextFloat() * 360.0F, 0.0F);
         envoy.setCustomName(god.getEnvoyCustomName());
         envoy.setCustomNameVisible(true);
+        envoy.addTag("sevendeadlygods:god_envoy");
+        envoy.addTag("sevendeadlygods:envoy_" + god.getId());
 
         // Equipar armadura completa y arma de mele (al no tener arco usa ataque cuerpo a cuerpo veloz)
         DivineEquipmentHelper.equipEnvoySkeleton(level, envoy, god);

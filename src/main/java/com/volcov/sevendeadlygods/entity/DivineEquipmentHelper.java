@@ -120,21 +120,17 @@ public final class DivineEquipmentHelper {
         };
 
         ItemStack relic = new ItemStack(baseItem);
-        String relicName = switch (god) {
-            case GREED -> "Colmillo Áureo de Mammon";
-            case WRATH -> "Ejecutora Sangrienta de Khorvath";
-            case GLUTTONY -> "Fauces Eternas de Beelze";
-            case PRIDE -> "Cetro Solar de Lucian";
-            case ENVY -> "Tridente Abisal de Leviatán";
-            case SLOTH -> "Maza del Letargo de Belphegor";
-            case LUST -> "Espina Carmesí de Asmodeus";
-        };
-
         relic.set(DataComponents.CUSTOM_NAME,
-                Component.literal("✦ " + relicName + " ✦").withStyle(god.getChatColor(), ChatFormatting.BOLD));
+                Component.literal("✦ ")
+                        .append(Component.translatable("relic.sevendeadlygods." + god.getId() + ".name"))
+                        .append(" ✦")
+                        .withStyle(god.getChatColor(), ChatFormatting.BOLD));
         relic.set(DataComponents.LORE, new ItemLore(List.of(
-                Component.literal("Reliquia Divina forjada más allá de los límites mortales.").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC),
-                Component.literal("Bendecida por " + god.getDisplayName() + ", " + god.getTitle()).withStyle(god.getChatColor())
+                Component.translatable("relic.sevendeadlygods.generic_lore_1").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC),
+                Component.translatable("relic.sevendeadlygods.generic_lore_2",
+                        god.getDisplayNameComponent(),
+                        god.getTitleComponent()
+                ).withStyle(god.getChatColor())
         )));
 
         applyEnchant(level, relic, Enchantments.SHARPNESS, 8);
@@ -152,13 +148,15 @@ public final class DivineEquipmentHelper {
     public static ItemStack createDeicideTrophy(ServerLevel level, SinGod god, ServerPlayer killer) {
         ItemStack trophy = new ItemStack(Items.NETHER_STAR);
         trophy.set(DataComponents.CUSTOM_NAME,
-                Component.literal("✦ Trofeo de Deicidio: Efigie de " + god.getDisplayName() + " ✦")
+                Component.literal("✦ ")
+                        .append(Component.translatable("trophy.sevendeadlygods.deicide.name", god.getDisplayNameComponent()))
+                        .append(" ✦")
                         .withStyle(god.getChatColor(), ChatFormatting.BOLD));
         trophy.set(DataComponents.LORE, new ItemLore(List.of(
-                Component.literal("Manifestación física de " + god.getTitle() + " abatida en combate mortal.").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC),
-                Component.literal("Vencedor del Avatar: " + killer.getScoreboardName()).withStyle(ChatFormatting.GOLD),
-                Component.literal("El Dios del Pecado ha sido forzado a un letargo cósmico temporal.").withStyle(ChatFormatting.DARK_PURPLE),
-                Component.literal("«Un rencor inmortal late en el interior de este vestigio.»").withStyle(ChatFormatting.DARK_RED, ChatFormatting.ITALIC)
+                Component.translatable("trophy.sevendeadlygods.deicide.lore_1", god.getTitleComponent()).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC),
+                Component.translatable("trophy.sevendeadlygods.deicide.lore_2", killer.getScoreboardName()).withStyle(ChatFormatting.GOLD),
+                Component.translatable("trophy.sevendeadlygods.deicide.lore_3").withStyle(ChatFormatting.DARK_PURPLE),
+                Component.translatable("trophy.sevendeadlygods.deicide.lore_4").withStyle(ChatFormatting.DARK_RED, ChatFormatting.ITALIC)
         )));
         applyEnchant(level, trophy, Enchantments.UNBREAKING, 1);
         return trophy;

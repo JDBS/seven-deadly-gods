@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "sevendeadlygods:item/gluttony_acolyte_spawn_egg"
+  }
+}

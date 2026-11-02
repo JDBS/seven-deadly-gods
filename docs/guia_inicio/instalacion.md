@@ -16,7 +16,7 @@ Esta guía detalla los requisitos y pasos necesarios para instalar, compilar o e
 ## 📦 Instalación para Jugadores
 
 1. Asegúrate de tener instalado el lanzador de Minecraft con el perfil de **NeoForge 26.3.0.99+**.
-2. Descarga el archivo compilado `sevendeadlygods-1.1.0.jar` (desde la pestaña de *Releases* en GitHub).
+2. Descarga el archivo compilado `sevendeadlygods-1.2.0.jar` (desde la pestaña de *Releases* en GitHub).
 3. Coloca el archivo `.jar` dentro de la carpeta `.minecraft/mods/` de tu instalación.
 4. *(Opcional)* Configura tu clave de API de Gemini si deseas que los dioses conversen dinámicamente con IA (ver [Configuración de IA Gemini](gemini_ai_setup.md)).
 5. Inicia el juego desde el lanzador de NeoForge.
@@ -32,7 +32,7 @@ Si deseas compilar el mod tú mismo a partir de este repositorio:
 git clone https://github.com/JDBS/seven-deadly-gods.git
 cd seven-deadly-gods
 
-# Compilar el archivo .jar (se generará en build/libs/sevendeadlygods-1.1.0.jar)
+# Compilar el archivo .jar (se generará en build/libs/sevendeadlygods-1.2.0.jar)
 ./gradlew build
 
 # Ejecutar el cliente de desarrollo directamente

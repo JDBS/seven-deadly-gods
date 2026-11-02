@@ -98,8 +98,8 @@ public final class DivineTradingRegistry {
             ItemStack coinPouch = createNamedArtifact(
                     Items.RAW_GOLD_BLOCK,
                     SinGod.GREED,
-                    "Bolsa de Monedas Bendita de Mammon",
-                    "Reliquia mercantil que atrae vetas áureas y fortuna en las profundidades."
+                    "trading.sevendeadlygods.mammon_coin_pouch.name",
+                    "trading.sevendeadlygods.mammon_coin_pouch.lore"
             );
             offers.add(new MerchantOffer(
                     new ItemCost(Items.EMERALD, 20),
@@ -113,8 +113,8 @@ public final class DivineTradingRegistry {
             ItemStack vaultGem = createNamedArtifact(
                     Items.GOLD_BLOCK,
                     SinGod.GREED,
-                    "Lingote Real de la Bóveda de Mammon",
-                    "Oro purificado en la cámara acorazada del templo."
+                    "trading.sevendeadlygods.mammon_vault_ingot.name",
+                    "trading.sevendeadlygods.mammon_vault_ingot.lore"
             );
             offers.add(new MerchantOffer(
                     new ItemCost(Items.EMERALD, 28),
@@ -129,7 +129,7 @@ public final class DivineTradingRegistry {
                     SinGod.GREED,
                     Enchantments.FORTUNE,
                     4,
-                    "Códice Áureo: Fortuna IV"
+                    "trading.sevendeadlygods.book_fortune_4"
             );
             offers.add(new MerchantOffer(
                     new ItemCost(Items.EMERALD, 48),
@@ -144,8 +144,8 @@ public final class DivineTradingRegistry {
         ItemStack heavySword = createNamedArtifact(
                 Items.IRON_SWORD,
                 SinGod.WRATH,
-                "Espada Pesada de Acólito",
-                "Forjada con ceniza y sangre en los fosos de Khorvath."
+                "trading.sevendeadlygods.khorvath_heavy_sword.name",
+                    "trading.sevendeadlygods.khorvath_heavy_sword.lore"
         );
         applyEnchant(level, heavySword, Enchantments.SHARPNESS, 3);
         applyEnchant(level, heavySword, Enchantments.UNBREAKING, 3);
@@ -161,8 +161,8 @@ public final class DivineTradingRegistry {
                 createNamedArtifact(
                         Items.BLAZE_POWDER,
                         SinGod.WRATH,
-                        "Ceniza de Furia Sangrienta",
-                        "Catalizador bélico de los gladiadores de Khorvath."
+                        "trading.sevendeadlygods.khorvath_fury_ash.name",
+                    "trading.sevendeadlygods.khorvath_fury_ash.lore"
                 ),
                 8, 8, 0.05F
         ));
@@ -170,8 +170,8 @@ public final class DivineTradingRegistry {
             ItemStack whetstone = createNamedArtifact(
                     Items.NETHERITE_SCRAP,
                     SinGod.WRATH,
-                    "Piedra de Afilado Sanguínea",
-                    "Metal abrasivo templado en sangre de combate."
+                    "trading.sevendeadlygods.khorvath_whetstone.name",
+                    "trading.sevendeadlygods.khorvath_whetstone.lore"
             );
             offers.add(new MerchantOffer(
                     new ItemCost(Items.EMERALD, 24),
@@ -183,8 +183,8 @@ public final class DivineTradingRegistry {
             ItemStack butcherAxe = createNamedArtifact(
                     Items.DIAMOND_AXE,
                     SinGod.WRATH,
-                    "Hacha de Guerra del Carnicero",
-                    "Hende escudos y armaduras con la furia de Khorvath."
+                    "trading.sevendeadlygods.khorvath_butcher_axe.name",
+                    "trading.sevendeadlygods.khorvath_butcher_axe.lore"
             );
             applyEnchant(level, butcherAxe, Enchantments.SHARPNESS, 5);
             applyEnchant(level, butcherAxe, Enchantments.FIRE_ASPECT, 2);
@@ -201,7 +201,7 @@ public final class DivineTradingRegistry {
                     SinGod.WRATH,
                     Enchantments.SHARPNESS,
                     6,
-                    "Tomo de Masacre: Filo VI"
+                    "trading.sevendeadlygods.book_sharpness_6"
             );
             offers.add(new MerchantOffer(
                     new ItemCost(Items.EMERALD, 52),
@@ -223,8 +223,8 @@ public final class DivineTradingRegistry {
                 createNamedArtifact(
                         Items.CAKE,
                         SinGod.GLUTTONY,
-                        "Pastel Inagotable de Beelze",
-                        "Manjar consagrado en las cocinas eternas de la Gula."
+                        "trading.sevendeadlygods.beelze_cake.name",
+                    "trading.sevendeadlygods.beelze_cake.lore"
                 ),
                 8, 8, 0.05F
         ));
@@ -234,8 +234,8 @@ public final class DivineTradingRegistry {
                     createNamedArtifact(
                             Items.HONEY_BOTTLE,
                             SinGod.GLUTTONY,
-                            "Néctar de Ambrosía de Beelze",
-                            "Miel dorada destilada para saciar cualquier hambre."
+                            "trading.sevendeadlygods.beelze_ambrosia.name",
+                    "trading.sevendeadlygods.beelze_ambrosia.lore"
                     ),
                     10, 12, 0.05F
             ));
@@ -244,8 +244,8 @@ public final class DivineTradingRegistry {
             ItemStack cleaver = createNamedArtifact(
                     Items.IRON_SWORD,
                     SinGod.GLUTTONY,
-                    "Cuchillo de Carnicero Divino",
-                    "Extrae los mejores cortes para el Gran Banquete."
+                    "trading.sevendeadlygods.beelze_cleaver.name",
+                    "trading.sevendeadlygods.beelze_cleaver.lore"
             );
             applyEnchant(level, cleaver, Enchantments.LOOTING, 5);
             applyEnchant(level, cleaver, Enchantments.FIRE_ASPECT, 2);
@@ -262,8 +262,8 @@ public final class DivineTradingRegistry {
                     createNamedArtifact(
                             Items.ENCHANTED_GOLDEN_APPLE,
                             SinGod.GLUTTONY,
-                            "Manjar Supremo del Glotón",
-                            "El plato cumbre del banquete inmortal de Beelze."
+                            "trading.sevendeadlygods.beelze_supreme_feast.name",
+                    "trading.sevendeadlygods.beelze_supreme_feast.lore"
                     ),
                     2, 30, 0.05F
             ));
@@ -286,8 +286,8 @@ public final class DivineTradingRegistry {
             ItemStack crownHelmet = createNamedArtifact(
                     Items.GOLDEN_HELMET,
                     SinGod.PRIDE,
-                    "Diadema Solar de Lucian",
-                    "Corona radiante digna de quienes caminan sobre las nubes."
+                    "trading.sevendeadlygods.lucian_solar_crown.name",
+                    "trading.sevendeadlygods.lucian_solar_crown.lore"
             );
             applyEnchant(level, crownHelmet, Enchantments.PROTECTION, 5);
             applyEnchant(level, crownHelmet, Enchantments.UNBREAKING, 5);
@@ -302,8 +302,8 @@ public final class DivineTradingRegistry {
             ItemStack mirror = createNamedArtifact(
                     Items.SPYGLASS,
                     SinGod.PRIDE,
-                    "Espejo del Amor Propio",
-                    "Lente imperial bendecida por la mirada de Lucian."
+                    "trading.sevendeadlygods.lucian_self_love_mirror.name",
+                    "trading.sevendeadlygods.lucian_self_love_mirror.lore"
             );
             offers.add(new MerchantOffer(
                     new ItemCost(Items.EMERALD, 30),
@@ -315,8 +315,8 @@ public final class DivineTradingRegistry {
             ItemStack prideTotem = createNamedArtifact(
                     Items.TOTEM_OF_UNDYING,
                     SinGod.PRIDE,
-                    "Tótem de Soberbia Inquebrantable",
-                    "Niega la humillación de la muerte ante enemigos inferiores."
+                    "trading.sevendeadlygods.lucian_unbroken_totem.name",
+                    "trading.sevendeadlygods.lucian_unbroken_totem.lore"
             );
             applyEnchant(level, prideTotem, Enchantments.UNBREAKING, 3);
             offers.add(new MerchantOffer(
@@ -343,8 +343,8 @@ public final class DivineTradingRegistry {
             ItemStack lootBag = createNamedArtifact(
                     Items.EXPERIENCE_BOTTLE,
                     SinGod.ENVY,
-                    "Esencia Robada del Mercado Negro",
-                    "Conocimiento arrebatado a templos rivales por los espías de Leviatán."
+                    "trading.sevendeadlygods.leviathan_black_market.name",
+                    "trading.sevendeadlygods.leviathan_black_market.lore"
             );
             lootBag.setCount(8);
             offers.add(new MerchantOffer(
@@ -357,8 +357,8 @@ public final class DivineTradingRegistry {
             ItemStack talisman = createNamedArtifact(
                     Items.HEART_OF_THE_SEA,
                     SinGod.ENVY,
-                    "Talismán del Ojo Codicioso",
-                    "Reliquia abisal que pulsa ante los tesoros ajenos."
+                    "trading.sevendeadlygods.leviathan_talisman.name",
+                    "trading.sevendeadlygods.leviathan_talisman.lore"
             );
             offers.add(new MerchantOffer(
                     new ItemCost(Items.EMERALD, 32),
@@ -370,8 +370,8 @@ public final class DivineTradingRegistry {
             ItemStack dagger = createNamedArtifact(
                     Items.DIAMOND_SWORD,
                     SinGod.ENVY,
-                    "Daga Abisal de Leviatán",
-                    "Hoja silenciosa templada en las aguas oscuras de la Envidia."
+                    "trading.sevendeadlygods.leviathan_dagger.name",
+                    "trading.sevendeadlygods.leviathan_dagger.lore"
             );
             applyEnchant(level, dagger, Enchantments.SHARPNESS, 6);
             applyEnchant(level, dagger, Enchantments.LOOTING, 4);
@@ -395,8 +395,8 @@ public final class DivineTradingRegistry {
                 createNamedArtifact(
                         Items.BED.blue(),
                         SinGod.SLOTH,
-                        "Lecho de Ensueño de Belphegor",
-                        "Tejido con lana bendecida por el letargo eterno."
+                        "trading.sevendeadlygods.belphegor_dream_bed.name",
+                    "trading.sevendeadlygods.belphegor_dream_bed.lore"
                 ),
                 8, 5, 0.05F
         ));
@@ -404,8 +404,8 @@ public final class DivineTradingRegistry {
             ItemStack boots = createNamedArtifact(
                     Items.IRON_BOOTS,
                     SinGod.SLOTH,
-                    "Sandalias de Inercia",
-                    "Amortiguan cada caída para que ni siquiera tengas que esforzarte al bajar."
+                    "trading.sevendeadlygods.belphegor_inertia_boots.name",
+                    "trading.sevendeadlygods.belphegor_inertia_boots.lore"
             );
             applyEnchant(level, boots, Enchantments.FEATHER_FALLING, 5);
             applyEnchant(level, boots, Enchantments.UNBREAKING, 5);
@@ -421,8 +421,8 @@ public final class DivineTradingRegistry {
                     createNamedArtifact(
                             Items.HOPPER,
                             SinGod.SLOTH,
-                            "Embudo Imantado de la Pereza",
-                            "Recoge el fruto del mundo sin que muevas un solo dedo."
+                            "trading.sevendeadlygods.belphegor_magnetic_hopper.name",
+                    "trading.sevendeadlygods.belphegor_magnetic_hopper.lore"
                     ),
                     8, 20, 0.05F
             ));
@@ -434,8 +434,8 @@ public final class DivineTradingRegistry {
                     createNamedArtifact(
                             Items.NETHER_STAR,
                             SinGod.SLOTH,
-                            "Núcleo de Gólem Perezoso",
-                            "Corazón autómata bendecido por el descanso de Belphegor."
+                            "trading.sevendeadlygods.belphegor_lazy_core.name",
+                    "trading.sevendeadlygods.belphegor_lazy_core.lore"
                     ),
                     2, 30, 0.05F
             ));
@@ -459,8 +459,8 @@ public final class DivineTradingRegistry {
                     createNamedArtifact(
                             Items.HONEYCOMB,
                             SinGod.LUST,
-                            "Esencia de Feromonas de Asmodeus",
-                            "Aroma embriagador que despierta la fertilidad y la armonía."
+                            "trading.sevendeadlygods.asmodeus_pheromone.name",
+                    "trading.sevendeadlygods.asmodeus_pheromone.lore"
                     ),
                     10, 12, 0.05F
             ));
@@ -471,8 +471,8 @@ public final class DivineTradingRegistry {
                     createNamedArtifact(
                             Items.LEAD,
                             SinGod.LUST,
-                            "Lazo de Afinidad Carmesí",
-                            "Cuerda de seda encantada en los jardines de Asmodeus."
+                            "trading.sevendeadlygods.asmodeus_affinity_cord.name",
+                    "trading.sevendeadlygods.asmodeus_affinity_cord.lore"
                     ),
                     6, 18, 0.05F
             ));
@@ -481,8 +481,8 @@ public final class DivineTradingRegistry {
             ItemStack ring = createNamedArtifact(
                     Items.GOLDEN_APPLE,
                     SinGod.LUST,
-                    "Fruto de Pasión Cautivadora",
-                    "Don supremo del culto de Asmodeus que embelesa el alma."
+                    "trading.sevendeadlygods.asmodeus_passion_fruit.name",
+                    "trading.sevendeadlygods.asmodeus_passion_fruit.lore"
             );
             applyEnchant(level, ring, Enchantments.UNBREAKING, 3);
             offers.add(new MerchantOffer(
@@ -494,13 +494,16 @@ public final class DivineTradingRegistry {
         }
     }
 
-    private static ItemStack createNamedArtifact(Item item, SinGod god, String name, String loreLine) {
+    private static ItemStack createNamedArtifact(Item item, SinGod god, String nameKey, String loreKey) {
         ItemStack stack = new ItemStack(item);
         stack.set(DataComponents.CUSTOM_NAME,
-                Component.literal("✦ " + name + " ✦").withStyle(god.getChatColor(), ChatFormatting.BOLD));
+                Component.literal("✦ ")
+                        .append(Component.translatable(nameKey))
+                        .append(" ✦")
+                        .withStyle(god.getChatColor(), ChatFormatting.BOLD));
         stack.set(DataComponents.LORE, new ItemLore(List.of(
-                Component.literal(loreLine).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC),
-                Component.literal("Comercio Sagrado de " + god.getDisplayName()).withStyle(god.getChatColor())
+                Component.translatable(loreKey).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC),
+                Component.translatable("trading.sevendeadlygods.sacred_trade_by", god.getDisplayNameComponent()).withStyle(god.getChatColor())
         )));
         return stack;
     }
@@ -510,14 +513,17 @@ public final class DivineTradingRegistry {
             SinGod god,
             ResourceKey<Enchantment> enchantmentKey,
             int enchantLevel,
-            String customTitle
+            String customTitleKey
     ) {
         ItemStack book = new ItemStack(Items.ENCHANTED_BOOK);
         book.set(DataComponents.CUSTOM_NAME,
-                Component.literal("✦ " + customTitle + " ✦").withStyle(god.getChatColor(), ChatFormatting.BOLD));
+                Component.literal("✦ ")
+                        .append(Component.translatable(customTitleKey))
+                        .append(" ✦")
+                        .withStyle(god.getChatColor(), ChatFormatting.BOLD));
         book.set(DataComponents.LORE, new ItemLore(List.of(
-                Component.literal("Escritura prohibida que supera los límites de la forja mortal.").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC),
-                Component.literal("Consagrado por " + god.getDisplayName()).withStyle(god.getChatColor())
+                Component.translatable("trading.sevendeadlygods.forbidden_tome_lore").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC),
+                Component.translatable("trading.sevendeadlygods.consecrated_by", god.getDisplayNameComponent()).withStyle(god.getChatColor())
         )));
         applyEnchant(level, book, enchantmentKey, enchantLevel);
         return book;

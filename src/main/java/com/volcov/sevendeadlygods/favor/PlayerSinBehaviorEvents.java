@@ -340,13 +340,15 @@ public final class PlayerSinBehaviorEvents {
                     );
                 }
 
+                Component titleComp = Component.translatable(entry.titleKey())
+                        .withStyle(entry.god().getChatColor(), ChatFormatting.ITALIC);
+                Component feedbackText = (xpAmount > 0)
+                        ? Component.translatable("message.sevendeadlygods.lore_book_read_xp", titleComp, xpAmount).withStyle(ChatFormatting.GRAY)
+                        : Component.translatable("message.sevendeadlygods.lore_book_read", titleComp).withStyle(ChatFormatting.GRAY);
+
                 Component message = Component.literal("✦ ")
                         .withStyle(ChatFormatting.GOLD)
-                        .append(Component.literal("Has asimilado la escritura sagrada ")
-                                .withStyle(ChatFormatting.GRAY))
-                        .append(Component.literal("«" + entry.title() + "»")
-                                .withStyle(entry.god().getChatColor(), ChatFormatting.ITALIC))
-                        .append(Component.literal(xpAmount > 0 ? " (+%d EXP).".formatted(xpAmount) : ".").withStyle(xpAmount > 0 ? ChatFormatting.GREEN : ChatFormatting.GRAY));
+                        .append(feedbackText);
 
                 player.sendSystemMessage(message);
 
@@ -518,7 +520,7 @@ public final class PlayerSinBehaviorEvents {
         level.playSound(null, player.blockPosition(), SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 1.5F, 0.7F);
         player.sendSystemMessage(
                 betrayedGod.getFormattedPrefix().append(
-                        Component.literal("«¡TRAIDOR! ¿Te atreves a derramar la sangre de mis fieles? ¡Tu alma pagará esta afrenta!» (-60 Favor)")
+                        Component.translatable("message.sevendeadlygods.favor.high_treason_rebuke")
                                 .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)
                 )
         );
@@ -531,9 +533,14 @@ public final class PlayerSinBehaviorEvents {
         if (entity instanceof GodAvatarEntity avatar && avatar.isWrathHunter()) {
             return true;
         }
-        if (entity != null && entity.getCustomName() != null) {
-            String name = entity.getCustomName().getString();
-            return name.startsWith("Enviado de ");
+        if (entity != null) {
+            if (entity.entityTags().contains("sevendeadlygods:god_envoy")) {
+                return true;
+            }
+            if (entity.getCustomName() != null) {
+                String name = entity.getCustomName().getString();
+                return name.startsWith("Enviado de ") || name.startsWith("Envoy of ");
+            }
         }
         return false;
     }
@@ -565,7 +572,7 @@ public final class PlayerSinBehaviorEvents {
 
                 player.sendSystemMessage(
                         god.getFormattedPrefix()
-                                .append(Component.literal("«¡Aún no tienes permiso para morir, mi Campeón! Levántate y cumple mi voluntad.»")
+                                .append(Component.translatable("message.sevendeadlygods.intervention.champion_saved")
                                         .withStyle(ChatFormatting.GOLD, ChatFormatting.ITALIC))
                 );
                 return true;
@@ -639,11 +646,8 @@ public final class PlayerSinBehaviorEvents {
 
                 player.sendSystemMessage(
                         god.getFormattedPrefix()
-                                .append(Component.literal("Las palabras sagradas graban en tu alma los secretos para forjar el Altar de ")
+                                .append(Component.translatable("message.sevendeadlygods.cult_unlocked", god.getSinNameComponent())
                                         .withStyle(ChatFormatting.GRAY))
-                                .append(Component.literal(god.getSinName())
-                                        .withStyle(god.getChatColor(), ChatFormatting.BOLD))
-                                .append(Component.literal(".").withStyle(ChatFormatting.GRAY))
                 );
             }
         }

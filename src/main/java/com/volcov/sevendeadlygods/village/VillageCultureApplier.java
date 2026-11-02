@@ -133,7 +133,7 @@ public class VillageCultureApplier {
                 villager.playSound(SoundEvents.VILLAGER_NO, 1.0F, 1.15F);
                 player.sendSystemMessage(
                         SinGod.PRIDE.getFormattedPrefix().append(
-                                Component.literal("«En los dominios de Lucian, los plebeyos deben arrodillarse (Shift) para dirigirse a sus ciudadanos.»")
+                                Component.translatable("message.sevendeadlygods.culture.pride_kneel")
                                         .withStyle(ChatFormatting.YELLOW, ChatFormatting.ITALIC)
                         )
                 );
@@ -193,7 +193,7 @@ public class VillageCultureApplier {
             event.setCanceled(true);
             level.playSound(null, pos, SoundEvents.IRON_DOOR_CLOSE, SoundSource.BLOCKS, 1.0F, 0.9F);
             player.sendOverlayMessage(
-                    Component.literal("Las puertas de Mammon solo se abren ante quienes muestran oro en la mano.")
+                    Component.translatable("message.sevendeadlygods.culture.greed_door_gold")
                             .withStyle(ChatFormatting.GOLD)
             );
         } else if (isChest) {
@@ -202,7 +202,7 @@ public class VillageCultureApplier {
                 level.playSound(null, pos, SoundEvents.VILLAGER_NO, SoundSource.BLOCKS, 1.0F, 0.9F);
                 player.sendSystemMessage(
                         SinGod.GREED.getFormattedPrefix().append(
-                                Component.literal("«¿Pretendes husmear en las bóvedas de mi aldea sin pagar el diezmo de apertura (1 Pepita de Oro)?»")
+                                Component.translatable("message.sevendeadlygods.culture.greed_chest_tax")
                                         .withStyle(ChatFormatting.GOLD)
                         )
                 );
@@ -239,7 +239,7 @@ public class VillageCultureApplier {
             level.playSound(null, player.blockPosition(), SoundEvents.VILLAGER_NO, SoundSource.BLOCKS, 1.0F, 0.9F);
             player.sendSystemMessage(
                     SinGod.GREED.getFormattedPrefix().append(
-                            Component.literal("«¿Pretendes husmear en las bóvedas de mi aldea sin pagar el diezmo de apertura (1 Pepita de Oro)?»")
+                            Component.translatable("message.sevendeadlygods.culture.greed_chest_tax")
                                     .withStyle(ChatFormatting.GOLD)
                     )
             );
