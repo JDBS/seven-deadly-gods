@@ -81,6 +81,9 @@ public class GodAvatarEntity extends PathfinderMob {
     private UUID targetPlayerUuid;
     private boolean relicGifted = false;
     private int manifestationTicks = 0;
+    private boolean villageRaidAvatar = false;
+    @Nullable
+    private BlockPos raidAltarPos;
 
     public GodAvatarEntity(EntityType<? extends GodAvatarEntity> entityType, Level level) {
         super(entityType, level);
@@ -139,8 +142,23 @@ public class GodAvatarEntity extends PathfinderMob {
                 10,
                 true,
                 false,
-                (candidate, serverLevel) -> this.isWrathHunter()
-                        && (this.targetPlayerUuid == null || candidate.getUUID().equals(this.targetPlayerUuid))
+                (candidate, serverLevel) -> {
+                    if (this.isWrathHunter()) {
+                        return this.targetPlayerUuid == null || candidate.getUUID().equals(this.targetPlayerUuid);
+                    }
+                    if (this.villageRaidAvatar && candidate instanceof ServerPlayer sp) {
+                        return SinFavorManager.getFavor(sp, this.getGod()) <= -40;
+                    }
+                    return false;
+                }
+        ));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(
+                this,
+                GodAvatarEntity.class,
+                10,
+                true,
+                false,
+                (candidate, serverLevel) -> candidate instanceof GodAvatarEntity other && other.getGod() != this.getGod()
         ));
         this.targetSelector.addGoal(2, new DefendChampionTargetGoal(this));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(
@@ -153,11 +171,14 @@ public class GodAvatarEntity extends PathfinderMob {
                     if (this.isWrathHunter()) {
                         return false;
                     }
-                    if (!(candidate instanceof Enemy) && !(candidate instanceof GodAcolyteEntity acolyte && !acolyte.isAlliedProtector())) {
+                    if (candidate instanceof GodAcolyteEntity acolyte) {
+                        return acolyte.getGod() != this.getGod();
+                    }
+                    if (!(candidate instanceof Enemy)) {
                         return false;
                     }
-                    if (candidate instanceof GodAcolyteEntity acolyte && acolyte.isAlliedProtector()) {
-                        return false;
+                    if (this.villageRaidAvatar) {
+                        return candidate.distanceToSqr(this) <= 32.0D * 32.0D;
                     }
                     Player champ = this.getChampionPlayer();
                     if (champ != null) {
@@ -215,8 +236,20 @@ public class GodAvatarEntity extends PathfinderMob {
         this.targetPlayerUuid = targetPlayerUuid;
     }
 
+    public boolean isVillageRaidAvatar() {
+        return this.villageRaidAvatar;
+    }
+
+    public void setVillageRaidAvatar(boolean villageRaidAvatar, @Nullable BlockPos altarPos) {
+        this.villageRaidAvatar = villageRaidAvatar;
+        this.raidAltarPos = altarPos != null ? altarPos.immutable() : null;
+    }
+
     @Nullable
     public Player getChampionPlayer() {
+        if (this.villageRaidAvatar) {
+            return null;
+        }
         if (this.targetPlayerUuid != null) {
             Player player = this.level().getPlayerByUUID(this.targetPlayerUuid);
             if (player != null && player.isAlive() && !player.isSpectator()) {
@@ -269,8 +302,25 @@ public class GodAvatarEntity extends PathfinderMob {
                 }
             }
 
+            // Si participa en un asedio de aldea, permanecer cerca del Altar Mayor cuando no tenga objetivo
+            if (this.villageRaidAvatar && this.raidAltarPos != null && this.manifestationTicks % 30 == 0 && this.getTarget() == null) {
+                double distSq = this.distanceToSqr(
+                        this.raidAltarPos.getX() + 0.5D,
+                        this.raidAltarPos.getY(),
+                        this.raidAltarPos.getZ() + 0.5D
+                );
+                if (distSq > 576.0D && this.getNavigation().isDone()) {
+                    this.getNavigation().moveTo(
+                            this.raidAltarPos.getX() + 0.5D,
+                            this.raidAltarPos.getY(),
+                            this.raidAltarPos.getZ() + 0.5D,
+                            1.1D
+                    );
+                }
+            }
+
             // Si es una manifestacion benevola (+91 a +100), permanece 4 minutos (4800 ticks) conversando y luego asciende
-            if (!this.isWrathHunter() && this.manifestationTicks > 4800) {
+            if (!this.isWrathHunter() && !this.villageRaidAvatar && this.manifestationTicks > 4800) {
                 serverLevel.sendParticles(ParticleTypes.END_ROD, getX(), getY() + 1.5D, getZ(), 60, 0.5D, 1.0D, 0.5D, 0.1D);
                 this.discard();
             }

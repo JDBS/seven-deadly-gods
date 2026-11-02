@@ -8,6 +8,7 @@ import com.volcov.sevendeadlygods.favor.SinFavorManager;
 import com.volcov.sevendeadlygods.god.SinGod;
 import com.volcov.sevendeadlygods.registry.ModEntities;
 import com.volcov.sevendeadlygods.registry.ModMobEffects;
+import com.volcov.sevendeadlygods.village.GodVillageRaidManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ColorParticleOption;
@@ -529,6 +530,18 @@ public final class DivineInterventionScheduler {
         GodAvatarEntity existingAvatar = getActiveAvatar(server, god);
 
         if (existingAvatar != null) {
+            // Prioridad Absoluta del Asedio Territorial sobre la Caza Individual:
+            // Si el Avatar está combatiendo en una Guerra Santa de aldea, se pospone la caza del jugador hasta concluir.
+            if (existingAvatar.isVillageRaidAvatar()) {
+                GodVillageRaidManager.postponeWrathHunt(god, player.getUUID());
+                player.sendSystemMessage(
+                        god.getFormattedPrefix()
+                                .append(Component.literal("«¡Tu sentencia de muerte aguarda, mortal! En cuanto concluya la Guerra Santa en mi templo sagrado, descenderé por tu cabeza.»")
+                                        .withStyle(ChatFormatting.DARK_RED, ChatFormatting.ITALIC))
+                );
+                return;
+            }
+
             // Si el Avatar ya está cazando a este mismo jugador en la misma dimensión y cerca, no hacer nada
             if (existingAvatar.isWrathHunter()
                     && existingAvatar.level() == level
@@ -741,6 +754,15 @@ public final class DivineInterventionScheduler {
         GodAvatarEntity existingAvatar = getActiveAvatar(server, god);
 
         if (existingAvatar != null) {
+            if (existingAvatar.isVillageRaidAvatar()) {
+                player.sendSystemMessage(
+                        god.getFormattedPrefix()
+                                .append(Component.literal("«¡Mi presencia física combate en este instante en una Guerra Santa por mi santuario! Acude a mi templo o aguarda a que concluya la batalla.»")
+                                        .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD))
+                );
+                return false;
+            }
+
             // Si ya está manifestado benévolamente cerca de este mismo jugador (en radio de 32 bloques), no duplicar
             if (!existingAvatar.isWrathHunter()
                     && existingAvatar.level() == level

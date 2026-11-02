@@ -2,8 +2,10 @@ package com.volcov.sevendeadlygods.village;
 
 import com.volcov.sevendeadlygods.block.SinAltarBlockEntity;
 import com.volcov.sevendeadlygods.entity.GodAcolyteEntity;
+import com.volcov.sevendeadlygods.entity.GodAvatarEntity;
 import com.volcov.sevendeadlygods.favor.SinFavorManager;
 import com.volcov.sevendeadlygods.god.SinGod;
+import com.volcov.sevendeadlygods.intervention.DivineInterventionScheduler;
 import com.volcov.sevendeadlygods.registry.ModBlocks;
 import com.volcov.sevendeadlygods.registry.ModEntities;
 import net.minecraft.ChatFormatting;
@@ -17,6 +19,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
@@ -26,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +60,11 @@ public class GodVillageRaidManager {
     }
 
     private static final Map<UUID, ActiveRaidContext> ACTIVE_RAIDS = new HashMap<>();
+    private static final Map<SinGod, UUID> POSTPONED_WRATH_HUNTS = new EnumMap<>(SinGod.class);
+
+    public static void postponeWrathHunt(SinGod god, UUID huntedPlayerUuid) {
+        POSTPONED_WRATH_HUNTS.put(god, huntedPlayerUuid);
+    }
 
     @SubscribeEvent
     public void onServerTick(ServerTickEvent.Post event) {
@@ -139,6 +149,150 @@ public class GodVillageRaidManager {
         GodVillageSavedData.GodVillageRecord updated = village.withLastRaidTick(gameTime, GodVillageState.EN_ASEDIO, gameTime);
         data.updateVillage(updated);
         ACTIVE_RAIDS.put(village.id(), new ActiveRaidContext(village.id(), defender, attacker, gameTime, false));
+
+        // 4. Evaluar la tirada del 5% de Manifestación Divina del Avatar (Regla de Avatar Único + Prioridad Territorial)
+        evaluateAvatarManifestation(server, level, altarPos, defender, attacker, false);
+    }
+
+    public static void evaluateAvatarManifestation(
+            MinecraftServer server,
+            ServerLevel level,
+            BlockPos altarPos,
+            SinGod defenderGod,
+            SinGod attackerGod,
+            boolean forceManifest
+    ) {
+        // 5% de probabilidad estricta (salvo forzado por comando de prueba)
+        if (!forceManifest && level.getRandom().nextFloat() >= 0.05F) {
+            return;
+        }
+
+        // 15% dentro del 5%: El Gran Choque de Dioses (descienden ambos Avatares)
+        if (level.getRandom().nextFloat() < 0.15F) {
+            manifestSingleRaidAvatar(server, level, altarPos.offset(-4, 0, 0), defenderGod);
+            manifestSingleRaidAvatar(server, level, altarPos.offset(4, 0, 0), attackerGod);
+
+            Component clashMsg = Component.literal("⚡ ¡CHOQUE DE DIOSES! ")
+                    .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD)
+                    .append(Component.literal("¡Los cielos se desgarran sobre la aldea! Los Avatares de ").withStyle(ChatFormatting.WHITE))
+                    .append(Component.literal(defenderGod.getDisplayName()).withStyle(defenderGod.getChatColor(), ChatFormatting.BOLD))
+                    .append(Component.literal(" y ").withStyle(ChatFormatting.WHITE))
+                    .append(Component.literal(attackerGod.getDisplayName()).withStyle(attackerGod.getChatColor(), ChatFormatting.BOLD))
+                    .append(Component.literal(" han descendido en persona para batirse en duelo!").withStyle(ChatFormatting.WHITE));
+            server.getPlayerList().broadcastSystemMessage(clashMsg, false);
+            return;
+        }
+
+        // Elegir quién desciende (50% Defensor, 50% Atacante)
+        SinGod appearingGod = level.getRandom().nextBoolean() ? defenderGod : attackerGod;
+        manifestSingleRaidAvatar(server, level, altarPos, appearingGod);
+
+        Component announcement = Component.literal("⚡ ¡MANIFESTACIÓN DIVINA! ")
+                .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD)
+                .append(Component.literal("El clamor de la sangre ha desgarrado el velo: ").withStyle(ChatFormatting.WHITE))
+                .append(Component.literal(appearingGod.getDisplayName()).withStyle(appearingGod.getChatColor(), ChatFormatting.BOLD))
+                .append(Component.literal(" ha descendido para juzgar la batalla!").withStyle(ChatFormatting.WHITE));
+
+        server.getPlayerList().broadcastSystemMessage(announcement, false);
+    }
+
+    public static void manifestSingleRaidAvatar(
+            MinecraftServer server,
+            ServerLevel level,
+            BlockPos altarPos,
+            SinGod appearingGod
+    ) {
+        // --- REGLA DE AVATAR ÚNICO ---
+        GodAvatarEntity existingAvatar = DivineInterventionScheduler.getActiveAvatar(server, appearingGod);
+        BlockPos landingPos = new BlockPos(
+                altarPos.getX(),
+                level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, altarPos.getX(), altarPos.getZ()),
+                altarPos.getZ()
+        );
+
+        if (existingAvatar != null) {
+            // Si el Avatar está en una Caza de Ira, el asedio a la aldea tiene PRIORIDAD ABSOLUTA:
+            if (existingAvatar.isWrathHunter() && existingAvatar.getTargetPlayerUuid() != null) {
+                UUID huntedPlayerUuid = existingAvatar.getTargetPlayerUuid();
+                POSTPONED_WRATH_HUNTS.put(appearingGod, huntedPlayerUuid);
+
+                ServerPlayer huntedPlayer = server.getPlayerList().getPlayer(huntedPlayerUuid);
+                if (huntedPlayer != null) {
+                    huntedPlayer.sendSystemMessage(
+                            appearingGod.getFormattedPrefix().append(
+                                    Component.literal("«¡Mortal insolente! Tu juicio queda aplazado: mi templo sagrado clama por mi presencia divina. ¡Considera este día un préstamo de vida!»")
+                                            .withStyle(ChatFormatting.RED, ChatFormatting.ITALIC)
+                            )
+                    );
+                }
+            }
+
+            ServerLevel oldLevel = (ServerLevel) existingAvatar.level();
+            oldLevel.sendParticles(ParticleTypes.PORTAL, existingAvatar.getX(), existingAvatar.getY() + 1.0D, existingAvatar.getZ(), 50, 0.5D, 0.8D, 0.5D, 0.1D);
+            float currentHealth = existingAvatar.getHealth();
+
+            if (oldLevel == level) {
+                existingAvatar.snapTo(landingPos.getX() + 0.5D, landingPos.getY(), landingPos.getZ() + 0.5D, 0.0F, 0.0F);
+                existingAvatar.getNavigation().stop();
+                existingAvatar.initializeAvatar(level, appearingGod, null, false);
+                existingAvatar.setVillageRaidAvatar(true, altarPos);
+                existingAvatar.setHealth(Math.min(currentHealth, existingAvatar.getMaxHealth()));
+            } else {
+                existingAvatar.discard();
+                GodAvatarEntity transferred = ModEntities.GOD_AVATAR.get().create(level, EntitySpawnReason.EVENT);
+                if (transferred != null) {
+                    transferred.snapTo(landingPos.getX() + 0.5D, landingPos.getY(), landingPos.getZ() + 0.5D, 0.0F, 0.0F);
+                    transferred.initializeAvatar(level, appearingGod, null, false);
+                    transferred.setVillageRaidAvatar(true, altarPos);
+                    transferred.setHealth(Math.min(currentHealth, transferred.getMaxHealth()));
+                    level.addFreshEntity(transferred);
+                }
+            }
+        } else {
+            GodAvatarEntity avatar = ModEntities.GOD_AVATAR.get().create(level, EntitySpawnReason.EVENT);
+            if (avatar != null) {
+                avatar.snapTo(landingPos.getX() + 0.5D, landingPos.getY(), landingPos.getZ() + 0.5D, 0.0F, 0.0F);
+                avatar.initializeAvatar(level, appearingGod, null, false);
+                avatar.setVillageRaidAvatar(true, altarPos);
+                level.addFreshEntity(avatar);
+            }
+        }
+
+        LightningBolt bolt = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.EVENT);
+        if (bolt != null) {
+            bolt.snapTo(landingPos.getX() + 0.5D, landingPos.getY(), landingPos.getZ() + 0.5D);
+            bolt.setVisualOnly(true);
+            level.addFreshEntity(bolt);
+        }
+        level.playSound(null, landingPos, SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.HOSTILE, 2.0F, 0.8F);
+    }
+
+    public static void onVillageRaidEnded(MinecraftServer server, ServerLevel level, SinGod god) {
+        UUID targetUuid = POSTPONED_WRATH_HUNTS.remove(god);
+        GodAvatarEntity avatar = DivineInterventionScheduler.getActiveAvatar(server, god);
+
+        if (targetUuid != null) {
+            ServerPlayer targetPlayer = server.getPlayerList().getPlayer(targetUuid);
+            if (targetPlayer != null && targetPlayer.isAlive() && avatar != null && avatar.isAlive()) {
+                avatar.setVillageRaidAvatar(false, null);
+                targetPlayer.sendSystemMessage(
+                        god.getFormattedPrefix().append(
+                                Component.literal("«Mi templo sagrado está a salvo. Ahora... volvamos a nuestra deuda pendiente, mortal.»")
+                                        .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)
+                        )
+                );
+                DivineInterventionScheduler.triggerWrathAvatarHunt(targetPlayer, god);
+                return;
+            }
+        }
+
+        if (avatar != null && avatar.isAlive() && avatar.isVillageRaidAvatar()) {
+            if (avatar.level() instanceof ServerLevel avatarLevel) {
+                avatarLevel.sendParticles(ParticleTypes.END_ROD, avatar.getX(), avatar.getY() + 1.5D, avatar.getZ(), 60, 0.5D, 1.0D, 0.5D, 0.1D);
+                avatarLevel.playSound(null, avatar.blockPosition(), SoundEvents.ILLUSIONER_MIRROR_MOVE, SoundSource.HOSTILE, 1.2F, 1.1F);
+            }
+            avatar.discard();
+        }
     }
 
     private static void tickActiveRaids(MinecraftServer server, ServerLevel level) {
@@ -225,6 +379,9 @@ public class GodVillageRaidManager {
                 SinFavorManager.addEffort(player, ctx.defenderGod(), 3.0F, "Defensa victoriosa del Templo de " + ctx.defenderGod().getDisplayName());
             }
         }
+
+        onVillageRaidEnded(server, level, ctx.defenderGod());
+        onVillageRaidEnded(server, level, ctx.attackerGod());
     }
 
     private static void resolveAttackerConquest(
@@ -272,6 +429,9 @@ public class GodVillageRaidManager {
                 .append(Component.literal(ctx.defenderGod().getDisplayName()).withStyle(ctx.defenderGod().getChatColor(), ChatFormatting.BOLD))
                 .append(Component.literal(String.format(" en [%d, %d]!", altarPos.getX(), altarPos.getZ())).withStyle(ChatFormatting.RED));
         server.getPlayerList().broadcastSystemMessage(conquestMsg, false);
+
+        onVillageRaidEnded(server, level, ctx.defenderGod());
+        onVillageRaidEnded(server, level, ctx.attackerGod());
     }
 
     public static List<GodAcolyteEntity> spawnInvasionForces(ServerLevel level, BlockPos center, SinGod attackerGod, int count) {
