@@ -2,15 +2,29 @@
 .*/
 !.gitignore
 
+# Directorio de notas y diseño interno de desarrollo
+docs/dev/
+
 # Directorios de compilacion y ejecucion
 build/
 run/
 out/
+bin/
 logs/
 crash-reports/
 
-# Archivos de proyecto IDE y sistema
+# Archivos de depuracion, crash y logs
+*.log
+hs_err_pid*
+replay_pid*
+
+# Archivos de proyecto IDE y sistema operativo
 *.iml
 *.ipr
 *.iws
+.classpath
+.project
 .DS_Store
+Thumbs.db
+desktop.ini
+*.tmp

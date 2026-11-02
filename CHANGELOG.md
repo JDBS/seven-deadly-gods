@@ -41,7 +41,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   - Parámetros configurables `villageRaidCooldownTicks` y `villageRaidAvatarChance` en `ModConfig`.
   - Documentación completa de las Aldeas Consagradas y sus mecánicas en `README.md`.
 - **Reorganización Modular de la Documentación para GitHub**:
-  - Desacoplamiento del `README.md` monolítico hacia una arquitectura modular en `docs/` con guías temáticas navegables (`guia_inicio/`, `mecanicas_principales/`, `dioses_y_altares/`, `aldeas_consagradas/`, `lore_y_avances/`, `administracion/` y `dev/`).
+  - Desacoplamiento del `README.md` monolítico hacia una arquitectura modular en `docs/` con guías temáticas navegables (`guia_inicio/`, `mecanicas_principales/`, `dioses_y_altares/`, `aldeas_consagradas/`, `lore_y_avances/` y `administracion/`).
   - Rediseño del `README.md` principal como portal de bienvenida con badges, resumen visual y mapa interactivo hacia la Wiki.
 
 - **Biblioteca Sagrada Ampliada (49 Tomos Arcanos)**:

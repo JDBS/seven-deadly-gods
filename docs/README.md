@@ -14,7 +14,7 @@ docs/
 ├── aldeas_consagradas/       # Facciones, comercio divino, asedios y repoblación
 ├── lore_y_avances/           # Los 49 tomos arcanos y árbol de avances
 ├── administracion/           # Comandos de operador y opciones de configuración
-└── dev/                      # Arquitectura técnica, diseño y análisis de licencias
+└── dev/                      # Cuaderno técnico, arquitectura del motor e internals
 ```
 
 ---
@@ -53,6 +53,3 @@ docs/
 ### 6. ⚙️ Administración y Servidores
 * [Comandos del Mod](administracion/comandos.md): Referencia exhaustiva de `/gods favor`, `/gods village`, `/gods manifest`, etc.
 * [Opciones de Configuración](administracion/configuracion.md): Parámetros de `sevendeadlygods-common.toml`.
-
-### 7. 🛠️ Documentación de Desarrollo
-* [Diseño, Arquitectura y Análisis de Licencias](dev/feat_aldeas_devotas/README.md): Documentos técnicos de arquitectura, verificación Clean-Room (MIT) y plan de implementación.
