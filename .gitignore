@@ -1,6 +1,7 @@
 # Ignorar todos los directorios que empiecen por "." (excepto .git, que Git gestiona internamente)
 .*/
 !.gitignore
+!.github/
 
 # Directorio de notas y diseño interno de desarrollo
 docs/dev/
