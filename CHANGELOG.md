@@ -8,6 +8,12 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [1.2.0] - 2026-11-02
 
 ### Added
+- **Identidad Visual y Branding Oficial del Mod**:
+  - Incorporación de logo oficial en alta resolución ([`logo.png`](src/main/resources/logo.png)) y vinculación directa en metadatos de NeoForge ([`neoforge.mods.toml`](src/main/templates/META-INF/neoforge.mods.toml) con clave `logoFile`).
+  - Carátula oficial de presentación para CurseForge ([`curseforge_cover.png`](docs/curseforge_cover.png)).
+- **Automatización CI/CD y Flujo Operacional de Ramas**:
+  - Configuración de workflow de GitHub Actions ([`auto-pr-to-experimental.yml`](.github/workflows/auto-pr-to-experimental.yml)) para creación automática e idempotente de Pull Requests hacia la rama base `experimental` tras cada `git push` de ramas operacionales (`feat/*`, `fix/*`, `bugfix/*`, `refactor/*`, `perf/*`, `chore/*`, `breaking/*`).
+  - Desbloqueo y seguimiento del directorio de workflows `.github/` en [`.gitignore`](.gitignore).
 - **Localización Integral y Adaptación Bilingüe Dinámica (Inglés y Español)**:
   - Soporte de cliente nativo mediante `Component.translatable` en la totalidad de sistemas interactivos del mod: 49 Tomos de Lore Sagrado, nombres, títulos e identidades de las 7 Deidades y sus siervos (`GodAcolyteEntity`, `GodAvatarEntity`, `GodEnvoySkeleton`), diálogos y pistas místicas de ritual en altares (`SinAltarBlockEntity`), transmisiones globales de Guerras Santas y asedios territoriales (`GodVillageRaidManager`), reliquias bendecidas y trofeos de deicidio conmemorativos (`DivineEquipmentHelper`), catálogo íntegro de comercio sagrado de 23 artefactos (`DivineTradingRegistry`), exigencias culturales de aldea (`VillageCultureApplier`), notificaciones de traición y salvación divina (`PlayerSinBehaviorEvents`) y uso táctico del cuerno de guerra (`DivineWarHornItem`).
   - Adaptación lingüística contextual en el servicio de IA Gemini (`GeminiAiService`): captura del idioma del cliente (`player.clientInformation().language()`) inyectada en el prompt del sistema para que las deidades respondan orgánicamente en el idioma utilizado por el devoto (inglés o español), incorporando además vocabulario bilingüe de invocación directa y un motor de evaluación local de respaldo con respuestas completas en ambos idiomas.

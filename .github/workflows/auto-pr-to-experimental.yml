@@ -1,0 +1,70 @@
+name: Auto Create PR to Experimental
+
+on:
+  push:
+    branches:
+      - 'feat/**'
+      - 'feature/**'
+      - 'fix/**'
+      - 'bugfix/**'
+      - 'refactor/**'
+      - 'perf/**'
+      - 'chore/**'
+      - 'breaking/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  auto-create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verificar o Crear Pull Request hacia experimental
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          BASE_BRANCH="experimental"
+
+          echo "🚀 Evaluando sincronización de rama: $BRANCH_NAME -> $BASE_BRANCH en $GITHUB_REPOSITORY"
+
+          # 1. Verificar si ya existe un PR abierto para esta rama
+          EXISTING_PR=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$BRANCH_NAME" --base "$BASE_BRANCH" --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "ℹ️ Ya existe un Pull Request abierto (#$EXISTING_PR) para la rama $BRANCH_NAME hacia $BASE_BRANCH. No se requiere acción."
+            exit 0
+          fi
+
+          # 2. Extraer asunto y cuerpo del último commit
+          COMMIT_SUBJECT=$(git log -1 --pretty=%s)
+          COMMIT_BODY=$(git log -1 --pretty=%b)
+
+          PR_TITLE="$COMMIT_SUBJECT"
+          if [ -z "$PR_TITLE" ]; then
+            PR_TITLE="feat: merge $BRANCH_NAME into $BASE_BRANCH"
+          fi
+
+          # Construir el cuerpo en un archivo para garantizar formato markdown limpio y evitar problemas de escape
+          printf "### 🤖 Pull Request Automatizado\n\n" > /tmp/pr_body.md
+          printf "Este Pull Request fue generado automáticamente tras un push a la rama \`%s\` hacia \`%s\`.\n\n" "$BRANCH_NAME" "$BASE_BRANCH" >> /tmp/pr_body.md
+          printf -- "- **Rama origen:** \`%s\`\n" "$BRANCH_NAME" >> /tmp/pr_body.md
+          printf -- "- **Rama base:** \`%s\`\n" "$BASE_BRANCH" >> /tmp/pr_body.md
+          printf -- "- **Último commit:** %s\n\n" "$COMMIT_SUBJECT" >> /tmp/pr_body.md
+          printf "### Detalles del commit:\n\`\`\`text\n%s\n\`\`\`\n" "${COMMIT_BODY:-Sin descripción adicional en el commit.}" >> /tmp/pr_body.md
+
+          # 3. Crear el Pull Request
+          echo "Creando Pull Request: $PR_TITLE"
+          if gh pr create --repo "$GITHUB_REPOSITORY" --base "$BASE_BRANCH" --head "$BRANCH_NAME" --title "$PR_TITLE" --body-file /tmp/pr_body.md; then
+            echo "✅ Pull Request creado exitosamente hacia $BASE_BRANCH."
+          else
+            echo "⚠️ No se pudo crear el Pull Request automáticamente."
+            echo "Asegúrate de que en GitHub: Settings -> Actions -> General -> Workflow permissions esté activado 'Allow GitHub Actions to create and approve pull requests'."
+            exit 1
+          fi
