@@ -18,6 +18,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Estandarización de Defensa Temática (Oro Divino vs Netherite)**:
   - Calibración de atributos defensivos en `GodAvatarEntity.initializeAvatar` para igualar la dureza (+24) y resistencia al empuje (1.0) entre deidades de temática áurea (Mammon, Lucian, Asmodeus) y deidades con armadura de netherite (Belphegor, Khorvath, etc.), asegurando paridad defensiva matemática sin alterar la salud máxima (400 HP).
 
+### Fixed
+- **Actualización de Metadatos NeoForge (`neoforge.mods.toml`)**:
+  - Sustitución de la clave obsoleta `logoFile` por `iconFile` para la imagen cuadrada del mod ([`logo.png`](src/main/resources/logo.png)), eliminando la advertencia de deprecación en la consola del cliente.
+
 ## [1.2.0] - 2026-11-02
 
 ### Added
