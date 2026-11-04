@@ -8,6 +8,11 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Added
+- **Objetivo Táctico de Avatares Rivales y Respuesta Fraternal en Acólitos (`GodAcolyteEntity`)**:
+  - Incorporación de `NearestAttackableTargetGoal` en [`GodAcolyteEntity`](src/main/java/com/volcov/sevendeadlygods/entity/GodAcolyteEntity.java) para que los acólitos detecten y ataquen proactivamente a los Avatares de deidades rivales (`GodAvatarEntity`), resolviendo la asimetría táctica donde el Avatar enemigo cazaba acólitos pero los centinelas e invasores ignoraban al dios invasor.
+  - Jerarquía táctica escalonada de selección de objetivos: Prioridad 1 (Respuesta defensiva en enjambre), Prioridad 2 (Infantería rival y jugadores con `favor <= -40`), Prioridad 3 (Avatares y Titanes de cultos rivales) y Prioridad 4 (Monstruos comunes para centinelas y escoltas).
+  - Alerta fraternal coordinada (`setAlertOthers` con `alertOther` selectivo): al recibir daño de un enemigo, los acólitos movilizan a sus hermanos de fe cercanos sin alertar a miembros de otras deidades.
+  - Blindaje contra fuego amigo (`canAttack`): implementación en `GodAcolyteEntity` y `GodAvatarEntity` para evitar que siervos o deidades del mismo pecado se seleccionen o ataquen entre sí durante combates caóticos o ataques de área.
 - **Mecánica de Perforación Divina en Duelos de Avatares (God vs God)**:
   - Implementación de daño penetrante en enfrentamientos directos entre Avatares Divinos (`GodAvatarEntity`), superando las capas extremas de armadura y protección vainilla para garantizar un combate dinámico, equilibrado (~1.5 a 2 minutos) y con peligro real de deicidio.
   - Efectos audiovisuales de Choque Divino (`playDivineClashEffects`): partículas temáticas del pecado del dios atacante (destellos áureos de Mammon, vórtice cósmico de Belphegor, etc.) y resonancia acústica pesada de impacto al conectar golpes penetrantes.
