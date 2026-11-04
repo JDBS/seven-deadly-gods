@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.volcov.sevendeadlygods.block.SinAltarBlockEntity;
 import com.volcov.sevendeadlygods.config.ModConfig;
+import com.volcov.sevendeadlygods.entity.GodAcolyteEntity;
 import com.volcov.sevendeadlygods.favor.PlayerSinData;
 import com.volcov.sevendeadlygods.favor.SinFavorManager;
 import com.volcov.sevendeadlygods.god.SinGod;
@@ -16,6 +17,7 @@ import com.volcov.sevendeadlygods.village.GodVillageRaidManager;
 import com.volcov.sevendeadlygods.village.GodVillageSavedData;
 import com.volcov.sevendeadlygods.village.GodVillageState;
 import com.volcov.sevendeadlygods.village.VillageCultureApplier;
+import com.volcov.sevendeadlygods.village.VillageRecruitmentManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -24,10 +26,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
+import java.util.List;
 import java.util.Optional;
 
 public final class GodsCommands {
@@ -246,7 +251,10 @@ public final class GodsCommands {
                                                 )))))
                         .then(Commands.literal("desolate")
                                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                                .executes(ctx -> executeForceDesolate(ctx.getSource()))))
+                                .executes(ctx -> executeForceDesolate(ctx.getSource())))
+                        .then(Commands.literal("recruit")
+                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .executes(ctx -> executeForceRecruit(ctx.getSource()))))
         );
     }
 
@@ -287,7 +295,76 @@ public final class GodsCommands {
                 .withStyle(ChatFormatting.GRAY)
                 .append(Component.literal((cooldownRem / 20L) + "s (" + cooldownRem + " ticks)")
                         .withStyle(ChatFormatting.YELLOW)));
+
+        AABB villageBox = new AABB(v.altarPos()).inflate(v.radius());
+        List<GodAcolyteEntity> sentinels = level.getEntitiesOfClass(
+                GodAcolyteEntity.class,
+                villageBox,
+                a -> a.isAlive() && a.isVillageSentinel() && a.getGod() == v.patronGod() && v.altarPos().equals(a.getHomeAltarPos())
+        );
+        List<Villager> adultVillagers = level.getEntitiesOfClass(
+                Villager.class,
+                villageBox,
+                vil -> vil.isAlive() && !vil.isBaby()
+        );
+        int maxSentinels = VillageRecruitmentManager.getMaxSentinelsForGod(v.patronGod());
+        long recruitCooldown = ModConfig.SENTINEL_RECRUITMENT_COOLDOWN_TICKS.get();
+        long sinceRecruit = Math.max(0L, now - v.lastRecruitmentTick());
+        long recruitRem = Math.max(0L, recruitCooldown - sinceRecruit);
+
+        player.sendSystemMessage(Component.literal(String.format(" • Guarnición Defensiva: %d / %d Centinelas activos",
+                sentinels.size(), maxSentinels))
+                .withStyle(ChatFormatting.GREEN));
+        player.sendSystemMessage(Component.literal(String.format(" • Demografía Civil: %d Adultos (Suelo mínimo de seguridad: %d)",
+                adultVillagers.size(), ModConfig.MIN_CIVILIAN_VILLAGERS_FLOOR.get()))
+                .withStyle(ChatFormatting.YELLOW));
+        if (v.patronGod() == SinGod.ENVY) {
+            player.sendSystemMessage(Component.literal(" • Reclutamiento Demográfico: Estéril (Leviatán no genera vida)")
+                    .withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.ITALIC));
+        } else {
+            player.sendSystemMessage(Component.literal(" • Cooldown de Reclutamiento: ")
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal((recruitRem / 20L) + "s (" + recruitRem + " ticks)")
+                            .withStyle(recruitRem == 0 ? ChatFormatting.GREEN : ChatFormatting.YELLOW)));
+        }
         return 1;
+    }
+
+    private static int executeForceRecruit(CommandSourceStack source) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        ServerLevel level = player.level();
+        GodVillageSavedData data = GodVillageSavedData.get(level);
+        Optional<GodVillageSavedData.GodVillageRecord> opt = data.getVillageAt(player.blockPosition());
+
+        if (opt.isEmpty()) {
+            source.sendFailure(Component.literal("No te encuentras dentro del radio de ninguna aldea consagrada."));
+            return 0;
+        }
+
+        GodVillageSavedData.GodVillageRecord v = opt.get();
+        if (v.state() != GodVillageState.CONSAGRADA) {
+            source.sendFailure(Component.literal("La aldea no está en estado CONSAGRADA (Estado actual: " + v.state().name() + ")."));
+            return 0;
+        }
+
+        if (v.patronGod() == SinGod.ENVY) {
+            source.sendFailure(Component.literal("Las ruinas arrasadas de Leviatán (Envidia) son estériles y no permiten reclutamiento demográfico."));
+            return 0;
+        }
+
+        long gameTime = level.getGameTime();
+        GodVillageSavedData.GodVillageRecord readyVillage = v.withLastRecruitmentTick(0L);
+        data.updateVillage(readyVillage);
+
+        boolean recruited = VillageRecruitmentManager.tickVillageRecruitment(level, data, readyVillage, gameTime);
+        if (recruited) {
+            source.sendSuccess(() -> Component.literal("✦ Consagración ejecutada con éxito para el templo de " + v.patronGod().getDisplayName() + ".")
+                    .withStyle(v.patronGod().getChatColor(), ChatFormatting.BOLD), true);
+            return 1;
+        } else {
+            source.sendFailure(Component.literal("No se pudo reclutar: cupo de centinelas lleno, población civil en el suelo mínimo (" + ModConfig.MIN_CIVILIAN_VILLAGERS_FLOOR.get() + "), o no hay candidatos elegibles."));
+            return 0;
+        }
     }
 
     private static int executeForceConsecrate(CommandSourceStack source, String godName) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
@@ -422,6 +499,9 @@ public final class GodsCommands {
             source.sendSuccess(() -> Component.literal(" • /gods village desolate")
                     .withStyle(ChatFormatting.GOLD)
                     .append(Component.literal(" — Pone la aldea consagrada en estado DESOLADA.").withStyle(ChatFormatting.GRAY)), false);
+            source.sendSuccess(() -> Component.literal(" • /gods village recruit")
+                    .withStyle(ChatFormatting.GOLD)
+                    .append(Component.literal(" — Fuerza la evaluación y ordenación inmediata de un centinela.").withStyle(ChatFormatting.GRAY)), false);
             source.sendSuccess(() -> Component.literal("Nota: <dios> acepta nombres (mammon), inglés (greed) o español (avaricia).")
                     .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC), false);
         } else {
