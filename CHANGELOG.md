@@ -40,6 +40,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   - Calibración de atributos defensivos en `GodAvatarEntity.initializeAvatar` para igualar la dureza (+24) y resistencia al empuje (1.0) entre deidades de temática áurea (Mammon, Lucian, Asmodeus) y deidades con armadura de netherite (Belphegor, Khorvath, etc.), asegurando paridad defensiva matemática sin alterar la salud máxima (400 HP).
 
 ### Fixed
+- **Eliminación de Rutas Absolutas de Máquina Local (`c/Users/VolcoV`)**:
+  - Limpieza del fallback local de JVM en el script de arranque `gradlew`, garantizando la ejecución estándar en cualquier entorno y sistema operativo.
+  - Portabilidad de las configuraciones de lanzamiento en `.vscode/launch.json` mediante la variable `${workspaceFolder}`.
+  - Conversión de enlaces en la documentación interna (`docs/dev/`) a rutas relativas dentro del repositorio.
 - **Consistencia de Letargo Cósmico y Seguridad contra Nulos (`DivineChatRouter`, `SinFavorManager`, `GeminiAiService`)**:
   - Corrección de inconsistencia donde un dios abatido en su encarnación física continuaba conversando en el chat, otorgando favor y lanzando maldiciones/bendiciones pese a que su Altar Mayor yacía inerte.
   - Emisión de mensaje de silencio cósmico (`chat.sevendeadlygods.god_in_slumber`) y efecto de sonido `SOUL_ESCAPE` al llamar directamente a deidades dormidas.
