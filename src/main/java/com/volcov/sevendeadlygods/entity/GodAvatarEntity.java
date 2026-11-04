@@ -134,7 +134,11 @@ public class GodAvatarEntity extends PathfinderMob {
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this) {
             @Override
             public boolean canUse() {
-                if (!GodAvatarEntity.this.isWrathHunter() && this.mob.getLastHurtByMob() instanceof Player) {
+                LivingEntity attacker = this.mob.getLastHurtByMob();
+                if (!GodAvatarEntity.this.isWrathHunter() && attacker instanceof Player) {
+                    return false;
+                }
+                if (attacker instanceof GodAcolyteEntity acolyte && acolyte.getGod() == GodAvatarEntity.this.getGod()) {
                     return false;
                 }
                 return super.canUse();
@@ -434,6 +438,17 @@ public class GodAvatarEntity extends PathfinderMob {
             this.discard();
         }
         return result;
+    }
+
+    @Override
+    public boolean canAttack(LivingEntity target) {
+        if (target instanceof GodAvatarEntity otherAvatar && otherAvatar.getGod() == this.getGod()) {
+            return false;
+        }
+        if (target instanceof GodAcolyteEntity acolyte && acolyte.getGod() == this.getGod()) {
+            return false;
+        }
+        return super.canAttack(target);
     }
 
     public static boolean hasClaimedRelic(ServerPlayer player, SinGod god) {

@@ -22,6 +22,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -121,8 +122,29 @@ public class GodAcolyteEntity extends PathfinderMob implements Merchant {
         this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 10.0F));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
 
-        this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
-        // Guerras de Dioses: los Acólitos atacan a Acólitos o Enviados de otros dioses rivales
+        // Prioridad 1: Respuesta defensiva coordinada (alerta a acólitos del mismo culto, ignora fuego amigo de su dios/hermanos)
+        this.targetSelector.addGoal(1, new HurtByTargetGoal(this) {
+            @Override
+            public boolean canUse() {
+                LivingEntity attacker = this.mob.getLastHurtByMob();
+                if (attacker instanceof GodAvatarEntity avatar && avatar.getGod() == GodAcolyteEntity.this.getGod()) {
+                    return false;
+                }
+                if (attacker instanceof GodAcolyteEntity acolyte && acolyte.getGod() == GodAcolyteEntity.this.getGod()) {
+                    return false;
+                }
+                return super.canUse();
+            }
+
+            @Override
+            protected void alertOther(Mob otherMob, LivingEntity target) {
+                if (otherMob instanceof GodAcolyteEntity otherAcolyte && otherAcolyte.getGod() == GodAcolyteEntity.this.getGod()) {
+                    super.alertOther(otherMob, target);
+                }
+            }
+        }.setAlertOthers());
+
+        // Prioridad 2: Guerras de Dioses (Infantería vs Infantería)
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(
                 this,
                 GodAcolyteEntity.class,
@@ -131,7 +153,7 @@ public class GodAcolyteEntity extends PathfinderMob implements Merchant {
                 false,
                 (candidate, serverLevel) -> candidate instanceof GodAcolyteEntity other && other.getGod() != this.getGod()
         ));
-        // Objetivo de ataque para jugadores con favor <= -40 (Herejes territoriales) o cazas asignadas
+        // Prioridad 2: Objetivo de ataque para jugadores con favor <= -40 (Herejes territoriales) o cazas asignadas
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(
                 this,
                 Player.class,
@@ -152,8 +174,17 @@ public class GodAcolyteEntity extends PathfinderMob implements Merchant {
                     return false;
                 }
         ));
-        // Si es un Acólito aliado (>= +85) o Centinela de Aldea, defiende contra monstruos
+        // Prioridad 3: Choque de Fe contra Titanes Divinos (Acólitos atacan a Avatares de dioses rivales)
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(
+                this,
+                GodAvatarEntity.class,
+                10,
+                true,
+                false,
+                (candidate, serverLevel) -> candidate instanceof GodAvatarEntity avatar && avatar.getGod() != this.getGod()
+        ));
+        // Prioridad 4: Si es un Acólito aliado (>= +85) o Centinela de Aldea, defiende contra monstruos comunes
+        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(
                 this,
                 Monster.class,
                 10,
@@ -314,6 +345,17 @@ public class GodAcolyteEntity extends PathfinderMob implements Merchant {
     @Override
     public boolean causeFallDamage(double fallDistance, float damageMultiplier, DamageSource damageSource) {
         return false;
+    }
+
+    @Override
+    public boolean canAttack(LivingEntity target) {
+        if (target instanceof GodAvatarEntity avatar && avatar.getGod() == this.getGod()) {
+            return false;
+        }
+        if (target instanceof GodAcolyteEntity acolyte && acolyte.getGod() == this.getGod()) {
+            return false;
+        }
+        return super.canAttack(target);
     }
 
     // =========================================================================

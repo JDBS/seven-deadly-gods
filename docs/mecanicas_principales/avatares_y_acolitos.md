@@ -14,6 +14,12 @@ Los Acólitos son humanoides alados encapuchados que visten las túnicas sagrada
 3. **Escoltas de Devoto (Favor >= +85)**: Cuando tu vida baja del 35% o entras en combate con siervos de otros dioses, tu dios invoca a 2 Acólitos leales que te siguen y defienden como ángeles custodios durante 6.000 ticks.
 4. **Cazadores de Herejes (Favor <= -80)**: Descienden desde el cielo para rodearte y ejecutarte.
 
+### Jerarquía Táctica de Objetivos en Combate:
+* **Prioridad 1 (Respuesta de Enjambre Cohesionada)**: Al recibir daño, contraatacan inmediatamente y alertan a todos los acólitos cercanos pertenecientes a la misma fe (`alertOther`). Mediante el control de `canAttack`, están completamente blindados contra fuego amigo interno con su propia deidad o entre acólitos hermanos.
+* **Prioridad 2 (Infantería vs Infantería y Herejes)**: Se enfrentan de forma prioritaria contra acólitos enemigos (`GodAcolyteEntity` con `other.getGod() != this.getGod()`) y castigan a jugadores con herejía territorial declarada (`favor <= -40`).
+* **Prioridad 3 (Choque de Fe contra Titanes Divinos)**: Si no hay infantería rival presente o si defienden su templo, cargan coordinadamente contra los Avatares de dioses rivales (`GodAvatarEntity`), asediando al titán enemigo y desgastando su avance.
+* **Prioridad 4 (Purga de Monstruos Comunes)**: Como centinelas permanentes o escoltas leales, defienden el perímetro sagrado eliminando monstruos hostiles vainilla (`Monster`).
+
 ---
 
 ## ⚡ Avatares del Pecado (`GodAvatarEntity`)
