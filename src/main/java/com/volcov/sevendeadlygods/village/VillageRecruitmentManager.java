@@ -113,9 +113,6 @@ public final class VillageRecruitmentManager {
         if (god == SinGod.WRATH) {
             return ModConfig.MAX_SENTINELS_WRATH.get();
         }
-        if (god == SinGod.SLOTH) {
-            return 3;
-        }
         return ModConfig.MAX_SENTINELS_DEFAULT.get();
     }
 
@@ -231,10 +228,6 @@ public final class VillageRecruitmentManager {
     }
 
     public static void tickSlothDreamSustenance(ServerLevel level, GodVillageSavedData.GodVillageRecord village, long gameTime) {
-        if (gameTime % 600L != 0) {
-            return;
-        }
-
         BlockPos altarPos = village.altarPos();
         AABB villageBox = new AABB(altarPos).inflate(village.radius());
         List<Villager> sleepingNitwits = level.getEntitiesOfClass(
@@ -244,8 +237,9 @@ public final class VillageRecruitmentManager {
         );
 
         for (Villager nitwit : sleepingNitwits) {
-            if (nitwit.getInventory().countItem(Items.BREAD) < 3) {
+            if (nitwit.getInventory().countItem(Items.BREAD) < 6) {
                 nitwit.getInventory().addItem(new ItemStack(Items.BREAD, 3));
+                level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, nitwit.getX(), nitwit.getY() + 0.3D, nitwit.getZ(), 3, 0.2D, 0.2D, 0.2D, 0.01D);
             }
         }
     }

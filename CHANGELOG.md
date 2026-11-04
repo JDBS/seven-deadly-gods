@@ -10,9 +10,9 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ### Added
 - **Gestor Demográfico y Consagración Orgánica de Centinelas (`VillageRecruitmentManager`)**:
   - Implementación de `VillageRecruitmentManager` para evaluar la demografía de aldeas consagradas y convertir aldeanos civiles devotos en acólitos centinelas permanentes (`GodAcolyteEntity`), vinculados a su Altar Mayor.
-  - Regla de prudencia demográfica con suelo mínimo civil (`minCivilianFloor = 4`) para evitar extinciones poblacionales y garantizar la continuidad del ciclo de natalidad vanilla.
+  - Regla de prudencia demográfica con suelo mínimo civil (`minCivilianFloor = 3`) para evitar extinciones poblacionales y garantizar la continuidad del ciclo de natalidad vanilla permitiendo el reclutamiento en aldeas estándar de 4 habitantes.
   - Jerarquía de selección y scoring: prioridad a Nitwits (100 pts) y desempleados (50 pts); blindaje e inmunidad total para aldeanos con nombre personalizado (`hasCustomName()`), aldeanos en vehículos/transporte (`isPassenger()`), en comercio activo o con oficio avanzado (nivel >= 2).
-  - Mecánica de «Sustento Onírico» (*Dream Manna*) en el culto de Belphegor: abastecimiento automático de pan a Nitwits dormidos durante la noche para superar la parálisis de recolección y habilitar su apareamiento.
+  - Mecánica de «Sustento Onírico» (*Dream Manna*) en el culto de Belphegor: abastecimiento periódico sincronizado de pan (hasta 6) a Nitwits dormidos durante la noche para superar la parálisis de recolección y habilitar su apareamiento con partículas de reposo.
   - Inyección de la rutina de reclutamiento en el ciclo de 60s de `GodVillageRaidManager` y en el tick ambiental de `VillageCultureApplier`.
   - Comando administrativo `/gods village recruit` para evaluación y ordenación inmediata forzada, e integración de telemetría de guarnición y civiles en `/gods village info`.
 - **Persistencia y Configuración de Reclutamiento Demográfico de Centinelas**:

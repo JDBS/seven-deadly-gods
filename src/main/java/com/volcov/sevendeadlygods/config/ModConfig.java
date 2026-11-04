@@ -81,8 +81,8 @@ public final class ModConfig {
                 .defineInRange("cooldownTicks", 24000, 1200, 2400000);
 
         MIN_CIVILIAN_VILLAGERS_FLOOR = builder
-                .comment("Cantidad minima de aldeanos civiles adultos que deben permanecer en la aldea para autorizar una conversion (por defecto 4).")
-                .defineInRange("minCivilianFloor", 4, 2, 20);
+                .comment("Cantidad minima de aldeanos civiles adultos que deben permanecer en la aldea para autorizar una conversion (por defecto 3).")
+                .defineInRange("minCivilianFloor", 3, 2, 20);
 
         MAX_SENTINELS_DEFAULT = builder
                 .comment("Cupo maximo estandar de centinelas defensores para aldeas consagradas a Mammon, Lucian, Beelze, Asmodeus o Belphegor.")
