@@ -400,7 +400,7 @@ public class GodAvatarEntity extends PathfinderMob {
 
     private void playDivineClashEffects(ServerLevel level, GodAvatarEntity attacker, GodAvatarEntity victim) {
         level.playSound(null, victim.blockPosition(), SoundEvents.ANVIL_LAND, SoundSource.HOSTILE, 0.75F, 1.35F);
-        level.playSound(null, victim.blockPosition(), SoundEvents.MACE_SMASH_HEAVY, SoundSource.HOSTILE, 1.1F, 0.85F);
+        level.playSound(null, victim.blockPosition(), SoundEvents.MACE_SMASH_GROUND_HEAVY, SoundSource.HOSTILE, 1.1F, 0.85F);
 
         double midX = (attacker.getX() + victim.getX()) * 0.5D;
         double midY = (attacker.getY() + victim.getY()) * 0.5D + 1.3D;
