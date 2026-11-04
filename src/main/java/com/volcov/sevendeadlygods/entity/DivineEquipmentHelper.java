@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.Item;
@@ -80,6 +81,7 @@ public final class DivineEquipmentHelper {
      */
     public static void equipAvatarWithOverleveledGear(ServerLevel level, GodAvatarEntity avatar, SinGod god) {
         ItemStack weapon = createOverleveledRelicWeapon(level, god);
+        weapon.set(DataComponents.UNBREAKABLE, Unit.INSTANCE);
 
         boolean goldenTheme = (god == SinGod.GREED || god == SinGod.PRIDE || god == SinGod.LUST);
         ItemStack helmet = new ItemStack(goldenTheme ? Items.GOLDEN_HELMET : Items.NETHERITE_HELMET);
@@ -88,6 +90,7 @@ public final class DivineEquipmentHelper {
         ItemStack boots = new ItemStack(goldenTheme ? Items.GOLDEN_BOOTS : Items.NETHERITE_BOOTS);
 
         for (ItemStack armor : List.of(helmet, chest, legs, boots)) {
+            armor.set(DataComponents.UNBREAKABLE, Unit.INSTANCE);
             applyEnchant(level, armor, Enchantments.PROTECTION, 5);
             applyEnchant(level, armor, Enchantments.UNBREAKING, 10);
             applyEnchant(level, armor, Enchantments.THORNS, 5);

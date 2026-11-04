@@ -5,6 +5,23 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [Unreleased]
+
+### Added
+- **Mecánica de Perforación Divina en Duelos de Avatares (God vs God)**:
+  - Implementación de daño penetrante en enfrentamientos directos entre Avatares Divinos (`GodAvatarEntity`), superando las capas extremas de armadura y protección vainilla para garantizar un combate dinámico, equilibrado (~1.5 a 2 minutos) y con peligro real de deicidio.
+  - Efectos audiovisuales de Choque Divino (`playDivineClashEffects`): partículas temáticas del pecado del dios atacante (destellos áureos de Mammon, vórtice cósmico de Belphegor, etc.) y resonancia acústica pesada de impacto al conectar golpes penetrantes.
+
+### Changed
+- **Indestructibilidad del Equipamiento Sagrado de Avatares**:
+  - Asignación del componente `DataComponents.UNBREAKABLE` a todas las armas y piezas de armadura de los Avatares en `DivineEquipmentHelper`, evitando que el desgaste por durabilidad o el efecto reflejo de *Espinas V* destruya las piezas en combate prolongado.
+- **Estandarización de Defensa Temática (Oro Divino vs Netherite)**:
+  - Calibración de atributos defensivos en `GodAvatarEntity.initializeAvatar` para igualar la dureza (+24) y resistencia al empuje (1.0) entre deidades de temática áurea (Mammon, Lucian, Asmodeus) y deidades con armadura de netherite (Belphegor, Khorvath, etc.), asegurando paridad defensiva matemática sin alterar la salud máxima (400 HP).
+
+### Fixed
+- **Actualización de Metadatos NeoForge (`neoforge.mods.toml`)**:
+  - Sustitución de la clave obsoleta `logoFile` por `iconFile` para la imagen cuadrada del mod ([`logo.png`](src/main/resources/logo.png)), eliminando la advertencia de deprecación en la consola del cliente.
+
 ## [1.2.0] - 2026-11-02
 
 ### Added
