@@ -14,6 +14,11 @@ public final class ModConfig {
     public static final ModConfigSpec.IntValue LORE_BOOK_FIRST_READ_XP;
     public static final ModConfigSpec.IntValue VILLAGE_RAID_COOLDOWN_TICKS;
     public static final ModConfigSpec.DoubleValue VILLAGE_RAID_AVATAR_CHANCE;
+    public static final ModConfigSpec.BooleanValue SENTINEL_RECRUITMENT_ENABLED;
+    public static final ModConfigSpec.IntValue SENTINEL_RECRUITMENT_COOLDOWN_TICKS;
+    public static final ModConfigSpec.IntValue MIN_CIVILIAN_VILLAGERS_FLOOR;
+    public static final ModConfigSpec.IntValue MAX_SENTINELS_DEFAULT;
+    public static final ModConfigSpec.IntValue MAX_SENTINELS_WRATH;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -61,6 +66,31 @@ public final class ModConfig {
         VILLAGE_RAID_AVATAR_CHANCE = builder
                 .comment("Probabilidad (0.0 a 1.0) de que el Avatar de un Dios se manifieste fisicamente durante un asedio a una aldea (por defecto 0.05 = 5%).")
                 .defineInRange("villageRaidAvatarChance", 0.05D, 0.0D, 1.0D);
+
+        builder.pop();
+
+        builder.comment("Configuracion de Reclutamiento Demografico de Centinelas")
+                .push("sentinel_recruitment");
+
+        SENTINEL_RECRUITMENT_ENABLED = builder
+                .comment("Si es true, permite que los aldeanos civiles devotos se consagren como centinelas defensores de sus altares.")
+                .define("enabled", true);
+
+        SENTINEL_RECRUITMENT_COOLDOWN_TICKS = builder
+                .comment("Tiempo minimo de enfriamiento en ticks entre consagraciones de centinelas en un mismo santuario (por defecto 24000 = 1 dia de Minecraft).")
+                .defineInRange("cooldownTicks", 24000, 1200, 2400000);
+
+        MIN_CIVILIAN_VILLAGERS_FLOOR = builder
+                .comment("Cantidad minima de aldeanos civiles adultos que deben permanecer en la aldea para autorizar una conversion (por defecto 4).")
+                .defineInRange("minCivilianFloor", 4, 2, 20);
+
+        MAX_SENTINELS_DEFAULT = builder
+                .comment("Cupo maximo estandar de centinelas defensores para aldeas consagradas a Mammon, Lucian, Beelze, Asmodeus o Belphegor.")
+                .defineInRange("maxSentinelsDefault", 5, 1, 20);
+
+        MAX_SENTINELS_WRATH = builder
+                .comment("Cupo maximo reforzado de centinelas defensores para aldeas consagradas a Khorvath (Dios de la Ira).")
+                .defineInRange("maxSentinelsWrath", 8, 2, 30);
 
         builder.pop();
 

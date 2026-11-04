@@ -8,6 +8,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Added
+- **Persistencia y Configuración de Reclutamiento Demográfico de Centinelas**:
+  - Incorporación del campo `lastRecruitmentTick` en `GodVillageSavedData.GodVillageRecord` con soporte de deserialización retrocompatible mediante `Codec.optionalFieldOf("last_recruitment", 0L)`.
+  - Propagación de estado temporal de consagración en todos los constructores y métodos mutadores `with...` de `GodVillageRecord`.
+  - Nuevos parámetros en `ModConfig` (`sentinel_recruitment`): activación global, cooldown en ticks, suelo mínimo civil y cupos máximos por deidad.
 - **Objetivo Táctico de Avatares Rivales y Respuesta Fraternal en Acólitos (`GodAcolyteEntity`)**:
   - Incorporación de `NearestAttackableTargetGoal` en [`GodAcolyteEntity`](src/main/java/com/volcov/sevendeadlygods/entity/GodAcolyteEntity.java) para que los acólitos detecten y ataquen proactivamente a los Avatares de deidades rivales (`GodAvatarEntity`), resolviendo la asimetría táctica donde el Avatar enemigo cazaba acólitos pero los centinelas e invasores ignoraban al dios invasor.
   - Jerarquía táctica escalonada de selección de objetivos: Prioridad 1 (Respuesta defensiva en enjambre), Prioridad 2 (Infantería rival y jugadores con `favor <= -40`), Prioridad 3 (Avatares y Titanes de cultos rivales) y Prioridad 4 (Monstruos comunes para centinelas y escoltas).
