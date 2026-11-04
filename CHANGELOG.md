@@ -34,6 +34,9 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   - Atribución de bajas de aldeanos infligidas por acólitos aliados al jugador comandante, otorgando el favor correspondiente con Leviatán (`+0.6`).
 
 ### Changed
+- **Ajuste de Frecuencia y Configuración de Aldeas Consagradas (`ConsecratedVillageShrineElement`, `ModConfig`)**:
+  - Incremento de la tasa de consagración de aldeas naturales al **80%** (frente al 20% anterior), dejando exactamente el **20%** restante como aldeas mundanas/vanilla tradicionales.
+  - Nuevo parámetro de configuración `villageConsecrationChance` en la categoría `[world]` de `ModConfig` (por defecto `0.80`, rango `0.0` a `1.0`) para permitir calibración total en servidores y partidas locales.
 - **Indestructibilidad del Equipamiento Sagrado de Avatares**:
   - Asignación del componente `DataComponents.UNBREAKABLE` a todas las armas y piezas de armadura de los Avatares en `DivineEquipmentHelper`, evitando que el desgaste por durabilidad o el efecto reflejo de *Espinas V* destruya las piezas en combate prolongado.
 - **Estandarización de Defensa Temática (Oro Divino vs Netherite)**:

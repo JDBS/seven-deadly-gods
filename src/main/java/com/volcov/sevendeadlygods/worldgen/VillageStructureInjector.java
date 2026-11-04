@@ -25,7 +25,7 @@ import java.util.List;
  * Inyecta los Templos Consagrados de los 7 Dioses del Pecado en las piscinas de plantillas
  * Jigsaw de las aldeas vanilla (plains, desert, savanna, taiga, snowy) y registra el rastreador
  * de inicio de aldea (town_centers) para garantizar:
- * 1. Decisión de consagración del 20% indexada por la posición de inicio real de la aldea.
+ * 1. Decisión de consagración del 80% indexada por la posición de inicio real de la aldea (20% vanilla).
  * 2. Un único Dios del Pecado elegido por aldea consagrada.
  * 3. Exactamente un único santuario físico colocado por aldea con rollback si un intento colisiona.
  */

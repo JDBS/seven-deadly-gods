@@ -1,6 +1,7 @@
 package com.volcov.sevendeadlygods.worldgen;
 
 import com.mojang.datafixers.util.Either;
+import com.volcov.sevendeadlygods.config.ModConfig;
 import com.volcov.sevendeadlygods.god.SinGod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -22,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Elemento de piscina Jigsaw que garantiza:
- * 1. Una sola tirada de consagración del 20% por aldea (indexada por el inicio real de la estructura).
+ * 1. Una sola tirada de consagración del 80% por aldea (indexada por el inicio real de la estructura).
  * 2. Un único Dios del Pecado elegido por aldea consagrada.
  * 3. Exactamente un único santuario físico colocado en la aldea (reserva del slot solo tras aceptación).
  */
@@ -79,8 +80,16 @@ public class ConsecratedVillageShrineElement extends SinglePoolElement {
                 }
             }
 
-            // Tirada única del 20% por aldea indexada por el inicio real de la estructura
-            boolean consecrated = random.nextFloat() < 0.20F;
+            double chance = 0.80D;
+            try {
+                if (ModConfig.SPEC.isLoaded() && ModConfig.VILLAGE_CONSECRATION_CHANCE != null) {
+                    chance = ModConfig.VILLAGE_CONSECRATION_CHANCE.get();
+                }
+            } catch (Exception ignored) {
+            }
+
+            // Tirada única del 80% por aldea indexada por el inicio real de la estructura (20% vanilla)
+            boolean consecrated = random.nextDouble() < chance;
             SinGod chosenGod = SinGod.values()[random.nextInt(SinGod.values().length)];
             VillageDecision decision = new VillageDecision(chosenGod, consecrated, new AtomicBoolean(false));
 
@@ -124,7 +133,7 @@ public class ConsecratedVillageShrineElement extends SinglePoolElement {
             return Collections.emptyList();
         }
 
-        // 1. Si la aldea no fue elegida para consagración (80% de las aldeas)
+        // 1. Si la aldea no fue elegida para consagración (20% de las aldeas vanilla)
         if (!decision.consecrated()) {
             return Collections.emptyList();
         }
