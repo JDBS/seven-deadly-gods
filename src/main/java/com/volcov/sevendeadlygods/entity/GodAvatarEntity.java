@@ -24,6 +24,7 @@ import net.minecraft.world.BossEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -207,6 +208,19 @@ public class GodAvatarEntity extends PathfinderMob {
         // Equipar armas y armaduras sobre-encantadas
         DivineEquipmentHelper.equipAvatarWithOverleveledGear(level, this, god);
 
+        // Estandarizar defensa cosmetica: equiparar Oro Divino (Greed, Pride, Lust) con Netherite (Sloth, Wrath, Gluttony, Envy).
+        // Netherite otorga +12 dureza y +0.15 resistencia a empuje respecto al oro vainilla.
+        // Asignando estos valores a las deidades doradas, ambos conjuntos alcanzan exactamente 30 armadura (tope), 24 dureza y 1.0 empuje.
+        boolean goldenTheme = (god == SinGod.GREED || god == SinGod.PRIDE || god == SinGod.LUST);
+        var toughnessAttr = this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR_TOUGHNESS);
+        if (toughnessAttr != null) {
+            toughnessAttr.setBaseValue(goldenTheme ? 24.0D : 12.0D);
+        }
+        var knockbackAttr = this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE);
+        if (knockbackAttr != null) {
+            knockbackAttr.setBaseValue(goldenTheme ? 1.0D : 0.85D);
+        }
+
         // Aplicar efectos de duracion infinita (Regeneracion I, Resistencia II = 40%, Fuerza, Resistencia al Fuego)
         applyInfiniteDivineEffects();
         this.setHealth(this.getMaxHealth());
@@ -365,12 +379,45 @@ public class GodAvatarEntity extends PathfinderMob {
     }
 
     /**
-     * Reduccion balanceada al 50% de resistencia innata al dano en el Avatar.
+     * Reduccion balanceada al 50% de resistencia innata al dano en el Avatar frente a ataques mortales,
+     * e implementacion de Choque Divino y Dano Penetrante en duelos exclusivos entre Avatares Divinos.
      */
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
-        float reducedAmount = amount * 0.50F; // 50% de resistencia al dano innata
+        if (source.getEntity() instanceof GodAvatarEntity attacker && attacker != this) {
+            // Choque Divino entre Avatares: el dano penetra armadura y proteccion vainilla
+            // Se normaliza en 26.0 (+- 2.0) de dano que, tras la reduccion de Resistencia II (40%),
+            // inflige entre 14.4 y 16.8 de dano neto continuo, permitiendo un duelo epico de ~1.5 a 2 minutos.
+            if (!source.is(DamageTypes.SONIC_BOOM)) {
+                float divineRoll = 26.0F + (float) (this.random.nextFloat() * 4.0F - 2.0F);
+                playDivineClashEffects(level, attacker, this);
+                return super.hurtServer(level, level.damageSources().sonicBoom(attacker), divineRoll);
+            }
+        }
+        float reducedAmount = amount * 0.50F; // 50% de resistencia al dano innata frente a mortales
         return super.hurtServer(level, source, reducedAmount);
+    }
+
+    private void playDivineClashEffects(ServerLevel level, GodAvatarEntity attacker, GodAvatarEntity victim) {
+        level.playSound(null, victim.blockPosition(), SoundEvents.ANVIL_LAND, SoundSource.HOSTILE, 0.75F, 1.35F);
+        level.playSound(null, victim.blockPosition(), SoundEvents.MACE_SMASH_HEAVY, SoundSource.HOSTILE, 1.1F, 0.85F);
+
+        double midX = (attacker.getX() + victim.getX()) * 0.5D;
+        double midY = (attacker.getY() + victim.getY()) * 0.5D + 1.3D;
+        double midZ = (attacker.getZ() + victim.getZ()) * 0.5D;
+
+        ParticleOptions sinParticle = switch (attacker.getGod()) {
+            case GREED -> ParticleTypes.WAX_ON;
+            case WRATH -> ParticleTypes.FLAME;
+            case GLUTTONY -> ParticleTypes.HAPPY_VILLAGER;
+            case PRIDE -> ParticleTypes.END_ROD;
+            case ENVY -> ParticleTypes.SOUL_FIRE_FLAME;
+            case SLOTH -> ParticleTypes.PORTAL;
+            case LUST -> ParticleTypes.HEART;
+        };
+
+        level.sendParticles(sinParticle, midX, midY, midZ, 35, 0.4D, 0.4D, 0.4D, 0.12D);
+        level.sendParticles(ParticleTypes.CRIT, midX, midY, midZ, 20, 0.35D, 0.35D, 0.35D, 0.18D);
     }
 
     @Override
