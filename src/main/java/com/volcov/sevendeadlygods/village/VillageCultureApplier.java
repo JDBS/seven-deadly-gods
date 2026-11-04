@@ -388,6 +388,8 @@ public class VillageCultureApplier {
                         player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 140, 0, true, false, true));
                     }
                 }
+                // Sustento Onírico: nutre a los Nitwits durmientes para posibilitar el ciclo de reproducción
+                VillageRecruitmentManager.tickSlothDreamSustenance(level, village, level.getGameTime());
             }
             case PRIDE -> {
                 // Lucian (Soberbia): destellos solares imperiales sobre la catedral

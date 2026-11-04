@@ -40,7 +40,7 @@ docs/
 * [Asmodeus — Lujuria](dioses_y_altares/asmodeus_lujuria.md): Jardines armónicos, Armor Trims, fertilidad y Encanto Prohibido.
 
 ### 4. 🏰 Aldeas Consagradas y Guerras Santas
-* [Facciones Aldeanas y Culturas](aldeas_consagradas/facciones_y_culturas.md): Inyección Jigsaw (20%), peajes de Mammon, holgazanes de Belphegor y ruinas de Leviatán.
+* [Facciones Aldeanas y Culturas](aldeas_consagradas/facciones_y_culturas.md): Inyección Jigsaw (80%), peajes de Mammon, holgazanes de Belphegor y ruinas de Leviatán.
 * [Comercio Divino y Alta Traición](aldeas_consagradas/comercio_divino.md): Catálogo de 5 tiers de Acólitos y castigo fulminante (-60 Favor) por traición.
 * [Guerras Santas y Cuerno de Guerra](aldeas_consagradas/guerras_santas.md): Asaltos autónomos, Cuerno de Guerra Divino, 5% de descenso de Avatar y Choque de Dioses.
 * [Desolación y Caravana de Peregrinos](aldeas_consagradas/desolacion_y_milagros.md): Vigilia de templos sin civiles, gólems guardianes y milagro de restauración.

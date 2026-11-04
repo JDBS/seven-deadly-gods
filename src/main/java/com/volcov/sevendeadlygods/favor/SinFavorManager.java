@@ -29,6 +29,10 @@ public final class SinFavorManager {
      */
     public static int addEffort(ServerPlayer player, SinGod god, float effort, String reasonHint) {
         PlayerSinData data = get(player);
+        long gameTime = player.level().getGameTime();
+        if (data.isGodInSlumber(god, gameTime)) {
+            return 0;
+        }
         int oldFavor = data.getFavor(god);
         int delta = data.addDampedEffort(god, effort);
 
@@ -39,7 +43,7 @@ public final class SinFavorManager {
             // Regla especial de Leviatan (Envidia):
             // Le enfada que el jugador suba favor por encima de +20 con otros dioses,
             // y le complace que el jugador caiga en desgracia con otros dioses.
-            if (god != SinGod.ENVY) {
+            if (god != SinGod.ENVY && !data.isGodInSlumber(SinGod.ENVY, gameTime)) {
                 if (delta > 0 && newFavor > 20) {
                     int envyOld = data.getFavor(SinGod.ENVY);
                     int envyDelta = data.addDampedEffort(SinGod.ENVY, -0.75F);
@@ -135,6 +139,10 @@ public final class SinFavorManager {
         }
 
         PlayerSinData data = get(player);
+        long gameTime = player.level().getGameTime();
+        if (data.isGodInSlumber(god, gameTime)) {
+            return false;
+        }
         int currentFavor = data.getFavor(god);
 
         // Limites absolutos alcanzados
@@ -154,7 +162,7 @@ public final class SinFavorManager {
             onFavorChanged(player, god, currentFavor, newFavor, "Conversacion en el chat");
 
             // Reaccion colateral de Leviatan (Envidia), escalada segun su propio favor actual
-            if (god != SinGod.ENVY) {
+            if (god != SinGod.ENVY && !data.isGodInSlumber(SinGod.ENVY, gameTime)) {
                 if (delta > 0 && newFavor > 20) {
                     int envyOld = data.getFavor(SinGod.ENVY);
                     float envyProb = calculateChatFavorProbability(envyOld, -0.55F);

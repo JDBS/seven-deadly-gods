@@ -6,8 +6,7 @@ import com.volcov.sevendeadlygods.favor.SinFavorManager;
 import com.volcov.sevendeadlygods.god.SinGod;
 import com.volcov.sevendeadlygods.registry.ModItems;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -24,6 +23,7 @@ import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -494,7 +494,7 @@ public final class DivineTradingRegistry {
         }
     }
 
-    private static ItemStack createNamedArtifact(Item item, SinGod god, String nameKey, String loreKey) {
+    public static ItemStack createNamedArtifact(Item item, SinGod god, String nameKey, String loreKey) {
         ItemStack stack = new ItemStack(item);
         stack.set(DataComponents.CUSTOM_NAME,
                 Component.literal("✦ ")
@@ -508,8 +508,8 @@ public final class DivineTradingRegistry {
         return stack;
     }
 
-    private static ItemStack createEnchantedBook(
-            ServerLevel level,
+    public static ItemStack createEnchantedBook(
+            HolderLookup.Provider registries,
             SinGod god,
             ResourceKey<Enchantment> enchantmentKey,
             int enchantLevel,
@@ -525,15 +525,114 @@ public final class DivineTradingRegistry {
                 Component.translatable("trading.sevendeadlygods.forbidden_tome_lore").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC),
                 Component.translatable("trading.sevendeadlygods.consecrated_by", god.getDisplayNameComponent()).withStyle(god.getChatColor())
         )));
-        applyEnchant(level, book, enchantmentKey, enchantLevel);
+        applyEnchant(registries, book, enchantmentKey, enchantLevel);
         return book;
     }
 
-    private static void applyEnchant(ServerLevel level, ItemStack stack, ResourceKey<Enchantment> key, int enchantLevel) {
-        Optional<Registry<Enchantment>> regOpt = level.registryAccess().lookup(Registries.ENCHANTMENT);
-        if (regOpt.isPresent()) {
-            Optional<Holder.Reference<Enchantment>> holderOpt = regOpt.get().get(key);
-            holderOpt.ifPresent(holder -> stack.enchant(holder, enchantLevel));
+    private static ItemStack createEnchantedBook(
+            ServerLevel level,
+            SinGod god,
+            ResourceKey<Enchantment> enchantmentKey,
+            int enchantLevel,
+            String customTitleKey
+    ) {
+        return createEnchantedBook(level.registryAccess(), god, enchantmentKey, enchantLevel, customTitleKey);
+    }
+
+    public static void applyEnchant(HolderLookup.Provider registries, ItemStack stack, ResourceKey<Enchantment> key, int enchantLevel) {
+        if (registries == null) {
+            return;
         }
+        registries.lookup(Registries.ENCHANTMENT).ifPresent(reg -> {
+            reg.get(key).ifPresent(holder -> stack.enchant(holder, enchantLevel));
+        });
+    }
+
+    private static void applyEnchant(ServerLevel level, ItemStack stack, ResourceKey<Enchantment> key, int enchantLevel) {
+        applyEnchant(level.registryAccess(), stack, key, enchantLevel);
+    }
+
+    /**
+     * Devuelve todos los Artefactos, Armas de Culto y Códices del Comercio Divino
+     * para la pestaña del inventario creativo del mod.
+     */
+    public static List<ItemStack> getAllDivineTradeArtifacts(HolderLookup.Provider registries) {
+        List<ItemStack> artifacts = new ArrayList<>();
+
+        // Mammon (Avaricia)
+        artifacts.add(createNamedArtifact(Items.RAW_GOLD_BLOCK, SinGod.GREED, "trading.sevendeadlygods.mammon_coin_pouch.name", "trading.sevendeadlygods.mammon_coin_pouch.lore"));
+        artifacts.add(createNamedArtifact(Items.GOLD_BLOCK, SinGod.GREED, "trading.sevendeadlygods.mammon_vault_ingot.name", "trading.sevendeadlygods.mammon_vault_ingot.lore"));
+        artifacts.add(createEnchantedBook(registries, SinGod.GREED, Enchantments.FORTUNE, 4, "trading.sevendeadlygods.book_fortune_4"));
+
+        // Khorvath (Ira)
+        ItemStack heavySword = createNamedArtifact(Items.IRON_SWORD, SinGod.WRATH, "trading.sevendeadlygods.khorvath_heavy_sword.name", "trading.sevendeadlygods.khorvath_heavy_sword.lore");
+        applyEnchant(registries, heavySword, Enchantments.SHARPNESS, 3);
+        applyEnchant(registries, heavySword, Enchantments.UNBREAKING, 3);
+        artifacts.add(heavySword);
+
+        artifacts.add(createNamedArtifact(Items.BLAZE_POWDER, SinGod.WRATH, "trading.sevendeadlygods.khorvath_fury_ash.name", "trading.sevendeadlygods.khorvath_fury_ash.lore"));
+        artifacts.add(createNamedArtifact(Items.NETHERITE_SCRAP, SinGod.WRATH, "trading.sevendeadlygods.khorvath_whetstone.name", "trading.sevendeadlygods.khorvath_whetstone.lore"));
+
+        ItemStack butcherAxe = createNamedArtifact(Items.DIAMOND_AXE, SinGod.WRATH, "trading.sevendeadlygods.khorvath_butcher_axe.name", "trading.sevendeadlygods.khorvath_butcher_axe.lore");
+        applyEnchant(registries, butcherAxe, Enchantments.SHARPNESS, 5);
+        applyEnchant(registries, butcherAxe, Enchantments.FIRE_ASPECT, 2);
+        artifacts.add(butcherAxe);
+
+        artifacts.add(createEnchantedBook(registries, SinGod.WRATH, Enchantments.SHARPNESS, 6, "trading.sevendeadlygods.book_sharpness_6"));
+
+        // Beelze (Gula)
+        artifacts.add(createNamedArtifact(Items.CAKE, SinGod.GLUTTONY, "trading.sevendeadlygods.beelze_cake.name", "trading.sevendeadlygods.beelze_cake.lore"));
+        artifacts.add(createNamedArtifact(Items.HONEY_BOTTLE, SinGod.GLUTTONY, "trading.sevendeadlygods.beelze_ambrosia.name", "trading.sevendeadlygods.beelze_ambrosia.lore"));
+
+        ItemStack cleaver = createNamedArtifact(Items.IRON_SWORD, SinGod.GLUTTONY, "trading.sevendeadlygods.beelze_cleaver.name", "trading.sevendeadlygods.beelze_cleaver.lore");
+        applyEnchant(registries, cleaver, Enchantments.LOOTING, 5);
+        applyEnchant(registries, cleaver, Enchantments.FIRE_ASPECT, 2);
+        artifacts.add(cleaver);
+
+        artifacts.add(createNamedArtifact(Items.ENCHANTED_GOLDEN_APPLE, SinGod.GLUTTONY, "trading.sevendeadlygods.beelze_supreme_feast.name", "trading.sevendeadlygods.beelze_supreme_feast.lore"));
+
+        // Lucian (Soberbia)
+        ItemStack crown = createNamedArtifact(Items.GOLDEN_HELMET, SinGod.PRIDE, "trading.sevendeadlygods.lucian_solar_crown.name", "trading.sevendeadlygods.lucian_solar_crown.lore");
+        applyEnchant(registries, crown, Enchantments.PROTECTION, 5);
+        applyEnchant(registries, crown, Enchantments.UNBREAKING, 5);
+        artifacts.add(crown);
+
+        artifacts.add(createNamedArtifact(Items.SPYGLASS, SinGod.PRIDE, "trading.sevendeadlygods.lucian_self_love_mirror.name", "trading.sevendeadlygods.lucian_self_love_mirror.lore"));
+
+        ItemStack totem = createNamedArtifact(Items.TOTEM_OF_UNDYING, SinGod.PRIDE, "trading.sevendeadlygods.lucian_unbroken_totem.name", "trading.sevendeadlygods.lucian_unbroken_totem.lore");
+        applyEnchant(registries, totem, Enchantments.UNBREAKING, 3);
+        artifacts.add(totem);
+
+        // Leviatan (Envidia)
+        ItemStack expBag = createNamedArtifact(Items.EXPERIENCE_BOTTLE, SinGod.ENVY, "trading.sevendeadlygods.leviathan_black_market.name", "trading.sevendeadlygods.leviathan_black_market.lore");
+        artifacts.add(expBag);
+
+        artifacts.add(createNamedArtifact(Items.HEART_OF_THE_SEA, SinGod.ENVY, "trading.sevendeadlygods.leviathan_talisman.name", "trading.sevendeadlygods.leviathan_talisman.lore"));
+
+        ItemStack dagger = createNamedArtifact(Items.DIAMOND_SWORD, SinGod.ENVY, "trading.sevendeadlygods.leviathan_dagger.name", "trading.sevendeadlygods.leviathan_dagger.lore");
+        applyEnchant(registries, dagger, Enchantments.SHARPNESS, 6);
+        applyEnchant(registries, dagger, Enchantments.LOOTING, 4);
+        artifacts.add(dagger);
+
+        // Belphegor (Pereza)
+        artifacts.add(createNamedArtifact(Items.BED.blue(), SinGod.SLOTH, "trading.sevendeadlygods.belphegor_dream_bed.name", "trading.sevendeadlygods.belphegor_dream_bed.lore"));
+
+        ItemStack boots = createNamedArtifact(Items.IRON_BOOTS, SinGod.SLOTH, "trading.sevendeadlygods.belphegor_inertia_boots.name", "trading.sevendeadlygods.belphegor_inertia_boots.lore");
+        applyEnchant(registries, boots, Enchantments.FEATHER_FALLING, 5);
+        applyEnchant(registries, boots, Enchantments.UNBREAKING, 5);
+        artifacts.add(boots);
+
+        artifacts.add(createNamedArtifact(Items.HOPPER, SinGod.SLOTH, "trading.sevendeadlygods.belphegor_magnetic_hopper.name", "trading.sevendeadlygods.belphegor_magnetic_hopper.lore"));
+        artifacts.add(createNamedArtifact(Items.NETHER_STAR, SinGod.SLOTH, "trading.sevendeadlygods.belphegor_lazy_core.name", "trading.sevendeadlygods.belphegor_lazy_core.lore"));
+
+        // Asmodeus (Lujuria)
+        artifacts.add(createNamedArtifact(Items.HONEYCOMB, SinGod.LUST, "trading.sevendeadlygods.asmodeus_pheromone.name", "trading.sevendeadlygods.asmodeus_pheromone.lore"));
+        artifacts.add(createNamedArtifact(Items.LEAD, SinGod.LUST, "trading.sevendeadlygods.asmodeus_affinity_cord.name", "trading.sevendeadlygods.asmodeus_affinity_cord.lore"));
+
+        ItemStack ring = createNamedArtifact(Items.GOLDEN_APPLE, SinGod.LUST, "trading.sevendeadlygods.asmodeus_passion_fruit.name", "trading.sevendeadlygods.asmodeus_passion_fruit.lore");
+        applyEnchant(registries, ring, Enchantments.UNBREAKING, 3);
+        artifacts.add(ring);
+
+        return artifacts;
     }
 }

@@ -38,6 +38,15 @@ El archivo de configuración se encuentra en `.minecraft/config/sevendeadlygods-
     # Rango: 0 a 1000. Por defecto: 25 puntos
     loreBookFirstReadXp = 25
 
+    # Probabilidad (0.0 a 1.0) de que una aldea natural sea consagrada a uno de los 7 Pecados Capitales (el resto permanece vanilla).
+    # Rango: 0.0 a 1.0. Por defecto: 0.80 (80% consagradas, 20% vanilla)
+    villageConsecrationChance = 0.80
+
+    # Peso de seleccion Jigsaw para el Santuario Divino en las piscinas de casas de aldeas.
+    # Un peso mayor garantiza que el templo compita eficazmente contra las casas vanilla antes de agotarse los conectores.
+    # Rango: 1 a 100. Por defecto: 20
+    villageShrineJigsawWeight = 20
+
     # Enfriamiento minimo en ticks entre asaltos autonomos a una misma aldea consagrada.
     # Por defecto: 72000 ticks (3 dias de Minecraft)
     villageRaidCooldownTicks = 72000

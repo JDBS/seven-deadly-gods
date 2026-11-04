@@ -1,6 +1,8 @@
 package com.volcov.sevendeadlygods.worldgen;
 
 import com.mojang.datafixers.util.Either;
+import com.volcov.sevendeadlygods.SevenDeadlyGodsMod;
+import com.volcov.sevendeadlygods.config.ModConfig;
 import com.volcov.sevendeadlygods.god.SinGod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -22,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Elemento de piscina Jigsaw que garantiza:
- * 1. Una sola tirada de consagración del 20% por aldea (indexada por el inicio real de la estructura).
+ * 1. Una sola tirada de consagración del 80% por aldea (indexada por el inicio real de la estructura).
  * 2. Un único Dios del Pecado elegido por aldea consagrada.
  * 3. Exactamente un único santuario físico colocado en la aldea (reserva del slot solo tras aceptación).
  */
@@ -79,10 +81,26 @@ public class ConsecratedVillageShrineElement extends SinglePoolElement {
                 }
             }
 
-            // Tirada única del 20% por aldea indexada por el inicio real de la estructura
-            boolean consecrated = random.nextFloat() < 0.20F;
+            double chance = 0.80D;
+            try {
+                if (ModConfig.SPEC.isLoaded() && ModConfig.VILLAGE_CONSECRATION_CHANCE != null) {
+                    chance = ModConfig.VILLAGE_CONSECRATION_CHANCE.get();
+                }
+            } catch (Exception ignored) {
+            }
+
+            // Tirada única del 80% por aldea indexada por el inicio real de la estructura (20% vanilla)
+            boolean consecrated = random.nextDouble() < chance;
             SinGod chosenGod = SinGod.values()[random.nextInt(SinGod.values().length)];
             VillageDecision decision = new VillageDecision(chosenGod, consecrated, new AtomicBoolean(false));
+
+            if (consecrated) {
+                SevenDeadlyGodsMod.LOGGER.info("Aldea en [{}] consagrada a {} (Tirada exitosa: {:.0f}%). Buscando conector Jigsaw para santuario...",
+                        pos.toShortString(), chosenGod.getDisplayName(), chance * 100.0);
+            } else {
+                SevenDeadlyGodsMod.LOGGER.debug("Aldea en [{}] permanecera vanilla ordinaria (Tirada de consagración no superada).",
+                        pos.toShortString());
+            }
 
             VILLAGE_DECISIONS.put(pos.asLong(), decision);
             return decision;
@@ -95,8 +113,9 @@ public class ConsecratedVillageShrineElement extends SinglePoolElement {
         // candidata ha superado las comprobaciones de colisión de Shapes.joinIsNotEmpty y es
         // formalmente aceptada dentro de la lista de piezas de la estructura (pieces.add).
         VillageDecision decision = ACTIVE_VILLAGE.get();
-        if (decision != null) {
-            decision.placed().set(true);
+        if (decision != null && decision.placed().compareAndSet(false, true)) {
+            SevenDeadlyGodsMod.LOGGER.info("Santuario de {} colocado exitosamente en la aldea (patrón: {}).",
+                    this.god.getDisplayName(), decision.chosenGod().getDisplayName());
         }
         return super.getGroundLevelDelta();
     }
@@ -111,8 +130,9 @@ public class ConsecratedVillageShrineElement extends SinglePoolElement {
         // Si no es ZERO, la pieza ya fue aceptada y se está procesando como origen en la cola de jigsaw
         if (!pos.equals(BlockPos.ZERO)) {
             VillageDecision active = ACTIVE_VILLAGE.get();
-            if (active != null) {
-                active.placed().set(true);
+            if (active != null && active.placed().compareAndSet(false, true)) {
+                SevenDeadlyGodsMod.LOGGER.info("Santuario de {} colocado exitosamente en la aldea en [{}] (patrón: {}).",
+                        this.god.getDisplayName(), pos.toShortString(), active.chosenGod().getDisplayName());
             }
             return super.getShuffledJigsawBlocks(templateManager, pos, rotation, random);
         }
@@ -124,7 +144,7 @@ public class ConsecratedVillageShrineElement extends SinglePoolElement {
             return Collections.emptyList();
         }
 
-        // 1. Si la aldea no fue elegida para consagración (80% de las aldeas)
+        // 1. Si la aldea no fue elegida para consagración (20% de las aldeas vanilla)
         if (!decision.consecrated()) {
             return Collections.emptyList();
         }

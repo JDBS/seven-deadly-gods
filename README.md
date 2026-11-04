@@ -38,7 +38,7 @@ La documentación detallada del mod ha sido completamente modularizada para faci
 * 💬 **[Chat Inteligente y Reacciones Físicas](docs/mecanicas_principales/chat_inteligente.md)**: Cómo hablar con los dioses, cálculo de probabilidades y súplicas.
 * 👑 **[Acólitos, Avatares y Deicidio](docs/mecanicas_principales/avatares_y_acolitos.md)**: Regla de Avatar Único, estadísticas de jefe y recompensas de favor.
 * 🔨 **[Guía de Crafteo de Altares y Rituales](docs/dioses_y_altares/guia_altares_crafteo.md)**: Patrón en T y guías individuales para [Mammon](docs/dioses_y_altares/mammon_avaricia.md), [Khorvath](docs/dioses_y_altares/khorvath_ira.md), [Beelze](docs/dioses_y_altares/beelze_gula.md), [Lucian](docs/dioses_y_altares/lucian_soberbia.md), [Leviatán](docs/dioses_y_altares/leviatan_envidia.md), [Belphegor](docs/dioses_y_altares/belphegor_pereza.md) y [Asmodeus](docs/dioses_y_altares/asmodeus_lujuria.md).
-* 🏰 **[Aldeas Consagradas, Facciones y Culturas](docs/aldeas_consagradas/facciones_y_culturas.md)**: Estructuras Jigsaw (20%), estados territoriales y rasgos únicos de cada pueblo.
+* 🏰 **[Aldeas Consagradas, Facciones y Culturas](docs/aldeas_consagradas/facciones_y_culturas.md)**: Estructuras Jigsaw (80%), estados territoriales y rasgos únicos de cada pueblo.
 * 📦 **[Comercio Divino y Alta Traición](docs/aldeas_consagradas/comercio_divino.md)**: Catálogo de 5 tiers de Acólitos y penalización de -60 de favor por traición.
 * ⚔️ **[Guerras Santas y Cuerno de Guerra](docs/aldeas_consagradas/guerras_santas.md)**: Asaltos autónomos, asedios convocados por el jugador y Choque de Dioses.
 * 🕯️ **[Desolación y Caravana de Peregrinos](docs/aldeas_consagradas/desolacion_y_milagros.md)**: Ciclo de vida ante pérdida de civiles y milagros de restauración.

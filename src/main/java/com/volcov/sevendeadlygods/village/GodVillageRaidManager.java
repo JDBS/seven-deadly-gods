@@ -113,6 +113,10 @@ public class GodVillageRaidManager {
             for (GodVillageSavedData.GodVillageRecord village : snapshot) {
                 checkDesolationState(server, level, data, village, gameTime);
                 GodVillageSavedData.GodVillageRecord currentVillage = data.getVillageById(village.id()).orElse(village);
+                if (currentVillage.state() == GodVillageState.CONSAGRADA) {
+                    VillageRecruitmentManager.tickVillageRecruitment(level, data, currentVillage, gameTime);
+                    currentVillage = data.getVillageById(village.id()).orElse(currentVillage);
+                }
                 long raidCooldown = ModConfig.VILLAGE_RAID_COOLDOWN_TICKS.get();
                 if (currentVillage.state() == GodVillageState.CONSAGRADA
                         && (gameTime - currentVillage.lastRaidTick() > raidCooldown)) {

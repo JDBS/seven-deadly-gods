@@ -8,6 +8,23 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Added
+- **Integración de Armas Reliquia y Artefactos Divinos al Inventario Creativo (`ModItems`, `DivineEquipmentHelper`, `DivineTradingRegistry`)**:
+  - Incorporación de las 7 Armas Reliquia Sagradas de los Dioses con encantamientos sobre-nivel (*Colmillo Áureo de Mammon*, *Ejecutora Sangrienta de Khorvath*, *Fauces Eternas de Beelze*, *Cetro Solar de Lucian*, *Tridente Abisal de Leviatán*, *Maza del Letargo de Belphegor* y *Espina Carmesí de Asmodeus*) a la pestaña creativa del mod (`SEVEN_DEADLY_GODS_TAB`).
+  - Soporte de encantamientos temáticos avanzados en armas singulares (Lealtad V, Empalamiento VIII y Conductividad para el Tridente de Leviatán; Densidad VIII, Brecha VI y Ráfaga de Viento III para la Maza de Belphegor).
+  - Incorporación de los 25 artefactos arcanos, armas de culto y códices sagrados del Comercio Divino (*Espada Pesada de Acólito*, *Hacha de Guerra del Carnicero*, *Cuchillo de Carnicero Divino*, *Daga Abisal*, *Diadema Solar*, *Sandalias de Inercia*, libros sobre-encantados de Filo VI y Fortuna IV, etc.).
+  - Incorporación de los 7 Trofeos de Deicidio conmemorativos.
+  - Disponibilidad y búsqueda directa tanto en la pestaña temática del mod como en el buscador creativo general de Minecraft.
+- **Gestor Demográfico y Consagración Orgánica de Centinelas (`VillageRecruitmentManager`)**:
+  - Implementación de `VillageRecruitmentManager` para evaluar la demografía de aldeas consagradas y convertir aldeanos civiles devotos en acólitos centinelas permanentes (`GodAcolyteEntity`), vinculados a su Altar Mayor.
+  - Regla de prudencia demográfica con suelo mínimo civil (`minCivilianFloor = 3`) para evitar extinciones poblacionales y garantizar la continuidad del ciclo de natalidad vanilla permitiendo el reclutamiento en aldeas estándar de 4 habitantes.
+  - Jerarquía de selección y scoring: prioridad a Nitwits (100 pts) y desempleados (50 pts); blindaje e inmunidad total para aldeanos con nombre personalizado (`hasCustomName()`), aldeanos en vehículos/transporte (`isPassenger()`), en comercio activo o con oficio avanzado (nivel >= 2).
+  - Mecánica de «Sustento Onírico» (*Dream Manna*) en el culto de Belphegor: abastecimiento periódico sincronizado de pan (hasta 6) a Nitwits dormidos durante la noche para superar la parálisis de recolección y habilitar su apareamiento con partículas de reposo.
+  - Inyección de la rutina de reclutamiento en el ciclo de 60s de `GodVillageRaidManager` y en el tick ambiental de `VillageCultureApplier`.
+  - Comando administrativo `/gods village recruit` para evaluación y ordenación inmediata forzada, e integración de telemetría de guarnición y civiles en `/gods village info`.
+- **Persistencia y Configuración de Reclutamiento Demográfico de Centinelas**:
+  - Incorporación del campo `lastRecruitmentTick` en `GodVillageSavedData.GodVillageRecord` con soporte de deserialización retrocompatible mediante `Codec.optionalFieldOf("last_recruitment", 0L)`.
+  - Propagación de estado temporal de consagración en todos los constructores y métodos mutadores `with...` de `GodVillageRecord`.
+  - Nuevos parámetros en `ModConfig` (`sentinel_recruitment`): activación global, cooldown en ticks, suelo mínimo civil y cupos máximos por deidad.
 - **Objetivo Táctico de Avatares Rivales y Respuesta Fraternal en Acólitos (`GodAcolyteEntity`)**:
   - Incorporación de `NearestAttackableTargetGoal` en [`GodAcolyteEntity`](src/main/java/com/volcov/sevendeadlygods/entity/GodAcolyteEntity.java) para que los acólitos detecten y ataquen proactivamente a los Avatares de deidades rivales (`GodAvatarEntity`), resolviendo la asimetría táctica donde el Avatar enemigo cazaba acólitos pero los centinelas e invasores ignoraban al dios invasor.
   - Jerarquía táctica escalonada de selección de objetivos: Prioridad 1 (Respuesta defensiva en enjambre), Prioridad 2 (Infantería rival y jugadores con `favor <= -40`), Prioridad 3 (Avatares y Titanes de cultos rivales) y Prioridad 4 (Monstruos comunes para centinelas y escoltas).
@@ -16,14 +33,39 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Mecánica de Perforación Divina en Duelos de Avatares (God vs God)**:
   - Implementación de daño penetrante en enfrentamientos directos entre Avatares Divinos (`GodAvatarEntity`), superando las capas extremas de armadura y protección vainilla para garantizar un combate dinámico, equilibrado (~1.5 a 2 minutos) y con peligro real de deicidio.
   - Efectos audiovisuales de Choque Divino (`playDivineClashEffects`): partículas temáticas del pecado del dios atacante (destellos áureos de Mammon, vórtice cósmico de Belphegor, etc.) y resonancia acústica pesada de impacto al conectar golpes penetrantes.
+- **Comportamiento Hostil y Despojo de Acólitos de la Envidia (`GodAcolyteEntity`, `PlayerSinBehaviorEvents`)**:
+  - Incorporación de `NearestAttackableTargetGoal` en [`GodAcolyteEntity`](src/main/java/com/volcov/sevendeadlygods/entity/GodAcolyteEntity.java) para que los acólitos de Leviatán (`SinGod.ENVY`) persigan y ejecuten a los aldeanos civiles (`Villager.class`) conforme a su lore de saqueo y despojo.
+  - Objetivo proactivo de ataque contra gólems de hierro defensores (`IronGolem.class`) para huestes asaltantes e invasoras de Envidia.
+  - Efectos visuales de impacto con partículas abisales (`SPLASH` y `ASH`) al empalar aldeanos con el tridente.
+  - Atribución de bajas de aldeanos infligidas por acólitos aliados al jugador comandante, otorgando el favor correspondiente con Leviatán (`+0.6`).
 
 ### Changed
+- **Ajuste de Frecuencia y Configuración de Aldeas Consagradas (`ConsecratedVillageShrineElement`, `ModConfig`)**:
+  - Incremento de la tasa de consagración de aldeas naturales al **80%** (frente al 20% anterior), dejando exactamente el **20%** restante como aldeas mundanas/vanilla tradicionales.
+  - Nuevo parámetro de configuración `villageConsecrationChance` en la categoría `[world]` de `ModConfig` (por defecto `0.80`, rango `0.0` a `1.0`) para permitir calibración total en servidores y partidas locales.
 - **Indestructibilidad del Equipamiento Sagrado de Avatares**:
   - Asignación del componente `DataComponents.UNBREAKABLE` a todas las armas y piezas de armadura de los Avatares en `DivineEquipmentHelper`, evitando que el desgaste por durabilidad o el efecto reflejo de *Espinas V* destruya las piezas en combate prolongado.
 - **Estandarización de Defensa Temática (Oro Divino vs Netherite)**:
   - Calibración de atributos defensivos en `GodAvatarEntity.initializeAvatar` para igualar la dureza (+24) y resistencia al empuje (1.0) entre deidades de temática áurea (Mammon, Lucian, Asmodeus) y deidades con armadura de netherite (Belphegor, Khorvath, etc.), asegurando paridad defensiva matemática sin alterar la salud máxima (400 HP).
 
 ### Fixed
+- **Corrección de Generación Real de Santuarios en Aldeas (`VillageStructureInjector`, `ConsecratedVillageShrineElement`, `ModConfig`)**:
+  - Resolución del «doble embudo» de probabilidad en el motor Jigsaw donde los santuarios inyectados con `weight = 2` competían en desventaja frente a los ~87 puntos de peso de casas vanilla en `village/*/houses`, causando que el ~74% de las aldeas consagradas en tirada matemática no colocasen su templo físico.
+  - Incremento del peso de selección Jigsaw a `weight = 20` (configurable mediante `villageShrineJigsawWeight` en `ModConfig`), garantizando que la colocación física del santuario supere el 96% en aldeas consagradas y respetando el cerrojo atómico estricto de 1 santuario por aldea.
+  - Telemetría en consola mediante logs `INFO`/`DEBUG` en `ConsecratedVillageShrineElement` para registrar la decisión de consagración de cada aldea y la confirmación de colocación de su santuario.
+- **Corrección de Crash al Abrir el Inventario Creativo (`DivineTradingRegistry`)**:
+  - Eliminación de la asignación de tamaño de stack múltiple (`count = 8`) en la botella de experiencia de Leviatán en `getAllDivineTradeArtifacts()`, cumpliendo con la regla estricta de NeoForge para pestañas del modo creativo (`CreativeModeTab.Output.accept`) que exige un tamaño de stack unitario (`count == 1`) y resolviendo la excepción `IllegalArgumentException: The stack count must be 1`.
+- **Eliminación de Rutas Absolutas de Máquina Local (`c/Users/VolcoV`)**:
+  - Limpieza del fallback local de JVM en el script de arranque `gradlew`, garantizando la ejecución estándar en cualquier entorno y sistema operativo.
+  - Portabilidad de las configuraciones de lanzamiento en `.vscode/launch.json` mediante la variable `${workspaceFolder}`.
+  - Conversión de enlaces en la documentación interna (`docs/dev/`) a rutas relativas dentro del repositorio.
+- **Consistencia de Letargo Cósmico y Seguridad contra Nulos (`DivineChatRouter`, `SinFavorManager`, `GeminiAiService`)**:
+  - Corrección de inconsistencia donde un dios abatido en su encarnación física continuaba conversando en el chat, otorgando favor y lanzando maldiciones/bendiciones pese a que su Altar Mayor yacía inerte.
+  - Emisión de mensaje de silencio cósmico (`chat.sevendeadlygods.god_in_slumber`) y efecto de sonido `SOUL_ESCAPE` al llamar directamente a deidades dormidas.
+  - Bloqueo de reacciones físicas divinas (rayos, maldiciones, bendiciones) y de re-invocación presencial benévola (`tryTriggerBenevolentAvatar`) durante el letargo.
+  - Congelación de fluctuaciones de favor activas por chat y pasivas por comportamiento durante el letargo cósmico.
+  - Notificación de deidades en letargo al modelo de lenguaje Gemini y silenciamiento automático en fallbacks locales.
+  - Resolución de advertencia de análisis estático en `DivineChatRouter` garantizando no-nulidad de `PlayerSinData` en la invocación de Avatares.
 - **Actualización de Metadatos NeoForge (`neoforge.mods.toml`)**:
   - Sustitución de la clave obsoleta `logoFile` por `iconFile` para la imagen cuadrada del mod ([`logo.png`](src/main/resources/logo.png)), eliminando la advertencia de deprecación en la consola del cliente.
 

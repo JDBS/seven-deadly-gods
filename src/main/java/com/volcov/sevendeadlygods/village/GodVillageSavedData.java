@@ -39,7 +39,8 @@ public class GodVillageSavedData extends SavedData {
             long stateSinceTick,
             boolean cultureInitialized,
             @Nullable SinGod attackerGod,
-            long activeRaidTicks
+            long activeRaidTicks,
+            long lastRecruitmentTick
     ) {
         public static final Codec<GodVillageRecord> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 UUIDUtil.CODEC.fieldOf("id").forGetter(r -> r.id()),
@@ -51,8 +52,9 @@ public class GodVillageSavedData extends SavedData {
                 Codec.LONG.optionalFieldOf("state_since", 0L).forGetter(r -> r.stateSinceTick()),
                 Codec.BOOL.optionalFieldOf("culture_initialized", false).forGetter(r -> r.cultureInitialized()),
                 Codec.STRING.optionalFieldOf("attacker_god", "").forGetter(r -> r.attackerGod() != null ? r.attackerGod().getId() : ""),
-                Codec.LONG.optionalFieldOf("active_raid_ticks", 0L).forGetter(r -> r.activeRaidTicks())
-        ).apply(instance, (id, altarPos, godId, radius, lastRaid, stateName, stateSince, cultureInit, attackerId, activeRaidTicks) -> {
+                Codec.LONG.optionalFieldOf("active_raid_ticks", 0L).forGetter(r -> r.activeRaidTicks()),
+                Codec.LONG.optionalFieldOf("last_recruitment", 0L).forGetter(r -> r.lastRecruitmentTick())
+        ).apply(instance, (id, altarPos, godId, radius, lastRaid, stateName, stateSince, cultureInit, attackerId, activeRaidTicks, lastRecruitment) -> {
             SinGod god = SinGod.byId(godId).orElse(SinGod.WRATH);
             SinGod attacker = !attackerId.isBlank() ? SinGod.byId(attackerId).orElse(null) : null;
             GodVillageState parsedState;
@@ -61,8 +63,23 @@ public class GodVillageSavedData extends SavedData {
             } catch (IllegalArgumentException ex) {
                 parsedState = god == SinGod.ENVY ? GodVillageState.ARRASADA : GodVillageState.CONSAGRADA;
             }
-            return new GodVillageRecord(id, altarPos, god, radius, lastRaid, parsedState, stateSince, cultureInit, attacker, activeRaidTicks);
+            return new GodVillageRecord(id, altarPos, god, radius, lastRaid, parsedState, stateSince, cultureInit, attacker, activeRaidTicks, lastRecruitment);
         }));
+
+        public GodVillageRecord(
+                UUID id,
+                BlockPos altarPos,
+                SinGod patronGod,
+                int radius,
+                long lastRaidTick,
+                GodVillageState state,
+                long stateSinceTick,
+                boolean cultureInitialized,
+                @Nullable SinGod attackerGod,
+                long activeRaidTicks
+        ) {
+            this(id, altarPos, patronGod, radius, lastRaidTick, state, stateSinceTick, cultureInitialized, attackerGod, activeRaidTicks, 0L);
+        }
 
         public GodVillageRecord(
                 UUID id,
@@ -74,7 +91,7 @@ public class GodVillageSavedData extends SavedData {
                 long stateSinceTick,
                 boolean cultureInitialized
         ) {
-            this(id, altarPos, patronGod, radius, lastRaidTick, state, stateSinceTick, cultureInitialized, null, 0L);
+            this(id, altarPos, patronGod, radius, lastRaidTick, state, stateSinceTick, cultureInitialized, null, 0L, 0L);
         }
 
         public GodVillageRecord(
@@ -86,35 +103,39 @@ public class GodVillageSavedData extends SavedData {
                 GodVillageState state,
                 long stateSinceTick
         ) {
-            this(id, altarPos, patronGod, radius, lastRaidTick, state, stateSinceTick, false, null, 0L);
+            this(id, altarPos, patronGod, radius, lastRaidTick, state, stateSinceTick, false, null, 0L, 0L);
         }
 
         public GodVillageRecord withState(GodVillageState newState, long tick) {
             SinGod newAttacker = (newState == GodVillageState.EN_ASEDIO) ? this.attackerGod : null;
             long raidTicks = (newState == GodVillageState.EN_ASEDIO) ? this.activeRaidTicks : 0L;
-            return new GodVillageRecord(id, altarPos, patronGod, radius, lastRaidTick, newState, tick, cultureInitialized, newAttacker, raidTicks);
+            return new GodVillageRecord(id, altarPos, patronGod, radius, lastRaidTick, newState, tick, cultureInitialized, newAttacker, raidTicks, this.lastRecruitmentTick);
         }
 
         public GodVillageRecord withLastRaidTick(long raidTick, GodVillageState newState, long stateTick) {
             SinGod newAttacker = (newState == GodVillageState.EN_ASEDIO) ? this.attackerGod : null;
             long raidTicks = (newState == GodVillageState.EN_ASEDIO) ? this.activeRaidTicks : 0L;
-            return new GodVillageRecord(id, altarPos, patronGod, radius, raidTick, newState, stateTick, cultureInitialized, newAttacker, raidTicks);
+            return new GodVillageRecord(id, altarPos, patronGod, radius, raidTick, newState, stateTick, cultureInitialized, newAttacker, raidTicks, this.lastRecruitmentTick);
         }
 
         public GodVillageRecord withRaid(SinGod attacker, long stateTick) {
-            return new GodVillageRecord(id, altarPos, patronGod, radius, stateTick, GodVillageState.EN_ASEDIO, stateTick, cultureInitialized, attacker, 0L);
+            return new GodVillageRecord(id, altarPos, patronGod, radius, stateTick, GodVillageState.EN_ASEDIO, stateTick, cultureInitialized, attacker, 0L, this.lastRecruitmentTick);
         }
 
         public GodVillageRecord withActiveRaidTicks(long activeTicks) {
-            return new GodVillageRecord(id, altarPos, patronGod, radius, lastRaidTick, state, stateSinceTick, cultureInitialized, attackerGod, activeTicks);
+            return new GodVillageRecord(id, altarPos, patronGod, radius, lastRaidTick, state, stateSinceTick, cultureInitialized, attackerGod, activeTicks, this.lastRecruitmentTick);
         }
 
         public GodVillageRecord withPatronGod(SinGod newGod, GodVillageState newState, long tick) {
-            return new GodVillageRecord(id, altarPos, newGod, radius, lastRaidTick, newState, tick, false, null, 0L);
+            return new GodVillageRecord(id, altarPos, newGod, radius, lastRaidTick, newState, tick, false, null, 0L, this.lastRecruitmentTick);
         }
 
         public GodVillageRecord withCultureInitialized(boolean initialized) {
-            return new GodVillageRecord(id, altarPos, patronGod, radius, lastRaidTick, state, stateSinceTick, initialized, attackerGod, activeRaidTicks);
+            return new GodVillageRecord(id, altarPos, patronGod, radius, lastRaidTick, state, stateSinceTick, initialized, attackerGod, activeRaidTicks, this.lastRecruitmentTick);
+        }
+
+        public GodVillageRecord withLastRecruitmentTick(long tick) {
+            return new GodVillageRecord(id, altarPos, patronGod, radius, lastRaidTick, state, stateSinceTick, cultureInitialized, attackerGod, activeRaidTicks, tick);
         }
     }
 
@@ -189,7 +210,10 @@ public class GodVillageSavedData extends SavedData {
                         existing.lastRaidTick(),
                         state,
                         currentTick,
-                        false
+                        false,
+                        null,
+                        0L,
+                        existing.lastRecruitmentTick()
                 );
                 villages.put(existing.id(), updated);
                 setDirty();

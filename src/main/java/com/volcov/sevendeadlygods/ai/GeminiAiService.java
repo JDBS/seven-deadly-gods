@@ -19,9 +19,11 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -65,7 +67,8 @@ public final class GeminiAiService {
             boolean isCrouching,
             float healthPercent,
             int foodLevel,
-            Map<SinGod, Integer> favors
+            Map<SinGod, Integer> favors,
+            Set<SinGod> slumberingGods
     ) {
         public static PlayerContextSnapshot capture(
                 ServerPlayer player,
@@ -81,6 +84,13 @@ public final class GeminiAiService {
                 }
             } catch (Throwable ignored) {
             }
+            long now = player.level().getGameTime();
+            Set<SinGod> slumbering = EnumSet.noneOf(SinGod.class);
+            for (SinGod god : SinGod.values()) {
+                if (data.isGodInSlumber(god, now)) {
+                    slumbering.add(god);
+                }
+            }
             return new PlayerContextSnapshot(
                     player.getScoreboardName(),
                     message,
@@ -91,7 +101,8 @@ public final class GeminiAiService {
                     player.isCrouching(),
                     (player.getHealth() / Math.max(1.0F, player.getMaxHealth())) * 100.0F,
                     player.getFoodData().getFoodLevel(),
-                    data.getAllFavors()
+                    data.getAllFavors(),
+                    slumbering
             );
         }
     }
@@ -168,6 +179,7 @@ public final class GeminiAiService {
                    - 'SUMMON_AVATAR': Si el jugador tiene Favor +100 (Campeon Supremo) y te llama explicitamente para que desciendas, aparezcas o te manifiestes ante el en el mundo ('¡Ven a mi!', '¡Manifiestate!', '¡Te invoco!').
                    - 'NONE': Para dialogos normales, preguntas o respuestas sin ofensas ni devocion extrema.
                 6. Responde siempre en el mismo idioma en el que te habla el jugador (espanol o ingles) o en su idioma de cliente (%s) si su mensaje es muy breve o ambiguo. Responde siempre en primera persona como ese dios, con una frase impactante y concisa (maximo 220 caracteres).
+                7. DIOSES EN LETARGO CÓSMICO: Si un dios está marcado con '[EN LETARGO CÓSMICO]' tras la derrota de su Avatar terrenal, su conciencia reposa en el vacío y NO puede ser 'responding_god' ni ejecutar acciones. Si no hay otro dios despierto interesado, devuelve 'should_respond: false'.
                 """.formatted(snapshot.clientLanguage()));
 
         StringBuilder userPrompt = new StringBuilder();
@@ -185,8 +197,13 @@ public final class GeminiAiService {
         userPrompt.append("Marcadores individuales de Favor (-100 a +100) con ").append(snapshot.playerName()).append(":\n");
         for (SinGod god : SinGod.values()) {
             int fav = snapshot.favors().getOrDefault(god, 0);
+            boolean inSlumber = snapshot.slumberingGods().contains(god);
             userPrompt.append("  * ").append(god.getId()).append(" (").append(god.getDisplayName()).append("): ")
-                    .append(fav).append(" [").append(SinFavorManager.describeStanding(fav)).append("]\n");
+                    .append(fav).append(" [").append(SinFavorManager.describeStanding(fav)).append("]");
+            if (inSlumber) {
+                userPrompt.append(" [EN LETARGO CÓSMICO - NO PUEDE HABLAR NI ACTUAR]");
+            }
+            userPrompt.append("\n");
         }
 
         JsonObject root = new JsonObject();
@@ -291,6 +308,10 @@ public final class GeminiAiService {
                 ? snapshot.manifestedGodNearby()
                 : SinGod.byId(godId).orElse(SinGod.PRIDE);
 
+        if (snapshot.slumberingGods().contains(god)) {
+            return DivineAiDecision.silent();
+        }
+
         String spokenMessage = decisionJson.has("spoken_message") ? decisionJson.get("spoken_message").getAsString().trim() : "";
         if (spokenMessage.isEmpty()) {
             return DivineAiDecision.silent();
@@ -317,14 +338,20 @@ public final class GeminiAiService {
         String lower = snapshot.chatMessage().toLowerCase(Locale.ROOT);
 
         SinGod selectedGod = snapshot.manifestedGodNearby();
-        if (selectedGod == null && snapshot.nearbyAltarGod() != null) {
+        if (selectedGod != null && snapshot.slumberingGods().contains(selectedGod)) {
+            selectedGod = null;
+        }
+        if (selectedGod == null && snapshot.nearbyAltarGod() != null && !snapshot.slumberingGods().contains(snapshot.nearbyAltarGod())) {
             selectedGod = snapshot.nearbyAltarGod();
         }
         if (selectedGod == null) {
-            selectedGod = detectRelevantGodHeuristic(snapshot.chatMessage()).orElse(null);
+            SinGod heuristicGod = detectRelevantGodHeuristic(snapshot.chatMessage()).orElse(null);
+            if (heuristicGod != null && !snapshot.slumberingGods().contains(heuristicGod)) {
+                selectedGod = heuristicGod;
+            }
         }
 
-        if (selectedGod == null) {
+        if (selectedGod == null || snapshot.slumberingGods().contains(selectedGod)) {
             return DivineAiDecision.silent();
         }
 
