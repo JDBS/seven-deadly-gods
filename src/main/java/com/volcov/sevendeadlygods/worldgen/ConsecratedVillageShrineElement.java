@@ -1,6 +1,7 @@
 package com.volcov.sevendeadlygods.worldgen;
 
 import com.mojang.datafixers.util.Either;
+import com.volcov.sevendeadlygods.SevenDeadlyGodsMod;
 import com.volcov.sevendeadlygods.config.ModConfig;
 import com.volcov.sevendeadlygods.god.SinGod;
 import net.minecraft.core.BlockPos;
@@ -93,6 +94,14 @@ public class ConsecratedVillageShrineElement extends SinglePoolElement {
             SinGod chosenGod = SinGod.values()[random.nextInt(SinGod.values().length)];
             VillageDecision decision = new VillageDecision(chosenGod, consecrated, new AtomicBoolean(false));
 
+            if (consecrated) {
+                SevenDeadlyGodsMod.LOGGER.info("Aldea en [{}] consagrada a {} (Tirada exitosa: {:.0f}%). Buscando conector Jigsaw para santuario...",
+                        pos.toShortString(), chosenGod.getDisplayName(), chance * 100.0);
+            } else {
+                SevenDeadlyGodsMod.LOGGER.debug("Aldea en [{}] permanecera vanilla ordinaria (Tirada de consagración no superada).",
+                        pos.toShortString());
+            }
+
             VILLAGE_DECISIONS.put(pos.asLong(), decision);
             return decision;
         }
@@ -104,8 +113,9 @@ public class ConsecratedVillageShrineElement extends SinglePoolElement {
         // candidata ha superado las comprobaciones de colisión de Shapes.joinIsNotEmpty y es
         // formalmente aceptada dentro de la lista de piezas de la estructura (pieces.add).
         VillageDecision decision = ACTIVE_VILLAGE.get();
-        if (decision != null) {
-            decision.placed().set(true);
+        if (decision != null && decision.placed().compareAndSet(false, true)) {
+            SevenDeadlyGodsMod.LOGGER.info("Santuario de {} colocado exitosamente en la aldea (patrón: {}).",
+                    this.god.getDisplayName(), decision.chosenGod().getDisplayName());
         }
         return super.getGroundLevelDelta();
     }
@@ -120,8 +130,9 @@ public class ConsecratedVillageShrineElement extends SinglePoolElement {
         // Si no es ZERO, la pieza ya fue aceptada y se está procesando como origen en la cola de jigsaw
         if (!pos.equals(BlockPos.ZERO)) {
             VillageDecision active = ACTIVE_VILLAGE.get();
-            if (active != null) {
-                active.placed().set(true);
+            if (active != null && active.placed().compareAndSet(false, true)) {
+                SevenDeadlyGodsMod.LOGGER.info("Santuario de {} colocado exitosamente en la aldea en [{}] (patrón: {}).",
+                        this.god.getDisplayName(), pos.toShortString(), active.chosenGod().getDisplayName());
             }
             return super.getShuffledJigsawBlocks(templateManager, pos, rotation, random);
         }

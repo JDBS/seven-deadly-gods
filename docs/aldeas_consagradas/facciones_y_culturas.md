@@ -7,7 +7,7 @@ Aproximadamente el **80% de las aldeas generadas en el mundo** pertenecen a una 
 ## 🏗️ Generación de Estructuras Jigsaw
 
 Mediante `VillageStructureInjector`, el mod inyecta dinámicamente los Santuarios Mayores en los `StructureTemplatePool` de los 5 biomas de aldeas vanilla (`plains`, `desert`, `savanna`, `taiga`, `snowy`):
-* Se generan como piezas centrales de aldea con una probabilidad de consagración del ~80% (configurable mediante `villageConsecrationChance` en la sección `[world]`).
+* Se generan en las aldeas con una probabilidad de consagración del ~80% (configurable mediante `villageConsecrationChance` y calibrable mediante `villageShrineJigsawWeight` en la sección `[world]`).
 * Cada santuario incorpora el **Altar de Ritual** del dios correspondiente, estandartes heráldicos, iluminación temática y una guarnición de **Acólitos Centinelas permanentes**.
 * El Altar Mayor es registrado en el sistema dimensional de persistencia (`GodVillageSavedData`) con un radio territorial de 48 bloques y protección contra altares duplicados en 128 bloques.
 * **Bono de Devoción**: Cualquier ritual completado en el Altar Mayor de una aldea otorga un **+20% de esfuerzo devocional**.

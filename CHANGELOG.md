@@ -49,6 +49,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   - Calibración de atributos defensivos en `GodAvatarEntity.initializeAvatar` para igualar la dureza (+24) y resistencia al empuje (1.0) entre deidades de temática áurea (Mammon, Lucian, Asmodeus) y deidades con armadura de netherite (Belphegor, Khorvath, etc.), asegurando paridad defensiva matemática sin alterar la salud máxima (400 HP).
 
 ### Fixed
+- **Corrección de Generación Real de Santuarios en Aldeas (`VillageStructureInjector`, `ConsecratedVillageShrineElement`, `ModConfig`)**:
+  - Resolución del «doble embudo» de probabilidad en el motor Jigsaw donde los santuarios inyectados con `weight = 2` competían en desventaja frente a los ~87 puntos de peso de casas vanilla en `village/*/houses`, causando que el ~74% de las aldeas consagradas en tirada matemática no colocasen su templo físico.
+  - Incremento del peso de selección Jigsaw a `weight = 20` (configurable mediante `villageShrineJigsawWeight` en `ModConfig`), garantizando que la colocación física del santuario supere el 96% en aldeas consagradas y respetando el cerrojo atómico estricto de 1 santuario por aldea.
+  - Telemetría en consola mediante logs `INFO`/`DEBUG` en `ConsecratedVillageShrineElement` para registrar la decisión de consagración de cada aldea y la confirmación de colocación de su santuario.
 - **Corrección de Crash al Abrir el Inventario Creativo (`DivineTradingRegistry`)**:
   - Eliminación de la asignación de tamaño de stack múltiple (`count = 8`) en la botella de experiencia de Leviatán en `getAllDivineTradeArtifacts()`, cumpliendo con la regla estricta de NeoForge para pestañas del modo creativo (`CreativeModeTab.Output.accept`) que exige un tamaño de stack unitario (`count == 1`) y resolviendo la excepción `IllegalArgumentException: The stack count must be 1`.
 - **Eliminación de Rutas Absolutas de Máquina Local (`c/Users/VolcoV`)**:

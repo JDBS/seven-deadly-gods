@@ -13,6 +13,7 @@ public final class ModConfig {
     public static final ModConfigSpec.DoubleValue LORE_BOOK_CHEST_CHANCE;
     public static final ModConfigSpec.IntValue LORE_BOOK_FIRST_READ_XP;
     public static final ModConfigSpec.DoubleValue VILLAGE_CONSECRATION_CHANCE;
+    public static final ModConfigSpec.IntValue VILLAGE_SHRINE_JIGSAW_WEIGHT;
     public static final ModConfigSpec.IntValue VILLAGE_RAID_COOLDOWN_TICKS;
     public static final ModConfigSpec.DoubleValue VILLAGE_RAID_AVATAR_CHANCE;
     public static final ModConfigSpec.BooleanValue SENTINEL_RECRUITMENT_ENABLED;
@@ -63,6 +64,10 @@ public final class ModConfig {
         VILLAGE_CONSECRATION_CHANCE = builder
                 .comment("Probabilidad (0.0 a 1.0) de que una aldea natural sea consagrada a uno de los 7 Pecados Capitales (por defecto 0.80 = 80%).")
                 .defineInRange("villageConsecrationChance", 0.80D, 0.0D, 1.0D);
+
+        VILLAGE_SHRINE_JIGSAW_WEIGHT = builder
+                .comment("Peso de seleccion Jigsaw para el Santuario Divino en las piscinas de casas de aldeas (por defecto 20). Un peso mayor asegura que el santuario compita eficazmente contra las casas vanilla antes de agotarse los conectores.")
+                .defineInRange("villageShrineJigsawWeight", 20, 1, 100);
 
         VILLAGE_RAID_COOLDOWN_TICKS = builder
                 .comment("Enfriamiento minimo en ticks entre asaltos autonomos a una misma aldea consagrada (por defecto 72000 = 3 dias de Minecraft).")

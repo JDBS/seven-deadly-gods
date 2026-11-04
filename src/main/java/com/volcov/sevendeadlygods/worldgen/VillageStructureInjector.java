@@ -2,6 +2,7 @@ package com.volcov.sevendeadlygods.worldgen;
 
 import com.mojang.datafixers.util.Pair;
 import com.volcov.sevendeadlygods.SevenDeadlyGodsMod;
+import com.volcov.sevendeadlygods.config.ModConfig;
 import com.volcov.sevendeadlygods.god.SinGod;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.Holder;
@@ -163,6 +164,14 @@ public final class VillageStructureInjector {
 
             List<Pair<StructurePoolElement, Integer>> mutableRaw = new ArrayList<>(currentRaw);
 
+            int weight = 20;
+            try {
+                if (ModConfig.SPEC.isLoaded() && ModConfig.VILLAGE_SHRINE_JIGSAW_WEIGHT != null) {
+                    weight = ModConfig.VILLAGE_SHRINE_JIGSAW_WEIGHT.get();
+                }
+            } catch (Exception ignored) {
+            }
+
             // Inyectar elementos con tirada única por aldea y límite de 1 santuario
             for (SinGod god : SinGod.values()) {
                 Identifier templateId = Identifier.fromNamespaceAndPath(SevenDeadlyGodsMod.MOD_ID, "village/" + god.getId() + "_shrine");
@@ -173,7 +182,6 @@ public final class VillageStructureInjector {
                         StructureTemplatePool.Projection.TERRAIN_MATCHING
                 );
 
-                int weight = 2;
                 mutableRaw.add(Pair.of(piece, weight));
                 for (int i = 0; i < weight; i++) {
                     currentTemplates.add(piece);
