@@ -605,7 +605,6 @@ public final class DivineTradingRegistry {
 
         // Leviatan (Envidia)
         ItemStack expBag = createNamedArtifact(Items.EXPERIENCE_BOTTLE, SinGod.ENVY, "trading.sevendeadlygods.leviathan_black_market.name", "trading.sevendeadlygods.leviathan_black_market.lore");
-        expBag.setCount(8);
         artifacts.add(expBag);
 
         artifacts.add(createNamedArtifact(Items.HEART_OF_THE_SEA, SinGod.ENVY, "trading.sevendeadlygods.leviathan_talisman.name", "trading.sevendeadlygods.leviathan_talisman.lore"));

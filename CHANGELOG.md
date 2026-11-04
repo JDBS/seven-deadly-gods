@@ -49,6 +49,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   - Calibración de atributos defensivos en `GodAvatarEntity.initializeAvatar` para igualar la dureza (+24) y resistencia al empuje (1.0) entre deidades de temática áurea (Mammon, Lucian, Asmodeus) y deidades con armadura de netherite (Belphegor, Khorvath, etc.), asegurando paridad defensiva matemática sin alterar la salud máxima (400 HP).
 
 ### Fixed
+- **Corrección de Crash al Abrir el Inventario Creativo (`DivineTradingRegistry`)**:
+  - Eliminación de la asignación de tamaño de stack múltiple (`count = 8`) en la botella de experiencia de Leviatán en `getAllDivineTradeArtifacts()`, cumpliendo con la regla estricta de NeoForge para pestañas del modo creativo (`CreativeModeTab.Output.accept`) que exige un tamaño de stack unitario (`count == 1`) y resolviendo la excepción `IllegalArgumentException: The stack count must be 1`.
 - **Eliminación de Rutas Absolutas de Máquina Local (`c/Users/VolcoV`)**:
   - Limpieza del fallback local de JVM en el script de arranque `gradlew`, garantizando la ejecución estándar en cualquier entorno y sistema operativo.
   - Portabilidad de las configuraciones de lanzamiento en `.vscode/launch.json` mediante la variable `${workspaceFolder}`.
