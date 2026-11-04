@@ -35,7 +35,9 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.Merchant;
@@ -183,8 +185,26 @@ public class GodAcolyteEntity extends PathfinderMob implements Merchant {
                 false,
                 (candidate, serverLevel) -> candidate instanceof GodAvatarEntity avatar && avatar.getGod() != this.getGod()
         ));
-        // Prioridad 4: Si es un Acólito aliado (>= +85) o Centinela de Aldea, defiende contra monstruos comunes
+        // Prioridad 4: Culto de la Envidia (Leviatán) - Destruir defensores de hierro de las aldeas
         this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(
+                this,
+                IronGolem.class,
+                10,
+                true,
+                false,
+                (candidate, serverLevel) -> this.getGod() == SinGod.ENVY && !this.isAlliedProtector()
+        ));
+        // Prioridad 4: Culto de la Envidia (Leviatán) - Despojo y aniquilación de aldeanos civiles
+        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(
+                this,
+                Villager.class,
+                10,
+                true,
+                false,
+                (candidate, serverLevel) -> this.getGod() == SinGod.ENVY
+        ));
+        // Prioridad 5: Si es un Acólito aliado (>= +85) o Centinela de Aldea, defiende contra monstruos comunes
+        this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(
                 this,
                 Monster.class,
                 10,
@@ -192,6 +212,16 @@ public class GodAcolyteEntity extends PathfinderMob implements Merchant {
                 false,
                 (candidate, serverLevel) -> this.isAlliedProtector() || this.villageSentinel
         ));
+    }
+
+    @Override
+    public boolean doHurtTarget(ServerLevel level, net.minecraft.world.entity.Entity target) {
+        boolean result = super.doHurtTarget(level, target);
+        if (result && this.getGod() == SinGod.ENVY && target instanceof Villager) {
+            level.sendParticles(ParticleTypes.SPLASH, target.getX(), target.getY() + 1.0D, target.getZ(), 10, 0.2D, 0.3D, 0.2D, 0.05D);
+            level.sendParticles(ParticleTypes.ASH, target.getX(), target.getY() + 1.0D, target.getZ(), 6, 0.2D, 0.2D, 0.2D, 0.02D);
+        }
+        return result;
     }
 
     public void configureAcolyte(ServerLevel level, SinGod god, @Nullable UUID playerUuid, boolean alliedProtector) {
@@ -227,6 +257,11 @@ public class GodAcolyteEntity extends PathfinderMob implements Merchant {
 
     public boolean isVillageSentinel() {
         return this.villageSentinel;
+    }
+
+    @Nullable
+    public UUID getAssignedPlayerUuid() {
+        return this.assignedPlayerUuid;
     }
 
     @Nullable

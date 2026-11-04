@@ -154,7 +154,16 @@ public final class PlayerSinBehaviorEvents {
         }
 
         Entity killerEntity = event.getSource().getEntity();
-        if (!(killerEntity instanceof ServerPlayer player) || !(player.level() instanceof ServerLevel serverLevel)) {
+        ServerPlayer player = null;
+        if (killerEntity instanceof ServerPlayer sp) {
+            player = sp;
+        } else if (killerEntity instanceof GodAcolyteEntity acolyte && acolyte.isAlliedProtector() && acolyte.getAssignedPlayerUuid() != null) {
+            if (victim.level() instanceof ServerLevel sl && sl.getServer() != null) {
+                player = sl.getServer().getPlayerList().getPlayer(acolyte.getAssignedPlayerUuid());
+            }
+        }
+
+        if (player == null || !(player.level() instanceof ServerLevel serverLevel)) {
             return;
         }
 

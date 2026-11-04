@@ -415,6 +415,10 @@ public class SinAltarBlockEntity extends BlockEntity {
         if (!this.awaitingCondition) {
             return;
         }
+        PlayerSinData data = SinFavorManager.get(player);
+        if (data != null && data.isGodInSlumber(SinGod.PRIDE, level.getGameTime())) {
+            return;
+        }
         boolean isVillageCathedral = isCanonicalVillageAltar(level);
         if ((!isVillageCathedral && worldPosition.getY() <= 120) || !player.isCrouching()) {
             player.sendSystemMessage(SinGod.PRIDE.getFormattedPrefix()

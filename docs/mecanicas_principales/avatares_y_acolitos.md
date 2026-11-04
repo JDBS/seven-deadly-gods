@@ -18,7 +18,8 @@ Los Acólitos son humanoides alados encapuchados que visten las túnicas sagrada
 * **Prioridad 1 (Respuesta de Enjambre Cohesionada)**: Al recibir daño, contraatacan inmediatamente y alertan a todos los acólitos cercanos pertenecientes a la misma fe (`alertOther`). Mediante el control de `canAttack`, están completamente blindados contra fuego amigo interno con su propia deidad o entre acólitos hermanos.
 * **Prioridad 2 (Infantería vs Infantería y Herejes)**: Se enfrentan de forma prioritaria contra acólitos enemigos (`GodAcolyteEntity` con `other.getGod() != this.getGod()`) y castigan a jugadores con herejía territorial declarada (`favor <= -40`).
 * **Prioridad 3 (Choque de Fe contra Titanes Divinos)**: Si no hay infantería rival presente o si defienden su templo, cargan coordinadamente contra los Avatares de dioses rivales (`GodAvatarEntity`), asediando al titán enemigo y desgastando su avance.
-* **Prioridad 4 (Purga de Monstruos Comunes)**: Como centinelas permanentes o escoltas leales, defienden el perímetro sagrado eliminando monstruos hostiles vainilla (`Monster`).
+* **Prioridad 4 (Culto de la Envidia - Despojo y Aniquilación)**: Exclusivo de los acólitos de Leviatán (`SinGod.ENVY`): persiguen y atraviesan con sus tridentes a los aldeanos civiles (`Villager`), y en incursiones no aliadas destruyen proactivamente a los gólems defensores (`IronGolem`).
+* **Prioridad 5 (Purga de Monstruos Comunes)**: Como centinelas permanentes o escoltas leales, defienden el perímetro sagrado eliminando monstruos hostiles vainilla (`Monster`).
 
 ---
 
@@ -54,6 +55,7 @@ Abatir al Avatar físico de un dios es una de las mayores proezas del mod:
    * **Khorvath (Ira)**: `+15.0` de esfuerzo devocional ("Derramamiento de sangre divina").
    * **Leviatán (Envidia)**: `+15.0` de esfuerzo devocional ("Humillación y despojo del Avatar rival").
    * *(El propio dios abatido no concede favor positivo).*
-2. **Letargo del Altar Mayor**:
-   * Tras la muerte del Avatar, la presencia del dios entra en un **profundo letargo cósmico**.
-   * Su Altar Mayor queda frío e inerte con partículas de alma y humo negro: ninguna ofrenda será escuchada hasta que su espíritu despierte del vacío.
+2. **Letargo del Altar Mayor y Silencio Cósmico**:
+   * Tras la muerte del Avatar, la presencia del dios entra en un **profundo letargo cósmico** (3 a 7 días).
+   * Su Altar Mayor queda frío e inerte con partículas de alma y humo negro: ninguna ofrenda ni ritual será escuchado.
+   * La deidad no interviene ni responde al chat general; si se le invoca o nombra directamente, solo responderá un frío eco de silencio cósmico del vacío y se congelarán todas las fluctuaciones de favor.

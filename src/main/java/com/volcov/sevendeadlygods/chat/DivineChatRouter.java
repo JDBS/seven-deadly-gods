@@ -44,9 +44,38 @@ public final class DivineChatRouter {
             return;
         }
 
+        PlayerSinData data = SinFavorManager.get(player);
+        if (data == null) {
+            return;
+        }
+        long now = serverLevel.getGameTime();
+
+        // 0. Comprobar si el jugador intenta hablar directamente con un dios que se encuentra en letargo cósmico
+        for (SinGod god : SinGod.values()) {
+            if (god.isDirectlyNamed(rawMessage) && data.isGodInSlumber(god, now)) {
+                player.sendSystemMessage(
+                        god.getFormattedPrefix().append(
+                                Component.translatable("chat.sevendeadlygods.god_in_slumber", god.getDisplayNameComponent())
+                                        .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC)
+                        )
+                );
+                serverLevel.playSound(
+                        null,
+                        player.getX(),
+                        player.getY(),
+                        player.getZ(),
+                        SoundEvents.SOUL_ESCAPE,
+                        SoundSource.PLAYERS,
+                        0.7F,
+                        0.6F
+                );
+                return;
+            }
+        }
+
         // 1. Comprobar si el jugador esta frente a un Altar de Soberbia (Lucian) en Y > 120 realizando su ritual de alabanza
         SinAltarBlockEntity nearbyAltar = PlayerSinBehaviorEvents.findNearbyAltar(serverLevel, player.blockPosition(), null, 6);
-        if (nearbyAltar != null && nearbyAltar.getGod() == SinGod.PRIDE) {
+        if (nearbyAltar != null && nearbyAltar.getGod() == SinGod.PRIDE && !data.isGodInSlumber(SinGod.PRIDE, now)) {
             nearbyAltar.onPridePraiseSpoken(serverLevel, player, rawMessage);
         }
 
@@ -57,10 +86,12 @@ public final class DivineChatRouter {
         );
         SinGod manifestedGod = nearbyAvatars.isEmpty() ? null : nearbyAvatars.getFirst().getGod();
 
-        // 3. Comprobar si algún dios puede tener interés en la conversación del jugador
-        PlayerSinData data = SinFavorManager.get(player);
+        // 3. Comprobar si algún dios despierto puede tener interés en la conversación del jugador
         boolean anyGodCanBeInterested = false;
         for (SinGod god : SinGod.values()) {
+            if (data.isGodInSlumber(god, now)) {
+                continue;
+            }
             boolean isManifested = (manifestedGod == god);
             int fav = data.getFavor(god);
             if (canGodBeInterestedInChat(god, fav, rawMessage, isManifested)) {
@@ -70,12 +101,11 @@ public final class DivineChatRouter {
         }
 
         if (!anyGodCanBeInterested) {
-            // Todos los dioses tienen bajo interés (-19 a +19) y ninguno fue nombrado directamente
+            // Todos los dioses despiertos tienen bajo interés (-19 a +19) o ninguno fue nombrado directamente
             return;
         }
 
         // 4. Si NO hay un Avatar manifestado cerca, aplicar filtro de relevancia y cooldown
-        long now = serverLevel.getGameTime();
         long cooldownTicks = ModConfig.CHAT_EVALUATION_COOLDOWN_SECONDS.get() * 20L;
 
         boolean hasKeywordMatch = GeminiAiService.detectRelevantGodHeuristic(rawMessage).isPresent();
@@ -91,7 +121,7 @@ public final class DivineChatRouter {
         }
 
         data.setLastChatEvalTick(now);
-        SinGod altarGod = nearbyAltar != null ? nearbyAltar.getGod() : null;
+        SinGod altarGod = (nearbyAltar != null && !data.isGodInSlumber(nearbyAltar.getGod(), now)) ? nearbyAltar.getGod() : null;
         GeminiAiService.PlayerContextSnapshot snapshot = GeminiAiService.PlayerContextSnapshot.capture(
                 player,
                 rawMessage,
@@ -109,7 +139,11 @@ public final class DivineChatRouter {
                     return;
                 }
                 SinGod god = decision.god();
-                int currentFavor = SinFavorManager.get(player).getFavor(god);
+                PlayerSinData liveData = SinFavorManager.get(player);
+                if (liveData == null || liveData.isGodInSlumber(god, serverLevel.getGameTime())) {
+                    return;
+                }
+                int currentFavor = liveData.getFavor(god);
                 boolean isManifested = (manifestedGod == god);
 
                 // Comprobación de seguridad: los dioses con bajo interés (-19 a +19) no se interesan a menos que los nombre directamente
@@ -151,7 +185,7 @@ public final class DivineChatRouter {
                 DivinePhysicalAction actionToExecute = decision.physicalAction();
                 if ((actionToExecute == DivinePhysicalAction.NONE || actionToExecute == DivinePhysicalAction.BLESSING)
                         && isInvocationChatIntent(rawMessage)
-                        && SinFavorManager.get(player).getFavor(god) >= 100) {
+                        && currentFavor >= 100) {
                     actionToExecute = DivinePhysicalAction.SUMMON_AVATAR;
                 }
 
@@ -192,6 +226,20 @@ public final class DivineChatRouter {
             DivinePhysicalAction action
     ) {
         if (action == null || action == DivinePhysicalAction.NONE) {
+            return;
+        }
+
+        PlayerSinData data = SinFavorManager.get(player);
+        if (data == null) {
+            return;
+        }
+
+        if (data.isGodInSlumber(god, level.getGameTime())) {
+            if (action == DivinePhysicalAction.SUMMON_AVATAR) {
+                player.sendSystemMessage(god.getFormattedPrefix()
+                        .append(Component.translatable("chat.sevendeadlygods.god_in_slumber_summon", god.getDisplayNameComponent())
+                                .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC)));
+            }
             return;
         }
 
@@ -244,7 +292,7 @@ public final class DivineChatRouter {
                 level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, player.getX(), player.getY() + 1.0D, player.getZ(), 30, 0.4D, 0.6D, 0.4D, 0.1D);
             }
             case SUMMON_AVATAR -> {
-                PlayerSinData data = SinFavorManager.get(player);
+                long now = level.getGameTime();
                 int favor = data.getFavor(god);
                 if (favor < 100) {
                     player.sendSystemMessage(god.getFormattedPrefix()
@@ -253,7 +301,6 @@ public final class DivineChatRouter {
                     return;
                 }
 
-                long now = level.getGameTime();
                 long nextInvocation = data.getNextAvatarInvocationTick(god);
                 if (now < nextInvocation) {
                     player.sendSystemMessage(god.getFormattedPrefix()

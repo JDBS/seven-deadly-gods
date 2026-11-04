@@ -474,5 +474,7 @@
   "message.sevendeadlygods.war_horn.assault_started": "«¡Que arda el santuario de %s! ¡Mis Acólitos marchan a tu lado!»",
   "message.sevendeadlygods.favor.high_treason_rebuke": "«¡TRAIDOR! ¿Te atreves a derramar la sangre de mis fieles? ¡Tu alma pagará esta afrenta!» (-60 Favor)",
   "message.sevendeadlygods.intervention.champion_saved": "«¡Aún no tienes permiso para morir, mi Campeón! Levántate y cumple mi voluntad.»",
-  "message.sevendeadlygods.cult_unlocked": "Las palabras sagradas graban en tu alma los secretos para forjar el Altar de %s."
+  "message.sevendeadlygods.cult_unlocked": "Las palabras sagradas graban en tu alma los secretos para forjar el Altar de %s.",
+  "chat.sevendeadlygods.god_in_slumber": "«... Solo el silencio cósmico responde. Tras la caída de su Avatar terrenal, la presencia de %s reposa en un profundo letargo y su voz no puede manifestarse.»",
+  "chat.sevendeadlygods.god_in_slumber_summon": "«La presencia de %s permanece en un profundo letargo cósmico tras la derrota de su Avatar. Ninguna invocación puede despertar su forma física del vacío.»"
 }

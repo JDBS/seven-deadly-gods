@@ -744,6 +744,17 @@ public final class DivineInterventionScheduler {
         MinecraftServer server = level.getServer();
         long gameTime = level.getGameTime();
 
+        // 0. COMPROBACIÓN DE LETARGO CÓSMICO: Si su Avatar fue derrotado, reposa en letargo
+        PlayerSinData data = SinFavorManager.get(player);
+        if (data != null && data.isGodInSlumber(god, gameTime)) {
+            player.sendSystemMessage(
+                    god.getFormattedPrefix()
+                            .append(Component.translatable("chat.sevendeadlygods.god_in_slumber_summon", god.getDisplayNameComponent())
+                                    .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC))
+            );
+            return false;
+        }
+
         // 1. COMPROBACIÓN ANTI-EXPLOIT: Enfriamiento de ira (5 minutos / 6,000 ticks)
         if (isGodWrathActiveOrOnCooldown(server, god, gameTime)) {
             GodAvatarEntity active = getActiveAvatar(server, god);

@@ -27,6 +27,11 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Mecánica de Perforación Divina en Duelos de Avatares (God vs God)**:
   - Implementación de daño penetrante en enfrentamientos directos entre Avatares Divinos (`GodAvatarEntity`), superando las capas extremas de armadura y protección vainilla para garantizar un combate dinámico, equilibrado (~1.5 a 2 minutos) y con peligro real de deicidio.
   - Efectos audiovisuales de Choque Divino (`playDivineClashEffects`): partículas temáticas del pecado del dios atacante (destellos áureos de Mammon, vórtice cósmico de Belphegor, etc.) y resonancia acústica pesada de impacto al conectar golpes penetrantes.
+- **Comportamiento Hostil y Despojo de Acólitos de la Envidia (`GodAcolyteEntity`, `PlayerSinBehaviorEvents`)**:
+  - Incorporación de `NearestAttackableTargetGoal` en [`GodAcolyteEntity`](src/main/java/com/volcov/sevendeadlygods/entity/GodAcolyteEntity.java) para que los acólitos de Leviatán (`SinGod.ENVY`) persigan y ejecuten a los aldeanos civiles (`Villager.class`) conforme a su lore de saqueo y despojo.
+  - Objetivo proactivo de ataque contra gólems de hierro defensores (`IronGolem.class`) para huestes asaltantes e invasoras de Envidia.
+  - Efectos visuales de impacto con partículas abisales (`SPLASH` y `ASH`) al empalar aldeanos con el tridente.
+  - Atribución de bajas de aldeanos infligidas por acólitos aliados al jugador comandante, otorgando el favor correspondiente con Leviatán (`+0.6`).
 
 ### Changed
 - **Indestructibilidad del Equipamiento Sagrado de Avatares**:
@@ -35,6 +40,13 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   - Calibración de atributos defensivos en `GodAvatarEntity.initializeAvatar` para igualar la dureza (+24) y resistencia al empuje (1.0) entre deidades de temática áurea (Mammon, Lucian, Asmodeus) y deidades con armadura de netherite (Belphegor, Khorvath, etc.), asegurando paridad defensiva matemática sin alterar la salud máxima (400 HP).
 
 ### Fixed
+- **Consistencia de Letargo Cósmico y Seguridad contra Nulos (`DivineChatRouter`, `SinFavorManager`, `GeminiAiService`)**:
+  - Corrección de inconsistencia donde un dios abatido en su encarnación física continuaba conversando en el chat, otorgando favor y lanzando maldiciones/bendiciones pese a que su Altar Mayor yacía inerte.
+  - Emisión de mensaje de silencio cósmico (`chat.sevendeadlygods.god_in_slumber`) y efecto de sonido `SOUL_ESCAPE` al llamar directamente a deidades dormidas.
+  - Bloqueo de reacciones físicas divinas (rayos, maldiciones, bendiciones) y de re-invocación presencial benévola (`tryTriggerBenevolentAvatar`) durante el letargo.
+  - Congelación de fluctuaciones de favor activas por chat y pasivas por comportamiento durante el letargo cósmico.
+  - Notificación de deidades en letargo al modelo de lenguaje Gemini y silenciamiento automático en fallbacks locales.
+  - Resolución de advertencia de análisis estático en `DivineChatRouter` garantizando no-nulidad de `PlayerSinData` en la invocación de Avatares.
 - **Actualización de Metadatos NeoForge (`neoforge.mods.toml`)**:
   - Sustitución de la clave obsoleta `logoFile` por `iconFile` para la imagen cuadrada del mod ([`logo.png`](src/main/resources/logo.png)), eliminando la advertencia de deprecación en la consola del cliente.
 

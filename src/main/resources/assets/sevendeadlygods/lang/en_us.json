@@ -474,5 +474,7 @@
   "message.sevendeadlygods.war_horn.assault_started": "«Let the shrine of %s burn! Mine Acolytes march at thy side!»",
   "message.sevendeadlygods.favor.high_treason_rebuke": "«TRAITOR! Darest thou spill the blood of my faithful? Thy soul shall repay this outrage!» (-60 Favor)",
   "message.sevendeadlygods.intervention.champion_saved": "«Thou hast not yet permission to perish, my Champion! Arise and fulfill my will.»",
-  "message.sevendeadlygods.cult_unlocked": "The sacred words etch upon thy soul the secrets to forge the Altar of %s."
+  "message.sevendeadlygods.cult_unlocked": "The sacred words etch upon thy soul the secrets to forge the Altar of %s.",
+  "chat.sevendeadlygods.god_in_slumber": "«... Only cosmic silence answers. Following the fall of their earthly Avatar, the presence of %s rests in deep slumber and their voice cannot manifest.»",
+  "chat.sevendeadlygods.god_in_slumber_summon": "«The presence of %s rests in deep cosmic slumber following the defeat of their Avatar. No invocation can awaken their physical form from the void.»"
 }
