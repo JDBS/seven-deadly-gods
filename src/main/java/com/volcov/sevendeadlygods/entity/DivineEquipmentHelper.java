@@ -2,8 +2,7 @@ package com.volcov.sevendeadlygods.entity;
 
 import com.volcov.sevendeadlygods.god.SinGod;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -20,8 +19,8 @@ import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Utilidad para equipar a los Enviados, Acolitos y Avatares (incluyendo encantamientos mas alla del limite
@@ -112,6 +111,13 @@ public final class DivineEquipmentHelper {
      * para el Avatar o como regalo a un Campeon Divino (+91 a +100 de favor).
      */
     public static ItemStack createOverleveledRelicWeapon(ServerLevel level, SinGod god) {
+        return createOverleveledRelicWeapon(level.registryAccess(), god);
+    }
+
+    /**
+     * Crea una Reliquia Divina sobre-encantada a partir de un proveedor de registros (útil para la pestaña creativa).
+     */
+    public static ItemStack createOverleveledRelicWeapon(HolderLookup.Provider registries, SinGod god) {
         Item baseItem = switch (god) {
             case GREED -> Items.GOLDEN_SWORD;
             case WRATH -> Items.NETHERITE_AXE;
@@ -136,19 +142,48 @@ public final class DivineEquipmentHelper {
                 ).withStyle(god.getChatColor())
         )));
 
-        applyEnchant(level, relic, Enchantments.SHARPNESS, 8);
-        applyEnchant(level, relic, Enchantments.LOOTING, 6);
-        applyEnchant(level, relic, Enchantments.FIRE_ASPECT, 4);
-        applyEnchant(level, relic, Enchantments.UNBREAKING, 10);
-        applyEnchant(level, relic, Enchantments.MENDING, 1);
+        applyEnchant(registries, relic, Enchantments.SHARPNESS, 8);
+        applyEnchant(registries, relic, Enchantments.LOOTING, 6);
+        applyEnchant(registries, relic, Enchantments.FIRE_ASPECT, 4);
+        applyEnchant(registries, relic, Enchantments.UNBREAKING, 10);
+        applyEnchant(registries, relic, Enchantments.MENDING, 1);
+
+        // Encantamientos temáticos adicionales acordes a la clase de arma legendaria
+        if (god == SinGod.ENVY) {
+            applyEnchant(registries, relic, Enchantments.IMPALING, 8);
+            applyEnchant(registries, relic, Enchantments.LOYALTY, 5);
+            applyEnchant(registries, relic, Enchantments.CHANNELING, 1);
+        } else if (god == SinGod.SLOTH) {
+            applyEnchant(registries, relic, Enchantments.DENSITY, 8);
+            applyEnchant(registries, relic, Enchantments.BREACH, 6);
+            applyEnchant(registries, relic, Enchantments.WIND_BURST, 3);
+        }
 
         return relic;
+    }
+
+    /**
+     * Devuelve todas las Armas Reliquia Sagradas de los 7 Dioses (para la pestaña creativa del mod).
+     */
+    public static List<ItemStack> getAllGodRelicWeapons(HolderLookup.Provider registries) {
+        List<ItemStack> weapons = new ArrayList<>();
+        for (SinGod god : SinGod.values()) {
+            weapons.add(createOverleveledRelicWeapon(registries, god));
+        }
+        return weapons;
     }
 
     /**
      * Crea un Trofeo de Deicidio conmemorativo cuando el Avatar de un Dios es abatido en combate mortal.
      */
     public static ItemStack createDeicideTrophy(ServerLevel level, SinGod god, ServerPlayer killer) {
+        return createDeicideTrophy(level.registryAccess(), god, killer.getScoreboardName());
+    }
+
+    /**
+     * Crea un Trofeo de Deicidio conmemorativo con nombre personalizado de vencedor.
+     */
+    public static ItemStack createDeicideTrophy(HolderLookup.Provider registries, SinGod god, String killerName) {
         ItemStack trophy = new ItemStack(Items.NETHER_STAR);
         trophy.set(DataComponents.CUSTOM_NAME,
                 Component.literal("✦ ")
@@ -157,19 +192,35 @@ public final class DivineEquipmentHelper {
                         .withStyle(god.getChatColor(), ChatFormatting.BOLD));
         trophy.set(DataComponents.LORE, new ItemLore(List.of(
                 Component.translatable("trophy.sevendeadlygods.deicide.lore_1", god.getTitleComponent()).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC),
-                Component.translatable("trophy.sevendeadlygods.deicide.lore_2", killer.getScoreboardName()).withStyle(ChatFormatting.GOLD),
+                Component.translatable("trophy.sevendeadlygods.deicide.lore_2", killerName).withStyle(ChatFormatting.GOLD),
                 Component.translatable("trophy.sevendeadlygods.deicide.lore_3").withStyle(ChatFormatting.DARK_PURPLE),
                 Component.translatable("trophy.sevendeadlygods.deicide.lore_4").withStyle(ChatFormatting.DARK_RED, ChatFormatting.ITALIC)
         )));
-        applyEnchant(level, trophy, Enchantments.UNBREAKING, 1);
+        applyEnchant(registries, trophy, Enchantments.UNBREAKING, 1);
         return trophy;
     }
 
-    private static void applyEnchant(ServerLevel level, ItemStack stack, ResourceKey<Enchantment> key, int enchantLevel) {
-        Optional<Registry<Enchantment>> regOpt = level.registryAccess().lookup(Registries.ENCHANTMENT);
-        if (regOpt.isPresent()) {
-            Optional<Holder.Reference<Enchantment>> holderOpt = regOpt.get().get(key);
-            holderOpt.ifPresent(holder -> stack.enchant(holder, enchantLevel));
+    /**
+     * Devuelve los Trofeos de Deicidio conmemorativos de los 7 Dioses (para la pestaña creativa del mod).
+     */
+    public static List<ItemStack> getAllDeicideTrophies(HolderLookup.Provider registries) {
+        List<ItemStack> trophies = new ArrayList<>();
+        for (SinGod god : SinGod.values()) {
+            trophies.add(createDeicideTrophy(registries, god, "Deicida"));
         }
+        return trophies;
+    }
+
+    private static void applyEnchant(HolderLookup.Provider registries, ItemStack stack, ResourceKey<Enchantment> key, int enchantLevel) {
+        if (registries == null) {
+            return;
+        }
+        registries.lookup(Registries.ENCHANTMENT).ifPresent(reg -> {
+            reg.get(key).ifPresent(holder -> stack.enchant(holder, enchantLevel));
+        });
+    }
+
+    private static void applyEnchant(ServerLevel level, ItemStack stack, ResourceKey<Enchantment> key, int enchantLevel) {
+        applyEnchant(level.registryAccess(), stack, key, enchantLevel);
     }
 }

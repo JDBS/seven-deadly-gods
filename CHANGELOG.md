@@ -8,6 +8,12 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Added
+- **Integración de Armas Reliquia y Artefactos Divinos al Inventario Creativo (`ModItems`, `DivineEquipmentHelper`, `DivineTradingRegistry`)**:
+  - Incorporación de las 7 Armas Reliquia Sagradas de los Dioses con encantamientos sobre-nivel (*Colmillo Áureo de Mammon*, *Ejecutora Sangrienta de Khorvath*, *Fauces Eternas de Beelze*, *Cetro Solar de Lucian*, *Tridente Abisal de Leviatán*, *Maza del Letargo de Belphegor* y *Espina Carmesí de Asmodeus*) a la pestaña creativa del mod (`SEVEN_DEADLY_GODS_TAB`).
+  - Soporte de encantamientos temáticos avanzados en armas singulares (Lealtad V, Empalamiento VIII y Conductividad para el Tridente de Leviatán; Densidad VIII, Brecha VI y Ráfaga de Viento III para la Maza de Belphegor).
+  - Incorporación de los 25 artefactos arcanos, armas de culto y códices sagrados del Comercio Divino (*Espada Pesada de Acólito*, *Hacha de Guerra del Carnicero*, *Cuchillo de Carnicero Divino*, *Daga Abisal*, *Diadema Solar*, *Sandalias de Inercia*, libros sobre-encantados de Filo VI y Fortuna IV, etc.).
+  - Incorporación de los 7 Trofeos de Deicidio conmemorativos.
+  - Disponibilidad y búsqueda directa tanto en la pestaña temática del mod como en el buscador creativo general de Minecraft.
 - **Gestor Demográfico y Consagración Orgánica de Centinelas (`VillageRecruitmentManager`)**:
   - Implementación de `VillageRecruitmentManager` para evaluar la demografía de aldeas consagradas y convertir aldeanos civiles devotos en acólitos centinelas permanentes (`GodAcolyteEntity`), vinculados a su Altar Mayor.
   - Regla de prudencia demográfica con suelo mínimo civil (`minCivilianFloor = 3`) para evitar extinciones poblacionales y garantizar la continuidad del ciclo de natalidad vanilla permitiendo el reclutamiento en aldeas estándar de 4 habitantes.

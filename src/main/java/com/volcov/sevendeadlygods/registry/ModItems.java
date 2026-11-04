@@ -1,10 +1,12 @@
 package com.volcov.sevendeadlygods.registry;
 
 import com.volcov.sevendeadlygods.SevenDeadlyGodsMod;
+import com.volcov.sevendeadlygods.entity.DivineEquipmentHelper;
 import com.volcov.sevendeadlygods.god.SinGod;
 import com.volcov.sevendeadlygods.item.DivineWarHornItem;
 import com.volcov.sevendeadlygods.item.GodAcolyteSpawnEggItem;
 import com.volcov.sevendeadlygods.lore.SinLoreLibrary;
+import com.volcov.sevendeadlygods.village.DivineTradingRegistry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
@@ -71,6 +73,7 @@ public final class ModItems {
                     .title(Component.translatable("itemGroup.sevendeadlygods"))
                     .icon(() -> new ItemStack(GREED_ALTAR_ITEM.get()))
                     .displayItems((parameters, output) -> {
+                        // 1. Bloques de Altar de los 7 Dioses del Pecado
                         output.accept(GREED_ALTAR_ITEM.get());
                         output.accept(WRATH_ALTAR_ITEM.get());
                         output.accept(GLUTTONY_ALTAR_ITEM.get());
@@ -78,12 +81,31 @@ public final class ModItems {
                         output.accept(ENVY_ALTAR_ITEM.get());
                         output.accept(SLOTH_ALTAR_ITEM.get());
                         output.accept(LUST_ALTAR_ITEM.get());
+
+                        // 2. Instrumento de Guerra Santa
                         output.accept(DIVINE_WAR_HORN.get());
-                        // Huevos Generadores de Acólitos
+
+                        // 3. Armas Reliquia Sagradas de los 7 Dioses (Armas sobre-encantadas del Avatar)
+                        for (ItemStack weapon : DivineEquipmentHelper.getAllGodRelicWeapons(parameters.holders())) {
+                            output.accept(weapon);
+                        }
+
+                        // 4. Artefactos Sagrados y Armas de Culto del Comercio Divino
+                        for (ItemStack artifact : DivineTradingRegistry.getAllDivineTradeArtifacts(parameters.holders())) {
+                            output.accept(artifact);
+                        }
+
+                        // 5. Trofeos Sagrados de Deicidio
+                        for (ItemStack trophy : DivineEquipmentHelper.getAllDeicideTrophies(parameters.holders())) {
+                            output.accept(trophy);
+                        }
+
+                        // 6. Huevos Generadores de Acólitos
                         for (DeferredItem<GodAcolyteSpawnEggItem> egg : ACOLYTE_SPAWN_EGGS.values()) {
                             output.accept(egg.get());
                         }
-                        // Incluir todos los 42 libros sagrados de lore en la pestana creativa para facil inspeccion
+
+                        // 7. Biblioteca Sagrada: 42 libros sagrados de revelaciones y lore
                         for (SinGod god : SinGod.values()) {
                             for (SinLoreLibrary.LoreBookEntry entry : SinLoreLibrary.getBooksForGod(god)) {
                                 output.accept(entry.toWrittenBookStack());
